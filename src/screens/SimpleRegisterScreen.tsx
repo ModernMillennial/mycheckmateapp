@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, Alert, FlatList, Clipboard } from 'react-native';
+import { View, Text, Pressable, Alert, FlatList, Clipboard, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -491,7 +491,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
       )}
 
       {/* Main Content */}
-      <View className="flex-1 px-6 py-8">
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 32, paddingBottom: 120 }}>
         {/* Account Summary */}
         {activeAccount ? (
           <View className="bg-blue-50 p-6 rounded-xl mb-6">
@@ -582,10 +582,10 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                   <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
                 </View>
                 <View className="w-24 items-center px-1">
-                  <Text className="text-xs font-bold text-gray-700 uppercase">Debit</Text>
+                  <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
                 </View>
                 <View className="w-24 items-center px-1">
-                  <Text className="text-xs font-bold text-gray-700 uppercase">Credit</Text>
+                  <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
                 </View>
                 <View className="w-24 items-center pl-1">
                   <Text className="text-xs font-bold text-gray-700 uppercase">Balance</Text>
@@ -593,17 +593,14 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
               </View>
             </View>
             
-            <FlatList
-              data={transactions.slice().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
-              renderItem={renderTransaction}
-              keyExtractor={(item) => item.id}
-              scrollEnabled={false}
-              showsVerticalScrollIndicator={false}
-              removeClippedSubviews={false}
-              initialNumToRender={10}
-              maxToRenderPerBatch={5}
-              windowSize={10}
-            />
+            {transactions
+              .slice()
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+              .map((item, index) => (
+                <View key={item.id}>
+                  {renderTransaction({ item, index })}
+                </View>
+              ))}
           </View>
         )}
 
@@ -684,7 +681,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
             )}
           </View>
         </View>
-      </View>
+      </ScrollView>
 
       {/* Footer Status */}
       <View className="px-6 py-4 border-t border-gray-200">
