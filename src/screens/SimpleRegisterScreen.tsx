@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, Alert, FlatList, Clipboard, ScrollView } from 'react-native';
+import { View, Text, Pressable, Alert, FlatList, Clipboard, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -343,7 +343,12 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
       {/* Header */}
       <View className="bg-white px-4 py-4 border-b border-gray-200">
         <View className="flex-row justify-between items-center mb-4">
-          <View className="flex-1">
+          <View className="flex-1 flex-row items-center">
+            <Image 
+              source={{ uri: 'https://images.composerapi.com/8A8AC393-DDA9-4F78-A538-3341A3DC14FC.jpg' }}
+              style={{ width: 40, height: 40, marginRight: 12 }}
+              resizeMode="contain"
+            />
             <Text className="text-2xl font-bold text-gray-900">
               Checkmate
             </Text>
