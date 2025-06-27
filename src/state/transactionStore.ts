@@ -42,6 +42,14 @@ interface TransactionState {
   getActiveAccount: () => Account | null;
   getActiveTransactions: () => Transaction[];
   calculateAllAccountBalances: () => void;
+  processManualToBankConversion: (
+    currentTransactions: Transaction[], 
+    newBankTransactions: Transaction[]
+  ) => {
+    convertedTransactions: Transaction[];
+    remainingBankTransactions: Transaction[];
+  };
+  calculatePayeeSimilarity: (payee1: string, payee2: string) => number;
   clearAndReinitialize: () => void;
 }
 
@@ -246,29 +254,86 @@ export const useTransactionStore = create<TransactionState>()(
             reconciled: true, // Bank transactions are automatically reconciled
           }));
 
-        // Auto-reconcile existing manual transactions that match bank data
-        const updatedTransactions = transactions.map(transaction => {
-          if (transaction.source === 'manual' && !transaction.reconciled) {
-            // Check if this manual transaction matches any bank transaction
-            const matchingBankTransaction = [...existingBankTransactions, ...newBankTransactions].find(bankTx => 
-              Math.abs(new Date(bankTx.date).getTime() - new Date(transaction.date).getTime()) <= 86400000 * 3 && // Within 3 days
-              Math.abs(bankTx.amount - transaction.amount) < 0.01 && // Same amount (within 1 cent)
-              (bankTx.payee.toLowerCase().includes(transaction.payee.toLowerCase().split(' ')[0]) ||
-               transaction.payee.toLowerCase().includes(bankTx.payee.toLowerCase().split(' ')[0]))
-            );
-            
-            if (matchingBankTransaction) {
-              return { ...transaction, reconciled: true };
-            }
-          }
-          return transaction;
-        });
+        // Convert manual transactions to bank transactions when matches are found
+        const { convertedTransactions, remainingBankTransactions } = get().processManualToBankConversion(
+          transactions, 
+          newBankTransactions
+        );
 
         set({
-          transactions: [...updatedTransactions, ...newBankTransactions],
+          transactions: [...convertedTransactions, ...remainingBankTransactions],
         });
         
         get().calculateRunningBalance();
+      },
+
+      processManualToBankConversion: (currentTransactions, newBankTransactions) => {
+        const convertedTransactions = [...currentTransactions];
+        const remainingBankTransactions = [];
+        const usedBankTransactionIds = new Set();
+
+        // Process each new bank transaction
+        newBankTransactions.forEach(bankTransaction => {
+          // Find matching manual transaction
+          const matchingManualIndex = convertedTransactions.findIndex(transaction => 
+            transaction.source === 'manual' &&
+            transaction.accountId === bankTransaction.accountId &&
+            Math.abs(new Date(bankTransaction.date).getTime() - new Date(transaction.date).getTime()) <= 86400000 * 3 && // Within 3 days
+            Math.abs(bankTransaction.amount - transaction.amount) < 0.01 && // Same amount (within 1 cent)
+            (
+              // Fuzzy payee matching
+              bankTransaction.payee.toLowerCase().includes(transaction.payee.toLowerCase().split(' ')[0]) ||
+              transaction.payee.toLowerCase().includes(bankTransaction.payee.toLowerCase().split(' ')[0]) ||
+              get().calculatePayeeSimilarity(bankTransaction.payee, transaction.payee) > 0.6
+            )
+          );
+
+          if (matchingManualIndex !== -1) {
+            // Convert manual transaction to bank transaction
+            const manualTransaction = convertedTransactions[matchingManualIndex];
+            const convertedTransaction = {
+              ...manualTransaction,
+              source: 'bank' as const,
+              payee: bankTransaction.payee, // Use bank's more accurate payee name
+              amount: bankTransaction.amount, // Use bank's exact amount
+              date: bankTransaction.date, // Use bank's exact date
+              reconciled: true,
+              notes: manualTransaction.notes 
+                ? `${manualTransaction.notes} [Converted from manual entry]`
+                : 'Converted from manual entry',
+            };
+            
+            convertedTransactions[matchingManualIndex] = convertedTransaction;
+            usedBankTransactionIds.add(bankTransaction.id);
+          } else {
+            // No matching manual transaction found, add as new bank transaction
+            remainingBankTransactions.push(bankTransaction);
+          }
+        });
+
+        return {
+          convertedTransactions,
+          remainingBankTransactions,
+        };
+      },
+
+      calculatePayeeSimilarity: (payee1, payee2) => {
+        const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const normalized1 = normalize(payee1);
+        const normalized2 = normalize(payee2);
+        
+        // Simple similarity calculation - can be enhanced
+        if (normalized1.includes(normalized2) || normalized2.includes(normalized1)) {
+          return 1.0;
+        }
+        
+        // Calculate Jaccard similarity using word sets
+        const words1 = new Set(normalized1.split(/\s+/));
+        const words2 = new Set(normalized2.split(/\s+/));
+        const intersection = new Set([...words1].filter(x => words2.has(x)));
+        const union = new Set([...words1, ...words2]);
+        
+        return intersection.size / union.size;
       },
 
       initializeWithSeedData: () => {

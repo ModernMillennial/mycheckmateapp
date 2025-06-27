@@ -213,6 +213,9 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               {!item.reconciled && item.source === 'manual' && (
                 <Text className="text-xs text-orange-500 ml-1">• Pending</Text>
               )}
+              {item.source === 'bank' && item.notes?.includes('Converted from manual entry') && (
+                <Text className="text-xs text-blue-500 ml-1">• Converted</Text>
+              )}
             </View>
           </View>
 

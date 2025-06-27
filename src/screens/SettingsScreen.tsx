@@ -47,67 +47,92 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
       
       const mockBankTransactions = [
-        // Recent deposit that will trigger notification
+        // This will convert the "Grocery Store" manual transaction (exact match)
         {
           userId: 'user-1',
           accountId: activeAccount.id,
-          date: new Date().toISOString().split('T')[0], // Today
-          payee: 'Bonus Payment',
-          amount: 500.00,
-          source: 'bank' as const,
-          notes: 'Quarterly bonus',
-          reconciled: false,
-        },
-        // Recent debit that will trigger notification
-        {
-          userId: 'user-1',
-          accountId: activeAccount.id,
-          date: new Date().toISOString().split('T')[0], // Today
-          payee: 'Target Store',
-          amount: -125.50,
-          source: 'bank' as const,
-          notes: 'Debit card purchase',
-          reconciled: false,
-        },
-        // This will match the "Grocery Store" manual transaction
-        {
-          userId: 'user-1',
-          accountId: activeAccount.id,
-          date: new Date(Date.now() - 86400000 * 6).toISOString().split('T')[0], // 6 days ago (within 3 day window)
-          payee: 'SAFEWAY GROCERY #1234',
+          date: new Date(Date.now() - 86400000 * 6).toISOString().split('T')[0], // 6 days ago (within matching window)
+          payee: 'SAFEWAY GROCERY STORE #1234',
           amount: -125.67,
           source: 'bank' as const,
           notes: 'Debit card purchase',
           reconciled: false,
         },
-        // This will match the "Shell Gas Station" manual transaction  
+        // This will convert the "Shell Gas Station" manual transaction  
         {
           userId: 'user-1',
           accountId: activeAccount.id,
           date: new Date(Date.now() - 86400000 * 1).toISOString().split('T')[0], // Yesterday (1 day after manual entry)
-          payee: 'SHELL OIL #4567',
+          payee: 'SHELL OIL STATION #4567',
           amount: -45.00,
           source: 'bank' as const,
-          notes: 'Debit card purchase',
+          notes: 'Fuel purchase',
+          reconciled: false,
+        },
+        // This will convert the "Local Restaurant" manual transaction
+        {
+          userId: 'user-1',
+          accountId: activeAccount.id,
+          date: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Tomorrow (1 day after manual entry)
+          payee: 'LOCAL RESTAURANT & BAR',
+          amount: -28.75,
+          source: 'bank' as const,
+          notes: 'Card payment',
+          reconciled: false,
+        },
+        // New bank transaction with no manual equivalent
+        {
+          userId: 'user-1',
+          accountId: activeAccount.id,
+          date: new Date().toISOString().split('T')[0], // Today
+          payee: 'Amazon.com Purchase',
+          amount: -89.99,
+          source: 'bank' as const,
+          notes: 'Online purchase',
+          reconciled: false,
+        },
+        // Recent deposit that will trigger notification
+        {
+          userId: 'user-1',
+          accountId: activeAccount.id,
+          date: new Date().toISOString().split('T')[0], // Today
+          payee: 'Direct Deposit Payroll',
+          amount: 500.00,
+          source: 'bank' as const,
+          notes: 'Bi-weekly salary',
           reconciled: false,
         },
       ];
       
       const { transactions: currentTransactions } = useTransactionStore.getState();
-      const manualUnreconciledBefore = currentTransactions.filter(t => t.source === 'manual' && !t.reconciled).length;
+      const manualCountBefore = currentTransactions.filter(t => t.source === 'manual').length;
+      const bankCountBefore = currentTransactions.filter(t => t.source === 'bank').length;
       
       syncBankTransactions(mockBankTransactions);
       updateSettings({ bankLinked: true });
       
-      // Check how many manual transactions were auto-reconciled
+      // Check how many manual transactions were converted
       setTimeout(() => {
         const { transactions: updatedTransactions } = useTransactionStore.getState();
-        const manualUnreconciledAfter = updatedTransactions.filter(t => t.source === 'manual' && !t.reconciled).length;
-        const autoReconciled = manualUnreconciledBefore - manualUnreconciledAfter;
+        const manualCountAfter = updatedTransactions.filter(t => t.source === 'manual').length;
+        const bankCountAfter = updatedTransactions.filter(t => t.source === 'bank').length;
         
-        let message = `Successfully imported ${mockBankTransactions.length} new transactions from your bank account.`;
-        if (autoReconciled > 0) {
-          message += `\n\n${autoReconciled} manual transaction${autoReconciled > 1 ? 's were' : ' was'} automatically reconciled with matching bank transactions.`;
+        const convertedCount = manualCountBefore - manualCountAfter;
+        const newBankCount = bankCountAfter - bankCountBefore;
+        
+        let message = `Bank sync completed successfully!`;
+        
+        if (convertedCount > 0) {
+          message += `\n\n✅ ${convertedCount} manual entr${convertedCount > 1 ? 'ies were' : 'y was'} converted to bank transactions (no duplicates created).`;
+        }
+        
+        if (newBankCount > convertedCount) {
+          const newCount = newBankCount - convertedCount;
+          message += `\n\n📥 ${newCount} new bank transaction${newCount > 1 ? 's were' : ' was'} imported.`;
+        }
+        
+        if (convertedCount === 0 && newBankCount === 0) {
+          message += '\n\nNo new transactions found.';
         }
         
         Alert.alert('Sync Complete', message);

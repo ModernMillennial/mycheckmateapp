@@ -176,9 +176,24 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
               )}
             </View>
             {transaction.source === 'bank' && (
-              <Text className="text-xs text-gray-500 mt-2">
-                Bank transactions allow editing of payee, date, notes, and reconciliation status, but the amount cannot be modified.
-              </Text>
+              <View>
+                <Text className="text-xs text-gray-500 mt-2">
+                  Bank transactions allow editing of payee, date, notes, and reconciliation status, but the amount cannot be modified.
+                </Text>
+                {transaction.notes?.includes('Converted from manual entry') && (
+                  <View className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
+                    <View className="flex-row items-center">
+                      <Ionicons name="swap-horizontal" size={14} color="#3B82F6" />
+                      <Text className="text-xs text-blue-700 ml-1 font-medium">
+                        Converted Transaction
+                      </Text>
+                    </View>
+                    <Text className="text-xs text-blue-600 mt-1">
+                      This transaction was originally entered manually and was automatically converted to a bank transaction when a matching entry was found during sync.
+                    </Text>
+                  </View>
+                )}
+              </View>
             )}
           </View>
 
