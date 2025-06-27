@@ -129,26 +129,26 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         </View>
 
         {/* Middle-Left: Debit Amount */}
-        <View className="w-20 items-end">
+        <View className="w-24 items-end px-1">
           {item.amount < 0 && (
-            <Text className="text-base font-semibold text-red-600">
+            <Text className="text-base font-semibold text-red-600" numberOfLines={1}>
               ${Math.abs(item.amount).toFixed(2)}
             </Text>
           )}
         </View>
 
         {/* Middle-Right: Credit Amount */}
-        <View className="w-20 items-end">
+        <View className="w-24 items-end px-1">
           {item.amount >= 0 && (
-            <Text className="text-base font-semibold text-green-600">
+            <Text className="text-base font-semibold text-green-600" numberOfLines={1}>
               ${item.amount.toFixed(2)}
             </Text>
           )}
         </View>
 
         {/* Right: Balance */}
-        <View className="w-24 items-end">
-          <Text className="text-base font-semibold text-gray-900">
+        <View className="w-28 items-end px-1">
+          <Text className="text-base font-semibold text-gray-900" numberOfLines={1}>
             ${item.runningBalance.toFixed(2)}
           </Text>
         </View>
@@ -251,17 +251,17 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               Date & Type
             </Text>
           </View>
-          <View className="w-20 items-end">
+          <View className="w-24 items-end px-1">
             <Text className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
               Debit
             </Text>
           </View>
-          <View className="w-20 items-end">
+          <View className="w-24 items-end px-1">
             <Text className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
               Credit
             </Text>
           </View>
-          <View className="w-24 items-end">
+          <View className="w-28 items-end px-1">
             <Text className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
               Balance
             </Text>
