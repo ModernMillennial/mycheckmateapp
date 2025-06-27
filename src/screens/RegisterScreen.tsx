@@ -10,6 +10,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { Alert } from 'react-native';
 import { useTransactionStore } from '../state/transactionStore';
 import { Transaction, FilterType } from '../types';
 import { cn } from '../utils/cn';
@@ -33,6 +34,8 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     getActiveAccount,
     getActiveTransactions,
     switchAccount,
+    addTransaction,
+    syncBankTransactions,
   } = useTransactionStore();
 
   useEffect(() => {
@@ -353,6 +356,55 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           </Text>
           <View className="flex-row">
             <Pressable
+              onPress={() => {
+                const activeAccount = getActiveAccount();
+                if (activeAccount) {
+                  // Add a demo manual transaction
+                  addTransaction({
+                    userId: 'user-1',
+                    accountId: activeAccount.id,
+                    date: new Date().toISOString().split('T')[0],
+                    payee: 'Demo Coffee Shop',
+                    amount: -4.50,
+                    source: 'manual',
+                    notes: 'Demo transaction to show conversion',
+                    reconciled: false,
+                  });
+                  
+                  Alert.alert(
+                    'Demo Started',
+                    'Added manual transaction with two gray circles. In 3 seconds, it will convert to show green + yellow checks when "bank sync" finds the matching transaction.',
+                    [{ text: 'OK' }]
+                  );
+                  
+                  // After a short delay, sync with matching bank transaction
+                  setTimeout(() => {
+                    syncBankTransactions([{
+                      userId: 'user-1',
+                      accountId: activeAccount.id,
+                      date: new Date().toISOString().split('T')[0],
+                      payee: 'COFFEE SHOP DOWNTOWN #123',
+                      amount: -4.50,
+                      source: 'bank' as const,
+                      notes: 'Card payment',
+                      reconciled: false,
+                    }]);
+                    
+                    setTimeout(() => {
+                      Alert.alert(
+                        'Conversion Complete!',
+                        'The manual "Demo Coffee Shop" entry has been converted to a bank transaction. Notice it now shows:\n\n✅ Green check = Bank confirmed\n🟡 Yellow check = Originally manual\n\nYou can tap the green check to toggle reconciliation.',
+                        [{ text: 'Got it!' }]
+                      );
+                    }, 500);
+                  }, 3000);
+                }
+              }}
+              className="p-2 mr-1"
+            >
+              <Ionicons name="flask-outline" size={24} color="#3B82F6" />
+            </Pressable>
+            <Pressable
               onPress={() => setShowLegend(!showLegend)}
               className="p-2 mr-1"
             >
@@ -464,6 +516,17 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           )}
           keyExtractor={(item) => item.filter}
         />
+      </View>
+
+      {/* Demo Instructions */}
+      <View className="mx-4 mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <View className="flex-row items-center">
+          <Ionicons name="flask-outline" size={16} color="#3B82F6" />
+          <Text className="text-sm font-medium text-blue-800 ml-2">Demo Mode</Text>
+        </View>
+        <Text className="text-xs text-blue-700 mt-1">
+          Tap the flask icon (🧪) in the header to see a live demo of manual-to-bank conversion with green + yellow checks!
+        </Text>
       </View>
 
       {/* Reconciliation Legend */}

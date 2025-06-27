@@ -70,6 +70,28 @@ export const generateSeedTransactions = (): Omit<Transaction, 'id' | 'runningBal
     notes: 'Lunch - Card payment',
     reconciled: false, // Too recent to have cleared
   },
+  // Demo manual transaction to show gray circles
+  {
+    userId: 'user-1',
+    accountId: 'checking-1',
+    date: new Date(Date.now() - 86400000).toISOString().split('T')[0], // Yesterday
+    payee: 'Coffee Shop',
+    amount: -5.25,
+    source: 'manual',
+    notes: 'Morning coffee - manual entry demo',
+    reconciled: false,
+  },
+  // Another demo manual transaction
+  {
+    userId: 'user-1',
+    accountId: 'checking-1',
+    date: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Tomorrow (future dated)
+    payee: 'Parking Meter',
+    amount: -2.00,
+    source: 'manual',
+    notes: 'Downtown parking',
+    reconciled: false,
+  },
   // Some savings account transactions
   {
     userId: 'user-1',
