@@ -649,11 +649,14 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         visible={showFirstTimeSetup}
         onComplete={() => {
           setShowFirstTimeSetup(false);
-          Alert.alert(
-            'Welcome to Digital Register!',
-            'Your bank account has been connected and you\'re ready to start tracking your finances.',
-            [{ text: 'Let\'s Go!' }]
-          );
+          // Use setTimeout to ensure state is updated before showing alert
+          setTimeout(() => {
+            Alert.alert(
+              'Welcome to Digital Register!',
+              'Your bank account has been connected and you\'re ready to start tracking your finances.',
+              [{ text: 'Let\'s Go!' }]
+            );
+          }, 100);
         }}
         onCancel={() => setShowFirstTimeSetup(false)}
       />

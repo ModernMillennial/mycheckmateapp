@@ -15,6 +15,7 @@ interface Props {
 type Step = 'connect' | 'fetching' | 'selectStart' | 'importing' | 'complete';
 
 const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel }) => {
+  console.log('InitialBankSyncScreen render - visible:', visible);
   const [step, setStep] = useState<Step>('connect');
   const [selectedBank, setSelectedBank] = useState<string>('');
   const [fetchedTransactions, setFetchedTransactions] = useState<any[]>([]);
@@ -517,7 +518,10 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
     </View>
   );
 
-  if (!visible) return null;
+  if (!visible) {
+    console.log('InitialBankSyncScreen not visible, returning null');
+    return null;
+  }
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
