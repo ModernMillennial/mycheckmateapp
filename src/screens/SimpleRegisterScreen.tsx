@@ -344,8 +344,8 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
       {/* Header */}
       <View className="bg-white px-4 py-4 border-b border-gray-200">
         <View className="flex-row justify-between items-center mb-4">
-          <View className="flex-1">
-            <Text className="text-2xl font-bold text-gray-900">
+          <View className="flex-1 mr-4">
+            <Text className="text-2xl font-bold text-gray-900" numberOfLines={1}>
               CheckMate
             </Text>
           </View>
