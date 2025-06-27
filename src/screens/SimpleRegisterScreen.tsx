@@ -14,6 +14,7 @@ interface Props {
 const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [showFirstTimeSetup, setShowFirstTimeSetup] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
   
   const {
     settings,
@@ -199,12 +200,57 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-200">
-        <Text className="text-3xl font-bold text-gray-900 mb-2">
-          Digital Register
-        </Text>
+      <View className="bg-white px-4 py-4 border-b border-gray-200">
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="text-2xl font-bold text-gray-900">
+            Digital Register
+          </Text>
+          <View className="flex-row">
+            <Pressable
+              onPress={handleManualTransactionDemo}
+              className="p-2 mr-1"
+              disabled={!activeAccount}
+            >
+              <Ionicons 
+                name="flask-outline" 
+                size={24} 
+                color={activeAccount ? "#3B82F6" : "#9CA3AF"} 
+              />
+            </Pressable>
+            <Pressable
+              onPress={handleDemoReset}
+              className="p-2 mr-1"
+            >
+              <Ionicons name="refresh-outline" size={24} color="#EF4444" />
+            </Pressable>
+            <Pressable
+              onPress={() => setShowLegend(!showLegend)}
+              className="p-2 mr-1"
+            >
+              <Ionicons name="help-circle-outline" size={24} color="#374151" />
+            </Pressable>
+            <Pressable
+              onPress={() => navigation?.navigate('Reports')}
+              className="p-2 mr-1"
+            >
+              <Ionicons name="bar-chart-outline" size={24} color="#374151" />
+            </Pressable>
+            <Pressable
+              onPress={() => navigation?.navigate('Accounts')}
+              className="p-2 mr-1"
+            >
+              <Ionicons name="wallet-outline" size={24} color="#374151" />
+            </Pressable>
+            <Pressable
+              onPress={() => navigation?.navigate('Settings')}
+              className="p-2"
+            >
+              <Ionicons name="settings-outline" size={24} color="#374151" />
+            </Pressable>
+          </View>
+        </View>
         <Text className="text-gray-600">
-          Your digital checkbook is ready to use
+          Your digital checkbook register
         </Text>
       </View>
 
@@ -250,42 +296,39 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         )}
 
-        {/* Demo Controls */}
-        <View className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-6">
-          <View className="flex-row items-center mb-3">
-            <Ionicons name="flask" size={20} color="#F59E0B" />
-            <Text className="text-lg font-semibold text-yellow-900 ml-2">
-              Demo Controls
-            </Text>
-          </View>
-          <View className="space-y-3">
-            <Pressable 
-              className="bg-yellow-100 p-3 rounded-lg"
-              onPress={handleDemoReset}
-            >
-              <View className="flex-row items-center">
-                <Ionicons name="refresh" size={20} color="#F59E0B" />
-                <Text className="font-medium text-yellow-900 ml-2">
-                  Reset & Start Bank Sync Demo
-                </Text>
-              </View>
-            </Pressable>
-            
-            {activeAccount && (
-              <Pressable 
-                className="bg-yellow-100 p-3 rounded-lg"
-                onPress={handleManualTransactionDemo}
-              >
-                <View className="flex-row items-center">
-                  <Ionicons name="git-merge" size={20} color="#F59E0B" />
-                  <Text className="font-medium text-yellow-900 ml-2">
-                    Demo Manual → Bank Conversion
-                  </Text>
-                </View>
+        {/* Reconciliation Legend */}
+        {showLegend && (
+          <View className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-lg font-semibold text-blue-900">
+                Reconciliation Guide
+              </Text>
+              <Pressable onPress={() => setShowLegend(false)}>
+                <Ionicons name="close" size={20} color="#3B82F6" />
               </Pressable>
-            )}
+            </View>
+            <View className="space-y-3">
+              <View className="flex-row items-center">
+                <View className="flex-row mr-3">
+                  <Ionicons name="ellipse-outline" size={16} color="#9CA3AF" />
+                  <Ionicons name="ellipse-outline" size={16} color="#9CA3AF" style={{ marginLeft: 2 }} />
+                </View>
+                <Text className="text-blue-800">Manual transactions (not yet reconciled)</Text>
+              </View>
+              <View className="flex-row items-center">
+                <Ionicons name="checkmark-circle" size={16} color="#10B981" style={{ marginRight: 12 }} />
+                <Text className="text-blue-800">Bank transactions (tap to toggle reconciliation)</Text>
+              </View>
+              <View className="flex-row items-center">
+                <View className="flex-row mr-3">
+                  <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+                  <Ionicons name="checkmark-circle" size={16} color="#F59E0B" style={{ marginLeft: 2 }} />
+                </View>
+                <Text className="text-blue-800">Converted transactions (was manual, now bank confirmed)</Text>
+              </View>
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Transactions */}
         {showTransactions && transactions.length > 0 && (
@@ -308,53 +351,46 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         )}
 
-        {/* Feature Cards */}
-        <View className="space-y-4">
-          <Pressable 
-            className="bg-gray-50 p-4 rounded-lg border border-gray-200"
-            onPress={() => navigation?.navigate('AddTransaction')}
-          >
-            <View className="flex-row items-center">
-              <Ionicons name="add-circle" size={24} color="#10B981" />
-              <Text className="text-lg font-medium text-gray-900 ml-3">
-                Add Transaction
-              </Text>
+        {/* Quick Actions */}
+        {activeAccount && (
+          <View className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <Text className="text-lg font-semibold text-gray-900 mb-3">Quick Actions</Text>
+            <View className="flex-row space-x-3">
+              <Pressable 
+                className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                onPress={() => navigation?.navigate('AddTransaction')}
+              >
+                <View className="items-center">
+                  <Ionicons name="add-circle" size={24} color="#10B981" />
+                  <Text className="text-sm font-medium text-gray-900 mt-1">Add</Text>
+                  <Text className="text-xs text-gray-500">Transaction</Text>
+                </View>
+              </Pressable>
+              
+              <Pressable 
+                className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                onPress={handleManualTransactionDemo}
+              >
+                <View className="items-center">
+                  <Ionicons name="flask" size={24} color="#3B82F6" />
+                  <Text className="text-sm font-medium text-gray-900 mt-1">Demo</Text>
+                  <Text className="text-xs text-gray-500">Conversion</Text>
+                </View>
+              </Pressable>
+              
+              <Pressable 
+                className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                onPress={() => setShowLegend(true)}
+              >
+                <View className="items-center">
+                  <Ionicons name="help-circle" size={24} color="#F59E0B" />
+                  <Text className="text-sm font-medium text-gray-900 mt-1">Help</Text>
+                  <Text className="text-xs text-gray-500">Guide</Text>
+                </View>
+              </Pressable>
             </View>
-            <Text className="text-gray-600 mt-1 ml-9">
-              Record a new transaction manually
-            </Text>
-          </Pressable>
-
-          <Pressable 
-            className="bg-gray-50 p-4 rounded-lg border border-gray-200"
-            onPress={() => navigation?.navigate('Reports')}
-          >
-            <View className="flex-row items-center">
-              <Ionicons name="bar-chart" size={24} color="#F59E0B" />
-              <Text className="text-lg font-medium text-gray-900 ml-3">
-                View Reports
-              </Text>
-            </View>
-            <Text className="text-gray-600 mt-1 ml-9">
-              See spending analysis and trends
-            </Text>
-          </Pressable>
-
-          <Pressable 
-            className="bg-gray-50 p-4 rounded-lg border border-gray-200"
-            onPress={() => navigation?.navigate('Settings')}
-          >
-            <View className="flex-row items-center">
-              <Ionicons name="settings" size={24} color="#6B7280" />
-              <Text className="text-lg font-medium text-gray-900 ml-3">
-                Settings
-              </Text>
-            </View>
-            <Text className="text-gray-600 mt-1 ml-9">
-              Configure your account preferences
-            </Text>
-          </Pressable>
-        </View>
+          </View>
+        )}
       </View>
 
       {/* Footer Status */}
