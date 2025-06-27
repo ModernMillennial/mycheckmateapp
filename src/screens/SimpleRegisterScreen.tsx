@@ -86,7 +86,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     
     Alert.alert(
       'Manual Transaction Added!',
-      'Added manual transaction with "NOT POSTED" status. In 3 seconds, it will convert to show "POSTED MANUAL" when "bank sync" finds the matching transaction.',
+      'Added manual transaction with "NOT POSTED" status. In 3 seconds, it will convert to show "POSTED" when "bank sync" finds the matching transaction.',
       [{ text: 'OK' }]
     );
     
@@ -106,7 +106,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       setTimeout(() => {
         Alert.alert(
           'Conversion Complete! 🎉',
-          'The manual "Demo Coffee Shop" entry has been converted to a bank transaction. Notice the change:\n\n• Before: "NOT POSTED" (manual entry)\n• After: "POSTED MANUAL" (converted transaction)\n\nThis status shows the transaction was originally manual but is now bank-confirmed.',
+          'The manual "Demo Coffee Shop" entry has been converted to a bank transaction. Notice the change:\n\n• Before: "NOT POSTED" (manual entry)\n• After: "POSTED" (converted transaction)\n\nThis transaction was originally manual but is now bank-confirmed.',
           [{ text: 'Perfect!' }]
         );
       }, 500);
@@ -262,23 +262,19 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           
           {/* Posting Status */}
           <Pressable
-            onPress={() => !isStartingBalance && item.source === 'bank' && !item.notes?.includes('Converted') && togglePosted(item.id)}
-            disabled={isStartingBalance || item.source === 'manual' || item.notes?.includes('Converted')}
+            onPress={() => !isStartingBalance && item.source === 'bank' && togglePosted(item.id)}
+            disabled={isStartingBalance || item.source === 'manual'}
             className="ml-2"
           >
             <View className="bg-gray-100 px-2 py-1 rounded">
               <Text className={`text-xs font-medium ${
                 item.source === 'manual' && !item.reconciled 
                   ? 'text-red-600' 
-                  : item.source === 'bank' && item.notes?.includes('Converted')
-                    ? 'text-blue-600'
-                    : 'text-green-600'
+                  : 'text-green-600'
               }`}>
                 {item.source === 'manual' && !item.reconciled 
                   ? 'NOT POSTED'
-                  : item.source === 'bank' && item.notes?.includes('Converted')
-                    ? 'POSTED MANUAL'
-                    : 'POSTED'}
+                  : 'POSTED'}
               </Text>
             </View>
           </Pressable>
@@ -300,21 +296,19 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                 size={12}
                 color={
                   item.source === 'manual' 
-                    ? '#6B7280' 
-                    : item.notes?.includes('Converted')
-                      ? '#EA580C'
-                      : '#1D4ED8'
+                    ? '#DC2626'
+                    : '#1D4ED8'
                 }
               />
               <Text className={`text-xs ml-1 capitalize ${
                 item.source === 'manual' 
-                  ? 'text-gray-600' 
+                  ? 'text-red-600' 
                   : item.notes?.includes('Converted')
-                    ? 'text-orange-600'
+                    ? 'text-purple-600'
                     : 'text-blue-700'
               }`}>
                 {item.source === 'bank' && item.notes?.includes('Converted')
-                  ? 'converted'
+                  ? 'manual'
                   : item.source}
               </Text>
             </View>
@@ -324,7 +318,9 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           <View className="w-24 items-end px-1">
             <Text className="text-xs text-gray-500 font-medium">DEBIT</Text>
             {item.amount < 0 && (
-              <Text className="text-base font-semibold text-red-600" numberOfLines={1}>
+              <Text className={`text-base font-semibold ${
+                item.source === 'manual' ? 'text-red-600' : 'text-blue-600'
+              }`} numberOfLines={1}>
                 ${Math.abs(item.amount).toFixed(2)}
               </Text>
             )}
@@ -334,9 +330,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           <View className="w-24 items-end px-1">
             <Text className="text-xs text-gray-500 font-medium">CREDIT</Text>
             {item.amount >= 0 && (
-              <Text className={`text-base font-semibold ${
-                isStartingBalance ? "text-blue-600" : "text-green-600"
-              }`} numberOfLines={1}>
+              <Text className="text-base font-semibold text-green-600" numberOfLines={1}>
                 ${item.amount.toFixed(2)}
               </Text>
             )}
@@ -503,9 +497,9 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
               </View>
               <View className="flex-row items-center">
                 <View className="bg-gray-100 px-2 py-1 rounded mr-3">
-                  <Text className="text-xs font-medium text-blue-600">POSTED MANUAL</Text>
+                  <Text className="text-xs font-medium text-purple-600">MANUAL</Text>
                 </View>
-                <Text className="text-blue-800">Converted transactions (was manual, now bank confirmed)</Text>
+                <Text className="text-blue-800">Transaction type (converted from manual to bank confirmed)</Text>
               </View>
             </View>
           </View>
