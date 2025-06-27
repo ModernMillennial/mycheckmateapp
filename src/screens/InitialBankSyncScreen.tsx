@@ -177,7 +177,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
           <ScrollView className="flex-1 px-4 py-6">
             <View className="mb-6">
               <View className="flex-row items-center mb-4">
-                <Ionicons name="bank" size={24} color="#3B82F6" />
+                <Ionicons name="card" size={24} color="#3B82F6" />
                 <Text className="text-xl font-bold text-gray-900 ml-3">
                   Connect Your Bank Account
                 </Text>

@@ -6,11 +6,11 @@ import {
   Pressable,
   TextInput,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { Alert } from 'react-native';
 import { useTransactionStore } from '../state/transactionStore';
 import { Transaction, FilterType } from '../types';
 import { cn } from '../utils/cn';
@@ -43,8 +43,13 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 
   useEffect(() => {
     initializeWithSeedData();
-    
-    // Check if this is a first-time user (no bank linked and no manual transactions)
+  }, [initializeWithSeedData]);
+
+  const activeAccount = getActiveAccount();
+  const transactions = getActiveTransactions();
+
+  // Check for first-time user setup
+  useEffect(() => {
     const hasTransactions = transactions.length > 0;
     const isBankLinked = settings.bankLinked;
     
@@ -54,10 +59,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         setShowFirstTimeSetup(true);
       }, 1000);
     }
-  }, [initializeWithSeedData, transactions.length, settings.bankLinked]);
-
-  const activeAccount = getActiveAccount();
-  const transactions = getActiveTransactions();
+  }, [transactions.length, settings.bankLinked]);
 
   // Debug logging
   console.log('Active Account:', activeAccount?.name);

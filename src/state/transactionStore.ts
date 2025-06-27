@@ -268,10 +268,11 @@ export const useTransactionStore = create<TransactionState>()(
           }));
 
         // Convert manual transactions to bank transactions when matches are found
-        const { convertedTransactions, remainingBankTransactions } = get().processManualToBankConversion(
+        const conversionResult = get().processManualToBankConversion(
           transactions, 
           newBankTransactions
         );
+        const { convertedTransactions, remainingBankTransactions } = conversionResult;
 
         set({
           transactions: [...convertedTransactions, ...remainingBankTransactions],
@@ -282,8 +283,8 @@ export const useTransactionStore = create<TransactionState>()(
 
       processManualToBankConversion: (currentTransactions, newBankTransactions) => {
         const convertedTransactions = [...currentTransactions];
-        const remainingBankTransactions = [];
-        const usedBankTransactionIds = new Set();
+        const remainingBankTransactions: Transaction[] = [];
+        const usedBankTransactionIds = new Set<string>();
 
         // Process each new bank transaction
         newBankTransactions.forEach(bankTransaction => {
