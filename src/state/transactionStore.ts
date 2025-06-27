@@ -42,6 +42,7 @@ interface TransactionState {
   getActiveAccount: () => Account | null;
   getActiveTransactions: () => Transaction[];
   calculateAllAccountBalances: () => void;
+  clearAndReinitialize: () => void;
 }
 
 const defaultAccounts: Account[] = [
@@ -269,8 +270,11 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       initializeWithSeedData: () => {
-        const { isInitialized } = get();
-        if (!isInitialized) {
+        const { isInitialized, transactions } = get();
+        
+        // Force reinitialize if no transactions exist or not initialized
+        if (!isInitialized || transactions.length === 0) {
+          console.log('Initializing seed data...');
           const seedTransactions = generateSeedTransactions();
           const transactionsWithIds = seedTransactions.map((t, index) => ({
             ...t,
@@ -279,6 +283,8 @@ export const useTransactionStore = create<TransactionState>()(
             runningBalance: 0,
           }));
 
+          console.log('Created transactions:', transactionsWithIds.length);
+
           set({
             transactions: transactionsWithIds,
             isInitialized: true,
@@ -286,6 +292,8 @@ export const useTransactionStore = create<TransactionState>()(
           
           // Calculate running balance for all accounts
           get().calculateAllAccountBalances();
+        } else {
+          console.log('Already initialized with', transactions.length, 'transactions');
         }
       },
 
@@ -346,7 +354,11 @@ export const useTransactionStore = create<TransactionState>()(
 
       getActiveTransactions: () => {
         const { transactions, settings } = get();
-        return transactions.filter(t => t.accountId === settings.activeAccountId);
+        console.log('All transactions:', transactions.length);
+        console.log('Active account ID:', settings.activeAccountId);
+        const filtered = transactions.filter(t => t.accountId === settings.activeAccountId);
+        console.log('Filtered transactions:', filtered.length);
+        return filtered;
       },
 
       calculateAllAccountBalances: () => {
@@ -393,6 +405,19 @@ export const useTransactionStore = create<TransactionState>()(
           accounts: updatedAccounts,
           transactions: allUpdatedTransactions,
         });
+      },
+
+      clearAndReinitialize: () => {
+        console.log('Clearing and reinitializing...');
+        set({
+          transactions: [],
+          accounts: defaultAccounts,
+          settings: initialSettings,
+          isInitialized: false,
+        });
+        
+        // Force reinitialize
+        get().initializeWithSeedData();
       },
     }),
     {

@@ -30,6 +30,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     getActiveAccount,
     getActiveTransactions,
     switchAccount,
+    clearAndReinitialize,
   } = useTransactionStore();
 
   useEffect(() => {
@@ -208,6 +209,14 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               <Ionicons name="analytics-outline" size={24} color="#374151" />
             </Pressable>
             <Pressable
+              onPress={() => {
+                initializeWithSeedData();
+              }}
+              className="p-2 mr-1"
+            >
+              <Ionicons name="refresh" size={24} color="#374151" />
+            </Pressable>
+            <Pressable
               onPress={() => navigation.navigate('Settings')}
               className="p-2"
             >
@@ -350,6 +359,20 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             <Text className="text-gray-400 text-sm mt-2 text-center px-8">
               Add your first transaction or sync with your bank account
             </Text>
+            <Text className="text-gray-400 text-xs mt-4 text-center px-8">
+              Debug: Active Account: {activeAccount?.name || 'None'}{'\n'}
+              Transactions: {transactions.length}{'\n'}
+              Filtered: {filteredTransactions.length}
+            </Text>
+            <Pressable
+              onPress={() => {
+                console.log('Force refresh pressed');
+                clearAndReinitialize();
+              }}
+              className="mt-4 px-4 py-2 bg-blue-500 rounded-lg"
+            >
+              <Text className="text-white text-sm">Force Refresh Data</Text>
+            </Pressable>
           </View>
         }
         refreshControl={
