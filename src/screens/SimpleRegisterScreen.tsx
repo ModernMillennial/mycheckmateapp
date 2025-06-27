@@ -270,7 +270,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
               <Text className={`text-xs font-medium ${
                 item.source === 'manual' && !item.reconciled 
                   ? 'text-red-600' 
-                  : 'text-green-600'
+                  : 'text-blue-600'
               }`}>
                 {item.source === 'manual' && !item.reconciled 
                   ? 'NOT POSTED'
@@ -294,19 +294,9 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
               <Ionicons
                 name={item.source === 'manual' ? 'receipt-outline' : 'card-outline'}
                 size={12}
-                color={
-                  item.source === 'manual' 
-                    ? '#DC2626'
-                    : '#1D4ED8'
-                }
+                color="#000000"
               />
-              <Text className={`text-xs ml-1 capitalize ${
-                item.source === 'manual' 
-                  ? 'text-red-600' 
-                  : item.notes?.includes('Converted')
-                    ? 'text-purple-600'
-                    : 'text-blue-700'
-              }`}>
+              <Text className={`text-xs ml-1 capitalize text-black`}>
                 {item.source === 'bank' && item.notes?.includes('Converted')
                   ? 'manual'
                   : item.source}
@@ -318,9 +308,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           <View className="w-24 items-end px-1">
             <Text className="text-xs text-gray-500 font-medium">DEBIT</Text>
             {item.amount < 0 && (
-              <Text className={`text-base font-semibold ${
-                item.source === 'manual' ? 'text-red-600' : 'text-blue-600'
-              }`} numberOfLines={1}>
+              <Text className="text-base font-semibold text-red-600" numberOfLines={1}>
                 ${Math.abs(item.amount).toFixed(2)}
               </Text>
             )}
@@ -491,13 +479,13 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
               </View>
               <View className="flex-row items-center">
                 <View className="bg-gray-100 px-2 py-1 rounded mr-3">
-                  <Text className="text-xs font-medium text-green-600">POSTED</Text>
+                  <Text className="text-xs font-medium text-blue-600">POSTED</Text>
                 </View>
                 <Text className="text-blue-800">Bank transactions (tap to toggle posted status)</Text>
               </View>
               <View className="flex-row items-center">
                 <View className="bg-gray-100 px-2 py-1 rounded mr-3">
-                  <Text className="text-xs font-medium text-purple-600">MANUAL</Text>
+                  <Text className="text-xs font-medium text-black">MANUAL</Text>
                 </View>
                 <Text className="text-blue-800">Transaction type (converted from manual to bank confirmed)</Text>
               </View>
