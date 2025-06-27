@@ -25,47 +25,78 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
   const { addAccount, updateAccount, addTransaction, switchAccount, updateSettings } = useTransactionStore();
   console.log('SimpleInitialBankSyncScreen: All store functions accessed successfully');
 
-  // Add the problematic simulateImport function
+  // Enhanced simulateImport function with proper demo flow
   const simulateImport = async () => {
     setIsImporting(true);
     
-    // Find the selected starting transaction
-    const startingTransaction = fetchedTransactions.find(t => t.id === selectedStartingTransaction);
-    if (!startingTransaction) return;
+    // Simulate the import process with realistic timing
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Create new account
+    // Create new account with demo data
     const bankName = 'Demo Bank';
     
     const newAccount = {
       name: `${bankName} Checking`,
       type: 'checking' as const,
-      balance: currentBalance,
-      startingBalance: startingTransaction.balance || 1000,
+      balance: 1547.23,
+      startingBalance: 1547.23,
       startingBalanceDate: new Date().toISOString().split('T')[0],
       isConnected: true,
       lastSyncDate: new Date(),
       bankName: bankName,
       accountNumber: '****1234',
       isActive: true,
-      currentBalance: currentBalance,
+      currentBalance: 1547.23,
       color: '#3B82F6',
     };
     
     addAccount(newAccount);
     
-    // Simple approach: add transactions to the default account for now
-    setTimeout(() => {
-      const demoAccountId = 'checking-1';
-      switchAccount(demoAccountId);
-      
-      // Mark bank as linked
-      updateSettings({ bankLinked: true });
-      
-      setTimeout(() => {
-        setIsImporting(false);
-        console.log('Import simulation complete');
-      }, 1000);
-    }, 150);
+    // Add some demo transactions
+    const demoTransactions = [
+      {
+        accountId: 'checking-1',
+        amount: -4.50,
+        payee: 'Coffee Shop',
+        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        reconciled: true,
+        userId: 'demo-user',
+        source: 'bank' as const,
+        notes: 'Food & Dining',
+      },
+      {
+        accountId: 'checking-1',
+        amount: 2500.00,
+        payee: 'Payroll Deposit',
+        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        reconciled: true,
+        userId: 'demo-user',
+        source: 'bank' as const,
+        notes: 'Income',
+      },
+      {
+        accountId: 'checking-1',
+        amount: -85.32,
+        payee: 'Grocery Store',
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        reconciled: true,
+        userId: 'demo-user',
+        source: 'bank' as const,
+        notes: 'Groceries',
+      },
+    ];
+    
+    // Add demo transactions
+    demoTransactions.forEach(transaction => {
+      addTransaction(transaction);
+    });
+    
+    // Mark bank as linked and finish setup
+    updateSettings({ bankLinked: true });
+    
+    // Complete the import process
+    setIsImporting(false);
+    console.log('Bank sync demo complete - 3 transactions imported');
   };
 
   if (!visible) {
@@ -76,30 +107,106 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 items-center justify-center p-6">
+          <View className="w-16 h-16 bg-blue-100 rounded-full items-center justify-center mb-6">
+            <Text className="text-2xl">🏦</Text>
+          </View>
+          
           <Text className="text-2xl font-bold text-gray-900 mb-4">
-            Simple Bank Setup Test
+            Connect Your Bank
           </Text>
           <Text className="text-gray-600 text-center mb-8">
-            This is a simplified version to test if the component works without navigation errors.
+            Welcome to Digital Register! Let's connect your bank account to get started with automatic transaction tracking.
           </Text>
           
-          <Pressable
-            onPress={() => {
-              console.log('Testing simulateImport function...');
-              simulateImport();
-              onComplete();
-            }}
-            className="bg-blue-500 px-8 py-4 rounded-lg mb-4"
-          >
-            <Text className="text-white font-semibold">Test Import & Complete</Text>
-          </Pressable>
+          {step === 'connect' && (
+            <>
+              <Text className="text-lg font-semibold text-gray-900 mb-4">Choose Your Bank</Text>
+              
+              <Pressable
+                onPress={() => setSelectedBank('demo')}
+                className={`w-full p-4 rounded-lg border-2 mb-4 ${
+                  selectedBank === 'demo' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
+                }`}
+              >
+                <View className="flex-row items-center">
+                  <Text className="text-2xl mr-4">🏦</Text>
+                  <Text className="text-gray-900 font-medium flex-1">Demo Bank</Text>
+                  {selectedBank === 'demo' && (
+                    <Text className="text-blue-500">✓</Text>
+                  )}
+                </View>
+              </Pressable>
+              
+              <View className="flex-row justify-between w-full mt-8">
+                <Pressable
+                  onPress={onCancel}
+                  className="flex-1 mr-2 py-4 px-6 rounded-lg border border-gray-300"
+                >
+                  <Text className="text-gray-700 font-semibold text-center">Cancel</Text>
+                </Pressable>
+                
+                <Pressable
+                  onPress={() => {
+                    if (selectedBank) {
+                      setStep('importing');
+                      simulateImport();
+                    }
+                  }}
+                  disabled={!selectedBank}
+                  className={`flex-1 ml-2 py-4 px-6 rounded-lg ${
+                    selectedBank ? 'bg-blue-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <Text className="text-white font-semibold text-center">
+                    Connect & Import
+                  </Text>
+                </Pressable>
+              </View>
+            </>
+          )}
           
-          <Pressable
-            onPress={onCancel}
-            className="px-8 py-4"
-          >
-            <Text className="text-gray-600">Cancel</Text>
-          </Pressable>
+          {step === 'importing' && (
+            <>
+              <Text className="text-xl font-bold text-gray-900 mb-4">
+                {isImporting ? 'Setting Up Your Account...' : 'Setup Complete!'}
+              </Text>
+              <Text className="text-gray-600 text-center mb-8">
+                {isImporting 
+                  ? 'We are connecting to your bank and importing your transaction history'
+                  : 'Your Digital Register is ready to use!'
+                }
+              </Text>
+              
+              {isImporting && (
+                <View className="w-full max-w-xs mb-8">
+                  <View className="w-full bg-gray-200 rounded-full h-2">
+                    <View className="bg-blue-500 h-2 rounded-full w-3/4" />
+                  </View>
+                  <Text className="text-center text-sm text-gray-600 mt-2">Importing...</Text>
+                </View>
+              )}
+              
+              {!isImporting && (
+                <>
+                  <View className="bg-green-50 rounded-lg p-4 mb-6 w-full">
+                    <Text className="text-green-800 font-semibold mb-2">Success!</Text>
+                    <Text className="text-green-700 text-sm">✓ Bank account connected</Text>
+                    <Text className="text-green-700 text-sm">✓ Starting balance set</Text>
+                    <Text className="text-green-700 text-sm">✓ Ready to track transactions</Text>
+                  </View>
+                  
+                  <Pressable
+                    onPress={onComplete}
+                    className="w-full py-4 px-6 bg-blue-500 rounded-lg"
+                  >
+                    <Text className="text-white font-semibold text-center text-lg">
+                      Start Using Digital Register
+                    </Text>
+                  </Pressable>
+                </>
+              )}
+            </>
+          )}
         </View>
       </SafeAreaView>
     </Modal>
