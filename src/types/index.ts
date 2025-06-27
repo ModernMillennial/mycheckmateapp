@@ -23,6 +23,7 @@ export interface Account {
   startingBalanceDate: string;
   currentBalance: number;
   color: string; // For visual distinction
+  plaidAccessToken?: string; // For Plaid-connected accounts
 }
 
 export interface UserSettings {

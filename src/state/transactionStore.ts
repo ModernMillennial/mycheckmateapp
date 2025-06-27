@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Transaction, UserSettings, FilterType, Account } from '../types';
 import { generateSeedTransactions } from '../utils/seedData';
+import { plaidService } from '../services/plaidService';
 import {
   NotificationSettings,
   defaultNotificationSettings,
@@ -33,6 +34,10 @@ interface TransactionState {
   calculateRunningBalance: () => void;
   syncBankTransactions: (bankTransactions: Omit<Transaction, 'id' | 'runningBalance'>[]) => void;
   initializeWithSeedData: () => void;
+  
+  // Plaid integration
+  connectPlaidAccount: (accessToken: string, accountData: any) => void;
+  syncPlaidTransactions: (accessToken: string, accountId: string, startDate: string, endDate: string) => Promise<void>;
   
   // Account management
   addAccount: (account: Omit<Account, 'id'>) => void;
@@ -506,6 +511,51 @@ export const useTransactionStore = create<TransactionState>()(
         });
         
         // Don't auto-initialize seed data - let first-time setup handle it
+      },
+
+      connectPlaidAccount: (accessToken, accountData) => {
+        const { accounts } = get();
+        
+        // Convert Plaid account to our Account type
+        const newAccount = {
+          id: accountData.account_id,
+          name: accountData.name || accountData.official_name || 'Connected Account',
+          type: accountData.subtype as 'checking' | 'savings' | 'credit',
+          bankName: 'Connected via Plaid',
+          accountNumber: accountData.mask || '****',
+          isActive: true,
+          startingBalance: accountData.balances?.current || 0,
+          startingBalanceDate: new Date().toISOString().split('T')[0],
+          currentBalance: accountData.balances?.current || 0,
+          color: accountData.subtype === 'savings' ? '#10B981' : '#3B82F6',
+          plaidAccessToken: accessToken, // Store access token for future syncs
+        };
+
+        set((state) => ({
+          accounts: [...state.accounts, newAccount],
+          settings: { ...state.settings, bankLinked: true, activeAccountId: newAccount.id },
+        }));
+      },
+
+      syncPlaidTransactions: async (accessToken, accountId, startDate, endDate) => {
+        try {
+          const plaidTransactions = await plaidService.getTransactions(
+            accessToken, 
+            [accountId], 
+            startDate, 
+            endDate
+          );
+
+          const convertedTransactions = plaidTransactions.map(plaidTx => 
+            plaidService.convertPlaidTransactionToApp(plaidTx, 'user-1')
+          );
+
+          // Use existing sync logic to avoid duplicates and handle conversions
+          get().syncBankTransactions(convertedTransactions);
+        } catch (error) {
+          console.error('Error syncing Plaid transactions:', error);
+          throw error;
+        }
       },
     }),
     {

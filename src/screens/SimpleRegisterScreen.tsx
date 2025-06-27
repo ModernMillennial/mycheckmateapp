@@ -401,6 +401,17 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
+                  setTimeout(() => navigation?.navigate('BankConnection'), 100);
+                }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
+              >
+                <Ionicons name="link" size={22} color="#10B981" />
+                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Connect Bank</Text>
+              </Pressable>
+              
+              <Pressable
+                onPress={() => {
+                  setShowMenu(false);
                   setTimeout(() => navigation?.navigate('Accounts'), 100);
                 }}
                 style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
