@@ -582,10 +582,10 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                   <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
                 </View>
                 <View className="w-24 items-center px-1">
-                  <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
+                  <Text className="text-xs font-bold text-gray-700 uppercase">Debit</Text>
                 </View>
                 <View className="w-24 items-center px-1">
-                  <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
+                  <Text className="text-xs font-bold text-gray-700 uppercase">Credit</Text>
                 </View>
                 <View className="w-24 items-center pl-1">
                   <Text className="text-xs font-bold text-gray-700 uppercase">Balance</Text>
