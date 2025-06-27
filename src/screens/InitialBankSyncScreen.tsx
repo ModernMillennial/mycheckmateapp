@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, Pressable, TextInput, ScrollView, Alert } from 'react-native';
+import { View, Text, Modal, Pressable, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import DateTimePicker from '@react-native-community/datetimepicker';
+
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
 
@@ -11,15 +11,16 @@ interface Props {
   onCancel: () => void;
 }
 
-type Step = 'connect' | 'balance' | 'importing' | 'complete';
+type Step = 'connect' | 'fetching' | 'selectStart' | 'importing' | 'complete';
 
 const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel }) => {
   const [step, setStep] = useState<Step>('connect');
   const [selectedBank, setSelectedBank] = useState<string>('');
-  const [startingBalance, setStartingBalance] = useState<string>('');
-  const [startingDate, setStartingDate] = useState<Date>(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [fetchedTransactions, setFetchedTransactions] = useState<any[]>([]);
+  const [selectedStartingTransaction, setSelectedStartingTransaction] = useState<string>('');
+  const [currentBalance, setCurrentBalance] = useState<number>(0);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
   
@@ -44,13 +45,88 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
     // Simulate connection process
     setTimeout(() => {
       setIsConnecting(false);
-      setStep('balance');
+      setStep('fetching');
+      fetchBankTransactions();
     }, 2000);
   };
 
-  const handleBalanceSubmit = () => {
-    if (!startingBalance || parseFloat(startingBalance) < 0) {
-      Alert.alert('Invalid Balance', 'Please enter a valid starting balance.');
+  const fetchBankTransactions = async () => {
+    setIsFetching(true);
+    
+    // Simulate fetching bank transactions
+    const fetchSteps = [
+      { progress: 25, message: 'Connecting to bank...' },
+      { progress: 50, message: 'Fetching account history...' },
+      { progress: 75, message: 'Processing transactions...' },
+      { progress: 100, message: 'History retrieved!' },
+    ];
+    
+    for (const step of fetchSteps) {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setImportProgress(step.progress);
+    }
+    
+    // Create demo transaction history (90 days)
+    const demoTransactions = [];
+    let balance = 2847.23;
+    setCurrentBalance(balance);
+    
+    // Add realistic transaction history
+    const transactionTemplates = [
+      { payee: 'Payroll Deposit - ACME Corp', amount: 2500.00, type: 'credit' },
+      { payee: 'Rent Payment - Property Mgmt', amount: -1200.00, type: 'debit' },
+      { payee: 'Electric Bill - City Power', amount: -89.45, type: 'debit' },
+      { payee: 'Grocery Store - Fresh Market', amount: -156.78, type: 'debit' },
+      { payee: 'Gas Station - Shell #4821', amount: -42.30, type: 'debit' },
+      { payee: 'Coffee Shop - Starbucks', amount: -4.95, type: 'debit' },
+      { payee: 'ATM Withdrawal', amount: -100.00, type: 'debit' },
+      { payee: 'Direct Deposit - Tax Refund', amount: 834.50, type: 'credit' },
+      { payee: 'Online Purchase - Amazon', amount: -67.89, type: 'debit' },
+      { payee: 'Restaurant - Pizza Palace', amount: -23.45, type: 'debit' },
+      { payee: 'Phone Bill - Verizon', amount: -78.99, type: 'debit' },
+      { payee: 'Insurance - Auto Premium', amount: -124.50, type: 'debit' },
+      { payee: 'Transfer from Savings', amount: 500.00, type: 'credit' },
+      { payee: 'Pharmacy - CVS', amount: -15.67, type: 'debit' },
+      { payee: 'Streaming Service - Netflix', amount: -15.99, type: 'debit' },
+    ];
+    
+    // Generate transactions over 90 days
+    for (let i = 0; i < 45; i++) {
+      const daysAgo = Math.floor(Math.random() * 90) + 1;
+      const date = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
+      const template = transactionTemplates[Math.floor(Math.random() * transactionTemplates.length)];
+      
+      // Add some randomness to amounts
+      const randomAmount = template.amount + (Math.random() - 0.5) * Math.abs(template.amount) * 0.1;
+      const amount = Math.round(randomAmount * 100) / 100;
+      
+      balance -= amount; // Calculate running balance backwards
+      
+      demoTransactions.push({
+        id: `fetched_${i}`,
+        date: date,
+        payee: template.payee,
+        amount: amount,
+        type: template.type,
+        balance: Math.round(balance * 100) / 100,
+        category: template.payee.includes('Payroll') ? 'Income' : 
+                 template.payee.includes('Rent') ? 'Housing' :
+                 template.payee.includes('Grocery') ? 'Food' : 'Other'
+      });
+    }
+    
+    // Sort by date (newest first)
+    demoTransactions.sort((a, b) => b.date.getTime() - a.date.getTime());
+    
+    setFetchedTransactions(demoTransactions);
+    setIsFetching(false);
+    setImportProgress(0);
+    setStep('selectStart');
+  };
+
+  const handleStartingPointSubmit = () => {
+    if (!selectedStartingTransaction) {
+      Alert.alert('Select Starting Point', 'Please select a transaction to start tracking from.');
       return;
     }
     
@@ -61,21 +137,25 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
   const simulateImport = async () => {
     setIsImporting(true);
     
+    // Find the selected starting transaction
+    const startingTransaction = fetchedTransactions.find(t => t.id === selectedStartingTransaction);
+    if (!startingTransaction) return;
+    
     // Create new account
     const bankName = demoBank.find(b => b.id === selectedBank)?.name || 'Demo Bank';
     
     const newAccount = {
       name: `${bankName} Checking`,
       type: 'checking' as const,
-      balance: parseFloat(startingBalance),
-      startingBalance: parseFloat(startingBalance),
-      startingBalanceDate: startingDate.toISOString().split('T')[0],
+      balance: currentBalance,
+      startingBalance: startingTransaction.balance,
+      startingBalanceDate: startingTransaction.date.toISOString().split('T')[0],
       isConnected: true,
       lastSyncDate: new Date(),
       bankName: bankName,
       accountNumber: '****1234',
       isActive: true,
-      currentBalance: parseFloat(startingBalance),
+      currentBalance: currentBalance,
       color: '#3B82F6',
     };
     
@@ -102,45 +182,21 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
     if (newAccountId) {
       switchAccount(newAccountId);
       
-      // Add some demo bank transactions
-      const demoTransactions = [
-        {
-          accountId: newAccountId,
-          type: 'debit' as const,
-          amount: -4.50,
-          payee: 'Starbucks Coffee',
-          date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          reconciled: true,
-          userId: 'demo-user',
-          source: 'bank' as const,
-          category: 'Food & Dining',
-        },
-        {
-          accountId: newAccountId,
-          type: 'credit' as const,
-          amount: 2500.00,
-          payee: 'Payroll Deposit',
-          date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          reconciled: true,
-          userId: 'demo-user',
-          source: 'bank' as const,
-          category: 'Income',
-        },
-        {
-          accountId: newAccountId,
-          type: 'debit' as const,
-          amount: -85.32,
-          payee: 'Grocery Store',
-          date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          reconciled: true,
-          userId: 'demo-user',
-          source: 'bank' as const,
-          category: 'Groceries',
-        },
-      ];
+      // Import transactions from the selected starting point forward
+      const startingTransactionIndex = fetchedTransactions.findIndex(t => t.id === selectedStartingTransaction);
+      const transactionsToImport = fetchedTransactions.slice(0, startingTransactionIndex + 1);
       
-      demoTransactions.forEach(transaction => {
-        addTransaction(transaction);
+      transactionsToImport.forEach(transaction => {
+        addTransaction({
+          accountId: newAccountId,
+          amount: transaction.amount,
+          payee: transaction.payee,
+          date: transaction.date.toISOString().split('T')[0],
+          reconciled: true,
+          userId: 'demo-user',
+          source: 'bank' as const,
+          notes: transaction.category,
+        });
       });
     }
     
@@ -157,8 +213,9 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
     // Reset state for next time
     setStep('connect');
     setSelectedBank('');
-    setStartingBalance('');
-    setStartingDate(new Date());
+    setFetchedTransactions([]);
+    setSelectedStartingTransaction('');
+    setCurrentBalance(0);
     setImportProgress(0);
   };
 
@@ -219,79 +276,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
     </ScrollView>
   );
 
-  const renderBalanceStep = () => (
-    <ScrollView className="flex-1 p-6">
-      <View className="items-center mb-8">
-        <View className="w-16 h-16 bg-green-100 rounded-full items-center justify-center mb-4">
-          <Ionicons name="wallet" size={32} color="#10B981" />
-        </View>
-        <Text className="text-2xl font-bold text-gray-900 mb-2">Set Starting Balance</Text>
-        <Text className="text-gray-600 text-center">
-          Enter your current account balance and the date you want to start tracking from
-        </Text>
-      </View>
 
-      <View className="mb-6">
-        <Text className="text-lg font-semibold text-gray-900 mb-3">Current Balance</Text>
-        <View className="flex-row items-center border border-gray-300 rounded-lg p-4">
-          <Text className="text-gray-600 text-lg mr-2">$</Text>
-          <TextInput
-            value={startingBalance}
-            onChangeText={setStartingBalance}
-            placeholder="0.00"
-            keyboardType="decimal-pad"
-            className="flex-1 text-lg text-gray-900"
-          />
-        </View>
-      </View>
-
-      <View className="mb-8">
-        <Text className="text-lg font-semibold text-gray-900 mb-3">Starting Date</Text>
-        <Pressable
-          onPress={() => setShowDatePicker(true)}
-          className="flex-row items-center justify-between border border-gray-300 rounded-lg p-4"
-        >
-          <Text className="text-gray-900 text-lg">
-            {startingDate.toLocaleDateString()}
-          </Text>
-          <Ionicons name="calendar" size={20} color="#6B7280" />
-        </Pressable>
-      </View>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={startingDate}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            setShowDatePicker(false);
-            if (selectedDate) {
-              setStartingDate(selectedDate);
-            }
-          }}
-        />
-      )}
-
-      <View className="flex-row justify-between">
-        <Pressable
-          onPress={() => setStep('connect')}
-          className="flex-1 mr-2 py-4 px-6 rounded-lg border border-gray-300"
-        >
-          <Text className="text-gray-700 font-semibold text-center">Back</Text>
-        </Pressable>
-        
-        <Pressable
-          onPress={handleBalanceSubmit}
-          disabled={!startingBalance}
-          className={`flex-1 ml-2 py-4 px-6 rounded-lg ${
-            startingBalance ? 'bg-blue-500' : 'bg-gray-300'
-          }`}
-        >
-          <Text className="text-white font-semibold text-center">Import</Text>
-        </Pressable>
-      </View>
-    </ScrollView>
-  );
 
   const renderImportingStep = () => (
     <View className="flex-1 items-center justify-center p-6">
@@ -329,12 +314,119 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
 
       {importProgress === 100 && (
         <View className="items-center">
-          <Text className="text-green-600 font-medium mb-2">✓ 3 transactions imported</Text>
+          <Text className="text-green-600 font-medium mb-2">✓ Transactions imported</Text>
           <Text className="text-green-600 font-medium mb-2">✓ Account balance set</Text>
           <Text className="text-green-600 font-medium">✓ Ready to use</Text>
         </View>
       )}
     </View>
+  );
+
+  const renderFetchingStep = () => (
+    <View className="flex-1 items-center justify-center p-6">
+      <View className="w-20 h-20 bg-blue-100 rounded-full items-center justify-center mb-6">
+        <Ionicons 
+          name={importProgress === 100 ? "checkmark" : "cloud-download"} 
+          size={40} 
+          color="#3B82F6" 
+        />
+      </View>
+      
+      <Text className="text-2xl font-bold text-gray-900 mb-4">
+        {importProgress === 100 ? 'History Retrieved!' : 'Fetching Account History'}
+      </Text>
+      
+      <Text className="text-gray-600 text-center mb-8">
+        {importProgress === 100 
+          ? 'Your transaction history has been retrieved successfully'
+          : 'We are fetching your recent transaction history from your bank'
+        }
+      </Text>
+
+      <View className="w-full max-w-xs mb-4">
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-sm text-gray-600">Progress</Text>
+          <Text className="text-sm text-gray-600">{importProgress}%</Text>
+        </View>
+        <View className="w-full bg-gray-200 rounded-full h-2">
+          <View 
+            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${importProgress}%` }}
+          />
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderSelectStartStep = () => (
+    <ScrollView className="flex-1 p-6">
+      <View className="items-center mb-8">
+        <View className="w-16 h-16 bg-green-100 rounded-full items-center justify-center mb-4">
+          <Ionicons name="list" size={32} color="#10B981" />
+        </View>
+        <Text className="text-2xl font-bold text-gray-900 mb-2">Choose Starting Point</Text>
+        <Text className="text-gray-600 text-center">
+          Select the transaction you want to start tracking from. All transactions from this point forward will be imported.
+        </Text>
+      </View>
+
+      <View className="bg-blue-50 rounded-lg p-4 mb-6">
+        <Text className="text-blue-900 font-semibold mb-2">Current Balance: ${currentBalance.toFixed(2)}</Text>
+        <Text className="text-blue-800 text-sm">Found {fetchedTransactions.length} transactions in the last 90 days</Text>
+      </View>
+
+      <Text className="text-lg font-semibold text-gray-900 mb-4">Recent Transactions</Text>
+      
+      {fetchedTransactions.slice(0, 10).map((transaction) => (
+        <Pressable
+          key={transaction.id}
+          onPress={() => setSelectedStartingTransaction(transaction.id)}
+          className={`flex-row items-center p-4 rounded-lg border-2 mb-3 ${
+            selectedStartingTransaction === transaction.id
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-gray-200 bg-white'
+          }`}
+        >
+          <View className="flex-1">
+            <Text className="text-gray-900 font-medium">{transaction.payee}</Text>
+            <Text className="text-gray-500 text-sm">
+              {transaction.date.toLocaleDateString()} • Balance: ${transaction.balance.toFixed(2)}
+            </Text>
+          </View>
+          <View className="items-end">
+            <Text className={`font-semibold ${
+              transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {transaction.amount >= 0 ? '+' : ''}${Math.abs(transaction.amount).toFixed(2)}
+            </Text>
+          </View>
+          {selectedStartingTransaction === transaction.id && (
+            <View className="ml-3">
+              <Ionicons name="checkmark-circle" size={24} color="#3B82F6" />
+            </View>
+          )}
+        </Pressable>
+      ))}
+
+      <View className="flex-row justify-between mt-8">
+        <Pressable
+          onPress={() => setStep('connect')}
+          className="flex-1 mr-2 py-4 px-6 rounded-lg border border-gray-300"
+        >
+          <Text className="text-gray-700 font-semibold text-center">Back</Text>
+        </Pressable>
+        
+        <Pressable
+          onPress={handleStartingPointSubmit}
+          disabled={!selectedStartingTransaction}
+          className={`flex-1 ml-2 py-4 px-6 rounded-lg ${
+            selectedStartingTransaction ? 'bg-blue-500' : 'bg-gray-300'
+          }`}
+        >
+          <Text className="text-white font-semibold text-center">Import</Text>
+        </Pressable>
+      </View>
+    </ScrollView>
   );
 
   const renderCompleteStep = () => (
@@ -346,7 +438,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
       <Text className="text-2xl font-bold text-gray-900 mb-4">You're All Set!</Text>
       
       <Text className="text-gray-600 text-center mb-8">
-        Your bank account has been connected and your transactions have been imported. 
+        Your bank account has been connected and transactions from your selected starting point have been imported. 
         You can now start tracking your finances with the Digital Register.
       </Text>
 
@@ -372,7 +464,8 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <SafeAreaView className="flex-1 bg-white">
         {step === 'connect' && renderConnectStep()}
-        {step === 'balance' && renderBalanceStep()}
+        {step === 'fetching' && renderFetchingStep()}
+        {step === 'selectStart' && renderSelectStartStep()}
         {step === 'importing' && renderImportingStep()}
         {step === 'complete' && renderCompleteStep()}
       </SafeAreaView>
