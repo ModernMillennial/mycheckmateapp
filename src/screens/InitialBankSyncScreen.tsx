@@ -26,7 +26,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
   
-  const { addAccount, updateAccount, addTransaction, switchAccount, updateSettings } = useTransactionStore();
+  const { addAccount, updateAccount, addTransaction, switchAccount, updateSettings, accounts } = useTransactionStore();
 
   const demoBank = [
     { id: 'chase', name: 'Chase Bank', icon: '🏦' },
@@ -138,7 +138,8 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
   };
 
   const simulateImport = async () => {
-    setIsImporting(true);
+    try {
+      setIsImporting(true);
     
     // Find the selected starting transaction
     const startingTransaction = fetchedTransactions.find(t => t.id === selectedStartingTransaction);
@@ -178,30 +179,34 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
       setImportProgress(step.progress);
     }
     
-    // Get the newly created account ID and switch to it
-    const accounts = useTransactionStore.getState().accounts;
-    const newAccountId = accounts[accounts.length - 1]?.id;
-    
-    if (newAccountId) {
-      switchAccount(newAccountId);
+    // The addAccount function generates the ID internally, so we need to find the new account
+    // by its unique properties rather than trying to get it from state immediately
+    setTimeout(() => {
+      // Find the newly created account by name
+      const newAccount = accounts.find(acc => acc.name === `${bankName} Checking`);
+      const newAccountId = newAccount?.id;
       
-      // Import transactions from the selected starting point forward
-      const startingTransactionIndex = fetchedTransactions.findIndex(t => t.id === selectedStartingTransaction);
-      const transactionsToImport = fetchedTransactions.slice(0, startingTransactionIndex + 1);
-      
-      transactionsToImport.forEach(transaction => {
-        addTransaction({
-          accountId: newAccountId,
-          amount: transaction.amount,
-          payee: transaction.payee,
-          date: transaction.date.toISOString().split('T')[0],
-          reconciled: true,
-          userId: 'demo-user',
-          source: 'bank' as const,
-          notes: transaction.category,
+      if (newAccountId) {
+        switchAccount(newAccountId);
+        
+        // Import transactions from the selected starting point forward
+        const startingTransactionIndex = fetchedTransactions.findIndex(t => t.id === selectedStartingTransaction);
+        const transactionsToImport = fetchedTransactions.slice(0, startingTransactionIndex + 1);
+        
+        transactionsToImport.forEach(transaction => {
+          addTransaction({
+            accountId: newAccountId,
+            amount: transaction.amount,
+            payee: transaction.payee,
+            date: transaction.date.toISOString().split('T')[0],
+            reconciled: true,
+            userId: 'demo-user',
+            source: 'bank' as const,
+            notes: transaction.category,
+          });
         });
-      });
-    }
+      }
+    }, 200);
     
     setTimeout(() => {
       setIsImporting(false);
@@ -214,6 +219,12 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
       const importedCount = startingTransactionIndex + 1;
       console.log(`Import complete: ${importedCount} transactions imported`);
     }, 1000);
+    } catch (error) {
+      console.error('Error during import simulation:', error);
+      setIsImporting(false);
+      setStep('selectStart');
+      Alert.alert('Import Error', 'Something went wrong during import. Please try again.');
+    }
   };
 
   const handleComplete = () => {
