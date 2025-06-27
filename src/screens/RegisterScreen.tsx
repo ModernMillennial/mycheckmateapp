@@ -13,6 +13,7 @@ import * as Haptics from 'expo-haptics';
 import { useTransactionStore } from '../state/transactionStore';
 import { Transaction, FilterType } from '../types';
 import { cn } from '../utils/cn';
+import ReconciliationLegend from '../components/ReconciliationLegend';
 
 interface Props {
   navigation: any;
@@ -20,6 +21,7 @@ interface Props {
 
 const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+  const [showLegend, setShowLegend] = React.useState(false);
   const {
     accounts,
     searchQuery,
@@ -159,16 +161,54 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           <View className="flex-row items-center">
             {!isStarting && (
               <>
-                <Pressable
-                  onPress={() => toggleReconciled(item.id)}
-                  className="p-1"
-                >
-                  <Ionicons
-                    name={item.reconciled ? 'checkmark-circle' : 'ellipse-outline'}
-                    size={20}
-                    color={item.reconciled ? '#10B981' : (item.source === 'bank' ? '#3B82F6' : '#9CA3AF')}
-                  />
-                </Pressable>
+                {/* Reconciliation Status Icons */}
+                <View className="flex-row items-center">
+                  {item.source === 'manual' && (
+                    <View className="p-1">
+                      <Ionicons
+                        name="ellipse-outline"
+                        size={20}
+                        color="#9CA3AF"
+                      />
+                    </View>
+                  )}
+                  
+                  {item.source === 'bank' && !item.notes?.includes('Converted from manual entry') && (
+                    <Pressable
+                      onPress={() => toggleReconciled(item.id)}
+                      className="p-1"
+                    >
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={20}
+                        color="#10B981"
+                      />
+                    </Pressable>
+                  )}
+                  
+                  {item.source === 'bank' && item.notes?.includes('Converted from manual entry') && (
+                    <View className="flex-row">
+                      <View className="p-1">
+                        <Ionicons
+                          name="ellipse-outline"
+                          size={20}
+                          color="#9CA3AF"
+                        />
+                      </View>
+                      <Pressable
+                        onPress={() => toggleReconciled(item.id)}
+                        className="p-1 -ml-2"
+                      >
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={20}
+                          color="#F59E0B"
+                        />
+                      </Pressable>
+                    </View>
+                  )}
+                </View>
+                
                 {item.source === 'bank' && (
                   <Ionicons
                     name="lock-closed"
@@ -202,19 +242,28 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               <Ionicons
                 name={item.source === 'manual' ? 'receipt-outline' : 'card-outline'}
                 size={14}
-                color={item.reconciled ? '#10B981' : '#9CA3AF'}
+                color={
+                  item.source === 'manual' 
+                    ? '#9CA3AF' 
+                    : item.notes?.includes('Converted from manual entry')
+                      ? '#F59E0B'
+                      : '#10B981'
+                }
               />
               <Text className={cn(
                 "text-xs ml-1 capitalize",
-                item.reconciled ? 'text-green-600' : 'text-gray-500'
+                item.source === 'manual' 
+                  ? 'text-gray-500' 
+                  : item.notes?.includes('Converted from manual entry')
+                    ? 'text-yellow-600'
+                    : 'text-green-600'
               )}>
-                {item.source}
+                {item.source === 'bank' && item.notes?.includes('Converted from manual entry')
+                  ? 'converted'
+                  : item.source}
               </Text>
-              {!item.reconciled && item.source === 'manual' && (
-                <Text className="text-xs text-orange-500 ml-1">• Pending</Text>
-              )}
-              {item.source === 'bank' && item.notes?.includes('Converted from manual entry') && (
-                <Text className="text-xs text-blue-500 ml-1">• Converted</Text>
+              {item.source === 'manual' && (
+                <Text className="text-xs text-gray-500 ml-1">• Pending</Text>
               )}
             </View>
           </View>
@@ -291,6 +340,12 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             My Digital Register
           </Text>
           <View className="flex-row">
+            <Pressable
+              onPress={() => setShowLegend(!showLegend)}
+              className="p-2 mr-1"
+            >
+              <Ionicons name="help-circle-outline" size={24} color="#374151" />
+            </Pressable>
             <Pressable
               onPress={() => navigation.navigate('Reports')}
               className="p-2 mr-1"
@@ -398,6 +453,9 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           keyExtractor={(item) => item.filter}
         />
       </View>
+
+      {/* Reconciliation Legend */}
+      {showLegend && <ReconciliationLegend />}
 
       {/* Column Headers */}
       <View className="bg-gray-50 mx-4 px-4 py-2 rounded-lg mb-2">

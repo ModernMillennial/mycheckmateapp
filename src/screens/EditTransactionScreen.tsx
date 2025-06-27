@@ -199,17 +199,63 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
 
           {/* Reconciliation Status */}
           <View className="mb-6">
-            <Pressable
-              onPress={() => setFormData({ ...formData, reconciled: !formData.reconciled })}
-              className="flex-row items-center justify-between p-4 border border-gray-300 rounded-lg"
-            >
-              <Text className="text-base text-gray-900">Reconciled</Text>
-              <Ionicons
-                name={formData.reconciled ? 'checkmark-circle' : 'ellipse-outline'}
-                size={24}
-                color={formData.reconciled ? '#10B981' : '#9CA3AF'}
-              />
-            </Pressable>
+            <Text className="text-sm font-medium text-gray-700 mb-3">
+              Transaction Status
+            </Text>
+            
+            {transaction.source === 'manual' ? (
+              <View className="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-base text-gray-700">Manual Entry</Text>
+                  <Ionicons
+                    name="ellipse-outline"
+                    size={24}
+                    color="#9CA3AF"
+                  />
+                </View>
+                <Text className="text-xs text-gray-500 mt-2">
+                  Manual entries show as open circles and cannot be marked as reconciled until they appear in bank sync.
+                </Text>
+              </View>
+            ) : transaction.notes?.includes('Converted from manual entry') ? (
+              <View className="p-4 border border-yellow-200 rounded-lg bg-yellow-50">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-base text-gray-900">Converted Transaction</Text>
+                  <View className="flex-row items-center">
+                    <Ionicons name="ellipse-outline" size={20} color="#9CA3AF" />
+                    <Ionicons name="checkmark-circle" size={24} color="#F59E0B" style={{ marginLeft: -8 }} />
+                  </View>
+                </View>
+                <Pressable
+                  onPress={() => setFormData({ ...formData, reconciled: !formData.reconciled })}
+                  className="flex-row items-center justify-between"
+                >
+                  <Text className="text-sm text-gray-700">
+                    Mark as fully reconciled (green check)
+                  </Text>
+                  <Ionicons
+                    name={formData.reconciled ? 'checkmark-circle' : 'ellipse-outline'}
+                    size={20}
+                    color={formData.reconciled ? '#10B981' : '#9CA3AF'}
+                  />
+                </Pressable>
+                <Text className="text-xs text-yellow-700 mt-2">
+                  This was originally a manual entry that was converted when found in bank sync. Yellow check indicates conversion.
+                </Text>
+              </View>
+            ) : (
+              <Pressable
+                onPress={() => setFormData({ ...formData, reconciled: !formData.reconciled })}
+                className="flex-row items-center justify-between p-4 border border-gray-300 rounded-lg"
+              >
+                <Text className="text-base text-gray-900">Bank Transaction</Text>
+                <Ionicons
+                  name="checkmark-circle"
+                  size={24}
+                  color="#10B981"
+                />
+              </Pressable>
+            )}
           </View>
 
           {/* Transaction Type Toggle - Only for manual transactions */}

@@ -136,9 +136,13 @@ export const useTransactionStore = create<TransactionState>()(
 
       toggleReconciled: (id) => {
         set((state) => ({
-          transactions: state.transactions.map((t) =>
-            t.id === id ? { ...t, reconciled: !t.reconciled } : t
-          ),
+          transactions: state.transactions.map((t) => {
+            // Only allow toggling reconciliation for bank transactions
+            if (t.id === id && t.source === 'bank') {
+              return { ...t, reconciled: !t.reconciled };
+            }
+            return t;
+          }),
         }));
       },
 
@@ -297,7 +301,7 @@ export const useTransactionStore = create<TransactionState>()(
               payee: bankTransaction.payee, // Use bank's more accurate payee name
               amount: bankTransaction.amount, // Use bank's exact amount
               date: bankTransaction.date, // Use bank's exact date
-              reconciled: true,
+              reconciled: false, // Start as unreconciled so user can see yellow check
               notes: manualTransaction.notes 
                 ? `${manualTransaction.notes} [Converted from manual entry]`
                 : 'Converted from manual entry',
