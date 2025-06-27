@@ -1,7 +1,9 @@
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
+import { useEffect } from "react";
 import AppNavigator from "./src/navigation/AppNavigator";
+import { setupNotificationListeners } from "./src/utils/notifications";
 
 /*
 IMPORTANT NOTICE: DO NOT REMOVE
@@ -25,6 +27,12 @@ const openai_api_key = Constants.expoConfig.extra.apikey;
 */
 
 export default function App() {
+  useEffect(() => {
+    // Setup notification listeners
+    const unsubscribe = setupNotificationListeners();
+    return unsubscribe;
+  }, []);
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>

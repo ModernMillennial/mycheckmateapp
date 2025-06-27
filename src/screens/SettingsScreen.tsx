@@ -31,6 +31,26 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
       
       const mockBankTransactions = [
+        // Recent deposit that will trigger notification
+        {
+          userId: 'user-1',
+          date: new Date().toISOString().split('T')[0], // Today
+          payee: 'Bonus Payment',
+          amount: 500.00,
+          source: 'bank' as const,
+          notes: 'Quarterly bonus',
+          reconciled: false,
+        },
+        // Recent debit that will trigger notification
+        {
+          userId: 'user-1',
+          date: new Date().toISOString().split('T')[0], // Today
+          payee: 'Target Store',
+          amount: -125.50,
+          source: 'bank' as const,
+          notes: 'Debit card purchase',
+          reconciled: false,
+        },
         // This will match the "Grocery Store" manual transaction
         {
           userId: 'user-1',
@@ -49,26 +69,6 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           amount: -45.00,
           source: 'bank' as const,
           notes: 'Debit card purchase',
-          reconciled: false,
-        },
-        // New bank transaction with no manual match
-        {
-          userId: 'user-1',
-          date: new Date(Date.now() - 86400000).toISOString().split('T')[0], // Yesterday
-          payee: 'Amazon.com',
-          amount: -89.99,
-          source: 'bank' as const,
-          notes: 'Online purchase',
-          reconciled: false,
-        },
-        // Another new transaction
-        {
-          userId: 'user-1',
-          date: new Date().toISOString().split('T')[0], // Today
-          payee: 'ATM Withdrawal',
-          amount: -60.00,
-          source: 'bank' as const,
-          notes: 'Cash withdrawal',
           reconciled: false,
         },
       ];
@@ -246,6 +246,22 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
                 thumbColor="#FFFFFF"
               />
             </View>
+          </View>
+        </View>
+
+        {/* Notifications Section */}
+        <View className="mt-8">
+          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
+            Notifications
+          </Text>
+          
+          <View className="bg-white">
+            <SettingRow
+              title="Push Notifications"
+              subtitle="Configure alerts for deposits, debits, and overdrafts"
+              onPress={() => navigation.navigate('NotificationSettings')}
+              rightComponent={<Ionicons name="notifications-outline" size={20} color="#9CA3AF" />}
+            />
           </View>
         </View>
 

@@ -3,10 +3,19 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Transaction, UserSettings, FilterType } from '../types';
 import { generateSeedTransactions } from '../utils/seedData';
+import {
+  NotificationSettings,
+  defaultNotificationSettings,
+  scheduleDepositNotification,
+  scheduleDebitNotification,
+  scheduleOverdraftWarning,
+  scheduleOverdraftAlert,
+} from '../utils/notifications';
 
 interface TransactionState {
   transactions: Transaction[];
   settings: UserSettings;
+  notificationSettings: NotificationSettings;
   searchQuery: string;
   filterType: FilterType;
   isInitialized: boolean;
@@ -19,6 +28,7 @@ interface TransactionState {
   setSearchQuery: (query: string) => void;
   setFilterType: (filter: FilterType) => void;
   updateSettings: (settings: Partial<UserSettings>) => void;
+  updateNotificationSettings: (settings: Partial<NotificationSettings>) => void;
   calculateRunningBalance: () => void;
   syncBankTransactions: (bankTransactions: Omit<Transaction, 'id' | 'runningBalance'>[]) => void;
   initializeWithSeedData: () => void;
@@ -36,6 +46,7 @@ export const useTransactionStore = create<TransactionState>()(
     (set, get) => ({
       transactions: [],
       settings: initialSettings,
+      notificationSettings: defaultNotificationSettings,
       searchQuery: '',
       filterType: 'all',
       isInitialized: false,
@@ -97,17 +108,58 @@ export const useTransactionStore = create<TransactionState>()(
         }));
       },
 
+      updateNotificationSettings: (settingsUpdate) => {
+        set((state) => ({
+          notificationSettings: { ...state.notificationSettings, ...settingsUpdate },
+        }));
+      },
+
       calculateRunningBalance: () => {
-        const { transactions, settings } = get();
+        const { transactions, settings, notificationSettings } = get();
         const sortedTransactions = [...transactions].sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
         );
 
         let runningBalance = settings.lastBalance;
-        const updatedTransactions = sortedTransactions.map((transaction) => {
+        let previousBalance = runningBalance;
+        
+        const updatedTransactions = sortedTransactions.map((transaction, index) => {
+          previousBalance = runningBalance;
           runningBalance += transaction.amount;
+          
+          // Only trigger notifications for new bank transactions (source: 'bank' and recent)
+          const isRecentBankTransaction = transaction.source === 'bank' && 
+            new Date(transaction.date).getTime() > Date.now() - 86400000; // Within 24 hours
+          
+          if (isRecentBankTransaction) {
+            // Trigger deposit notification
+            if (transaction.amount > 0 && notificationSettings.depositsEnabled) {
+              scheduleDepositNotification(transaction.amount, transaction.payee, runningBalance);
+            }
+            
+            // Trigger debit notification
+            if (transaction.amount < 0 && notificationSettings.debitsEnabled) {
+              scheduleDebitNotification(transaction.amount, transaction.payee, runningBalance);
+            }
+          }
+          
           return { ...transaction, runningBalance };
         });
+
+        // Check for overdraft warnings after all transactions are processed
+        const finalBalance = runningBalance;
+        
+        if (notificationSettings.overdraftWarningEnabled) {
+          // Overdraft alert (balance is negative)
+          if (finalBalance < 0 && previousBalance >= 0) {
+            scheduleOverdraftAlert(finalBalance);
+          }
+          // Low balance warning (below threshold but positive)
+          else if (finalBalance > 0 && finalBalance <= notificationSettings.overdraftThreshold && 
+                   previousBalance > notificationSettings.overdraftThreshold) {
+            scheduleOverdraftWarning(finalBalance, notificationSettings.overdraftThreshold);
+          }
+        }
 
         set({ transactions: updatedTransactions });
       },
@@ -178,6 +230,7 @@ export const useTransactionStore = create<TransactionState>()(
       partialize: (state) => ({
         transactions: state.transactions,
         settings: state.settings,
+        notificationSettings: state.notificationSettings,
         isInitialized: state.isInitialized,
       }),
     }
