@@ -25,7 +25,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     syncBankTransactions,
     clearAndReinitialize,
     updateSettings,
-    toggleReconciled,
+    toggleReconciled: togglePosted,
   } = useTransactionStore();
 
   useEffect(() => {
@@ -86,7 +86,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     
     Alert.alert(
       'Manual Transaction Added!',
-      'Added manual transaction with gray circles (pending reconciliation). In 3 seconds, it will convert to show green + yellow checks when "bank sync" finds the matching transaction.',
+      'Added manual transaction with "NOT POSTED" status. In 3 seconds, it will convert to show "POSTED MANUAL" when "bank sync" finds the matching transaction.',
       [{ text: 'OK' }]
     );
     
@@ -106,7 +106,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       setTimeout(() => {
         Alert.alert(
           'Conversion Complete! 🎉',
-          'The manual "Demo Coffee Shop" entry has been converted to a bank transaction. Notice the change:\n\n• Before: ⚪⚪ Two circles (manual entry)\n• After: ✅✅ Two checkmarks (converted transaction)\n\nThe double checkmarks show this was originally manual but is now bank-confirmed. You can tap the first checkmark to toggle reconciliation.',
+          'The manual "Demo Coffee Shop" entry has been converted to a bank transaction. Notice the change:\n\n• Before: "NOT POSTED" (manual entry)\n• After: "POSTED MANUAL" (converted transaction)\n\nThis status shows the transaction was originally manual but is now bank-confirmed.',
           [{ text: 'Perfect!' }]
         );
       }, 500);
@@ -260,36 +260,27 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
             </Text>
           )}
           
-          {/* Reconciliation Status */}
+          {/* Posting Status */}
           <Pressable
-            onPress={() => !isStartingBalance && toggleReconciled(item.id)}
-            disabled={isStartingBalance}
+            onPress={() => !isStartingBalance && item.source === 'bank' && !item.notes?.includes('Converted') && togglePosted(item.id)}
+            disabled={isStartingBalance || item.source === 'manual' || item.notes?.includes('Converted')}
             className="ml-2"
           >
-            {item.source === 'manual' && !item.reconciled ? (
-              // Manual transaction - two gray circles
-              <View className="flex-row">
-                <Ionicons name="ellipse-outline" size={16} color="#6B7280" />
-                <Ionicons name="ellipse-outline" size={16} color="#6B7280" style={{ marginLeft: 2 }} />
-              </View>
-            ) : item.source === 'bank' && item.notes?.includes('Converted') ? (
-              // Converted transaction - blue checkmark + orange star
-              <View className="flex-row">
-                <Ionicons 
-                  name={item.reconciled ? "checkmark-circle" : "checkmark-circle-outline"} 
-                  size={16} 
-                  color="#1D4ED8" 
-                />
-                <Ionicons name="star" size={16} color="#EA580C" style={{ marginLeft: 2 }} />
-              </View>
-            ) : (
-              // Regular bank transaction - single blue checkmark
-              <Ionicons 
-                name={item.reconciled ? "checkmark-circle" : "checkmark-circle-outline"} 
-                size={16} 
-                color="#1D4ED8" 
-              />
-            )}
+            <View className="bg-gray-100 px-2 py-1 rounded">
+              <Text className={`text-xs font-medium ${
+                item.source === 'manual' && !item.reconciled 
+                  ? 'text-red-600' 
+                  : item.source === 'bank' && item.notes?.includes('Converted')
+                    ? 'text-blue-600'
+                    : 'text-green-600'
+              }`}>
+                {item.source === 'manual' && !item.reconciled 
+                  ? 'NOT POSTED'
+                  : item.source === 'bank' && item.notes?.includes('Converted')
+                    ? 'POSTED MANUAL'
+                    : 'POSTED'}
+              </Text>
+            </View>
           </Pressable>
         </View>
 
@@ -491,7 +482,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           <View className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-lg font-semibold text-blue-900">
-                Reconciliation Guide
+                Posting Status Guide
               </Text>
               <Pressable onPress={() => setShowLegend(false)}>
                 <Ionicons name="close" size={20} color="#3B82F6" />
@@ -499,20 +490,20 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
             </View>
             <View className="space-y-3">
               <View className="flex-row items-center">
-                <View className="flex-row mr-3">
-                  <Ionicons name="ellipse-outline" size={16} color="#6B7280" />
-                  <Ionicons name="ellipse-outline" size={16} color="#6B7280" style={{ marginLeft: 2 }} />
+                <View className="bg-gray-100 px-2 py-1 rounded mr-3">
+                  <Text className="text-xs font-medium text-red-600">NOT POSTED</Text>
                 </View>
-                <Text className="text-blue-800">Manual transactions (not yet reconciled)</Text>
+                <Text className="text-blue-800">Manual transactions (not yet posted to bank)</Text>
               </View>
               <View className="flex-row items-center">
-                <Ionicons name="checkmark-circle" size={16} color="#1D4ED8" style={{ marginRight: 12 }} />
-                <Text className="text-blue-800">Bank transactions (tap to toggle reconciliation)</Text>
+                <View className="bg-gray-100 px-2 py-1 rounded mr-3">
+                  <Text className="text-xs font-medium text-green-600">POSTED</Text>
+                </View>
+                <Text className="text-blue-800">Bank transactions (tap to toggle posted status)</Text>
               </View>
               <View className="flex-row items-center">
-                <View className="flex-row mr-3">
-                  <Ionicons name="checkmark-circle" size={16} color="#1D4ED8" />
-                  <Ionicons name="star" size={16} color="#EA580C" style={{ marginLeft: 2 }} />
+                <View className="bg-gray-100 px-2 py-1 rounded mr-3">
+                  <Text className="text-xs font-medium text-blue-600">POSTED MANUAL</Text>
                 </View>
                 <Text className="text-blue-800">Converted transactions (was manual, now bank confirmed)</Text>
               </View>
@@ -528,7 +519,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                 Transaction Register
               </Text>
               <Text className="text-sm text-gray-500">
-                Tap checks to reconcile
+                Tap "POSTED" to toggle status
               </Text>
             </View>
             
@@ -676,7 +667,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           setTimeout(() => {
             Alert.alert(
               'Welcome to Digital Register! 🎉',
-              'Your bank account has been connected and demo transactions imported. You can now:\n\n• View and reconcile transactions\n• Add manual entries\n• See real-time balance updates\n• Try the manual→bank conversion demo',
+              'Your bank account has been connected and demo transactions imported. You can now:\n\n• View and post transactions\n• Add manual entries\n• See real-time balance updates\n• Try the manual→bank conversion demo',
               [{ text: "Let's Explore!" }]
             );
           }, 100);
