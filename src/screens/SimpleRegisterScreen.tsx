@@ -170,25 +170,25 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
             {item.source === 'manual' && !item.reconciled ? (
               // Manual transaction - two gray circles
               <View className="flex-row">
-                <Ionicons name="ellipse-outline" size={16} color="#9CA3AF" />
-                <Ionicons name="ellipse-outline" size={16} color="#9CA3AF" style={{ marginLeft: 2 }} />
+                <Ionicons name="ellipse-outline" size={16} color="#6B7280" />
+                <Ionicons name="ellipse-outline" size={16} color="#6B7280" style={{ marginLeft: 2 }} />
               </View>
             ) : item.source === 'bank' && item.notes?.includes('Converted') ? (
-              // Converted transaction - green + yellow
+              // Converted transaction - blue checkmark + orange star
               <View className="flex-row">
                 <Ionicons 
                   name={item.reconciled ? "checkmark-circle" : "checkmark-circle-outline"} 
                   size={16} 
-                  color="#10B981" 
+                  color="#1D4ED8" 
                 />
-                <Ionicons name="checkmark-circle" size={16} color="#F59E0B" style={{ marginLeft: 2 }} />
+                <Ionicons name="star" size={16} color="#EA580C" style={{ marginLeft: 2 }} />
               </View>
             ) : (
-              // Regular bank transaction - single green check
+              // Regular bank transaction - single blue checkmark
               <Ionicons 
                 name={item.reconciled ? "checkmark-circle" : "checkmark-circle-outline"} 
                 size={16} 
-                color="#10B981" 
+                color="#1D4ED8" 
               />
             )}
           </Pressable>
@@ -210,18 +210,18 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
                 size={12}
                 color={
                   item.source === 'manual' 
-                    ? '#9CA3AF' 
+                    ? '#6B7280' 
                     : item.notes?.includes('Converted')
-                      ? '#F59E0B'
-                      : '#10B981'
+                      ? '#EA580C'
+                      : '#1D4ED8'
                 }
               />
               <Text className={`text-xs ml-1 capitalize ${
                 item.source === 'manual' 
-                  ? 'text-gray-500' 
+                  ? 'text-gray-600' 
                   : item.notes?.includes('Converted')
-                    ? 'text-yellow-600'
-                    : 'text-green-600'
+                    ? 'text-orange-600'
+                    : 'text-blue-700'
               }`}>
                 {item.source === 'bank' && item.notes?.includes('Converted')
                   ? 'converted'
@@ -394,19 +394,19 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
             <View className="space-y-3">
               <View className="flex-row items-center">
                 <View className="flex-row mr-3">
-                  <Ionicons name="ellipse-outline" size={16} color="#9CA3AF" />
-                  <Ionicons name="ellipse-outline" size={16} color="#9CA3AF" style={{ marginLeft: 2 }} />
+                  <Ionicons name="ellipse-outline" size={16} color="#6B7280" />
+                  <Ionicons name="ellipse-outline" size={16} color="#6B7280" style={{ marginLeft: 2 }} />
                 </View>
                 <Text className="text-blue-800">Manual transactions (not yet reconciled)</Text>
               </View>
               <View className="flex-row items-center">
-                <Ionicons name="checkmark-circle" size={16} color="#10B981" style={{ marginRight: 12 }} />
+                <Ionicons name="checkmark-circle" size={16} color="#1D4ED8" style={{ marginRight: 12 }} />
                 <Text className="text-blue-800">Bank transactions (tap to toggle reconciliation)</Text>
               </View>
               <View className="flex-row items-center">
                 <View className="flex-row mr-3">
-                  <Ionicons name="checkmark-circle" size={16} color="#10B981" />
-                  <Ionicons name="checkmark-circle" size={16} color="#F59E0B" style={{ marginLeft: 2 }} />
+                  <Ionicons name="checkmark-circle" size={16} color="#1D4ED8" />
+                  <Ionicons name="star" size={16} color="#EA580C" style={{ marginLeft: 2 }} />
                 </View>
                 <Text className="text-blue-800">Converted transactions (was manual, now bank confirmed)</Text>
               </View>
