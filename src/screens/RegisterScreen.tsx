@@ -174,7 +174,11 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         onPress={() => {
           if (!isStarting) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            console.log('Transaction pressed - navigation temporarily disabled');
+            if (navigation) {
+              navigation.navigate('EditTransaction', { transaction: item });
+            } else {
+              console.warn('Navigation not available yet');
+            }
           }
         }}
         disabled={isStarting}
@@ -397,7 +401,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
       <View className="bg-white px-4 py-4 border-b border-gray-200">
         <View className="flex-row justify-between items-center mb-4">
           <Text className="text-2xl font-bold text-gray-900">
-            My Digital Register
+            Digital Register
           </Text>
           <View className="flex-row">
             <Pressable
