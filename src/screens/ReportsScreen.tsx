@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -28,49 +28,6 @@ interface MonthlyReport {
 
 const ReportsScreen: React.FC<Props> = ({ navigation }) => {
   const { transactions } = useTransactionStore();
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
-
-  // Generate monthly reports
-  const monthlyReports = useMemo(() => {
-    const reports: { [key: string]: MonthlyReport } = {};
-
-    transactions.forEach((transaction) => {
-      const date = new Date(transaction.date);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-      if (!reports[monthKey]) {
-        reports[monthKey] = {
-          month: monthName,
-          year: date.getFullYear(),
-          totalCredits: 0,
-          totalDebits: 0,
-          netAmount: 0,
-          transactionCount: 0,
-          categories: {},
-        };
-      }
-
-      const report = reports[monthKey];
-      report.transactionCount++;
-
-      if (transaction.amount >= 0) {
-        report.totalCredits += transaction.amount;
-      } else {
-        report.totalDebits += Math.abs(transaction.amount);
-      }
-
-      report.netAmount += transaction.amount;
-
-      // Categorize transactions based on payee keywords
-      const category = categorizeTransaction(transaction);
-      report.categories[category] = (report.categories[category] || 0) + Math.abs(transaction.amount);
-    });
-
-    return Object.entries(reports)
-      .map(([key, report]) => ({ key, ...report }))
-      .sort((a, b) => b.key.localeCompare(a.key)); // Sort by date descending
-  }, [transactions]);
 
   const categorizeTransaction = (transaction: Transaction): string => {
     const payee = transaction.payee.toLowerCase();
@@ -108,45 +65,83 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
     return 'Other Expenses';
   };
 
-  const getSelectedMonthTransactions = () => {
-    if (!selectedMonth) return [];
-    
-    return transactions.filter(transaction => {
+  // Generate monthly reports
+  const monthlyReports = useMemo(() => {
+    if (!transactions || transactions.length === 0) {
+      return [];
+    }
+
+    const reports: { [key: string]: MonthlyReport } = {};
+
+    transactions.forEach((transaction) => {
       const date = new Date(transaction.date);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      return monthKey === selectedMonth;
-    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  };
+      const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      if (!reports[monthKey]) {
+        reports[monthKey] = {
+          month: monthName,
+          year: date.getFullYear(),
+          totalCredits: 0,
+          totalDebits: 0,
+          netAmount: 0,
+          transactionCount: 0,
+          categories: {},
+        };
+      }
+
+      const report = reports[monthKey];
+      report.transactionCount++;
+
+      if (transaction.amount >= 0) {
+        report.totalCredits += transaction.amount;
+      } else {
+        report.totalDebits += Math.abs(transaction.amount);
+      }
+
+      report.netAmount += transaction.amount;
+
+      // Categorize transactions
+      const category = categorizeTransaction(transaction);
+      report.categories[category] = (report.categories[category] || 0) + Math.abs(transaction.amount);
+    });
+
+    return Object.entries(reports)
+      .map(([key, report]) => ({ key, ...report }))
+      .sort((a, b) => b.key.localeCompare(a.key));
+  }, [transactions]);
+
+  const totalBalance = transactions.length > 0 
+    ? transactions[transactions.length - 1]?.runningBalance || 0 
+    : 0;
+
+  const totalIncome = transactions
+    .filter(t => t.amount > 0)
+    .reduce((sum, t) => sum + t.amount, 0);
+    
+  const totalExpenses = transactions
+    .filter(t => t.amount < 0)
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
   const renderMonthlyReport = ({ item }: { item: MonthlyReport & { key: string } }) => (
-    <Pressable
-      onPress={() => setSelectedMonth(selectedMonth === item.key ? null : item.key)}
-      className="bg-white mx-4 mb-3 p-4 rounded-lg shadow-sm border border-gray-100"
-    >
-      <View className="flex-row justify-between items-center mb-3">
-        <Text className="text-lg font-bold text-gray-900">{item.month}</Text>
-        <Ionicons
-          name={selectedMonth === item.key ? 'chevron-up' : 'chevron-down'}
-          size={20}
-          color="#9CA3AF"
-        />
-      </View>
+    <View className="bg-white mx-4 mb-3 p-4 rounded-lg shadow-sm border border-gray-100">
+      <Text className="text-lg font-bold text-gray-900 mb-3">{item.month}</Text>
 
       <View className="flex-row justify-between mb-4">
         <View className="flex-1">
-          <Text className="text-sm text-gray-500">Total Income</Text>
+          <Text className="text-sm text-gray-500">Income</Text>
           <Text className="text-lg font-semibold text-green-600">
             ${item.totalCredits.toFixed(2)}
           </Text>
         </View>
         <View className="flex-1 items-center">
-          <Text className="text-sm text-gray-500">Total Expenses</Text>
+          <Text className="text-sm text-gray-500">Expenses</Text>
           <Text className="text-lg font-semibold text-red-600">
             ${item.totalDebits.toFixed(2)}
           </Text>
         </View>
         <View className="flex-1 items-end">
-          <Text className="text-sm text-gray-500">Net Amount</Text>
+          <Text className="text-sm text-gray-500">Net</Text>
           <Text className={cn(
             "text-lg font-semibold",
             item.netAmount >= 0 ? "text-green-600" : "text-red-600"
@@ -156,59 +151,28 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
         </View>
       </View>
 
-      <Text className="text-sm text-gray-500 mb-2">
+      <Text className="text-sm text-gray-500 mb-3">
         {item.transactionCount} transactions
       </Text>
 
-      {selectedMonth === item.key && (
-        <View>
-          {/* Category Breakdown */}
-          <View className="border-t border-gray-200 pt-4 mt-2">
-            <Text className="text-sm font-semibold text-gray-700 mb-3">Category Breakdown</Text>
-            {Object.entries(item.categories)
-              .sort(([,a], [,b]) => b - a)
-              .map(([category, amount]) => (
-                <View key={category} className="flex-row justify-between items-center mb-2">
-                  <Text className="text-sm text-gray-600">{category}</Text>
-                  <Text className="text-sm font-medium text-gray-900">
-                    ${amount.toFixed(2)}
-                  </Text>
-                </View>
-              ))
-            }
-          </View>
-
-          {/* Transaction List */}
-          <View className="border-t border-gray-200 pt-4 mt-4">
-            <Text className="text-sm font-semibold text-gray-700 mb-3">Transactions</Text>
-            {getSelectedMonthTransactions().map((transaction) => (
-              <View key={transaction.id} className="flex-row justify-between items-center mb-2 py-1">
-                <View className="flex-1">
-                  <Text className="text-sm text-gray-900">{transaction.payee}</Text>
-                  <Text className="text-xs text-gray-500">
-                    {new Date(transaction.date).toLocaleDateString()}
-                  </Text>
-                </View>
-                <Text className={cn(
-                  "text-sm font-medium",
-                  transaction.amount >= 0 ? "text-green-600" : "text-red-600"
-                )}>
-                  {transaction.amount >= 0 ? '+' : ''}${Math.abs(transaction.amount).toFixed(2)}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      )}
-    </Pressable>
+      {/* Top Categories */}
+      <View className="border-t border-gray-200 pt-3">
+        <Text className="text-sm font-semibold text-gray-700 mb-2">Top Categories</Text>
+        {Object.entries(item.categories)
+          .sort(([,a], [,b]) => b - a)
+          .slice(0, 3)
+          .map(([category, amount]) => (
+            <View key={category} className="flex-row justify-between items-center mb-1">
+              <Text className="text-sm text-gray-600">{category}</Text>
+              <Text className="text-sm font-medium text-gray-900">
+                ${amount.toFixed(2)}
+              </Text>
+            </View>
+          ))
+        }
+      </View>
+    </View>
   );
-
-  const totalBalance = transactions.length > 0 
-    ? transactions[transactions.length - 1]?.runningBalance || 0 
-    : 0;
-
-  const totalIncome = transactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
-  const totalExpenses = transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -233,7 +197,7 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
       {/* Summary Cards */}
       <View className="px-4 py-4">
         <View className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
-          <Text className="text-sm font-medium text-gray-500 mb-2">Account Overview</Text>
+          <Text className="text-sm font-medium text-gray-500 mb-3">Account Overview</Text>
           <View className="flex-row justify-between">
             <View className="flex-1">
               <Text className="text-sm text-gray-500">Current Balance</Text>
@@ -260,7 +224,7 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
       {/* Monthly Reports */}
       <View className="flex-1">
         <Text className="text-lg font-semibold text-gray-900 px-4 mb-4">
-          Monthly Reports
+          Monthly Breakdown
         </Text>
         
         {monthlyReports.length > 0 ? (
@@ -274,7 +238,7 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
         ) : (
           <View className="items-center justify-center py-16">
             <Ionicons name="analytics-outline" size={64} color="#D1D5DB" />
-            <Text className="text-gray-500 text-lg mt-4">No transaction data</Text>
+            <Text className="text-gray-500 text-lg mt-4">No Data Available</Text>
             <Text className="text-gray-400 text-sm mt-2 text-center px-8">
               Add some transactions to see your monthly reports
             </Text>
