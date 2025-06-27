@@ -1,6 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import TestScreen from '../screens/TestScreen';
+import MinimalRegisterScreen from '../screens/MinimalRegisterScreen';
 import { Transaction } from '../types';
 
 export type RootStackParamList = {
@@ -28,7 +28,7 @@ const AppNavigator: React.FC = () => {
     >
       <Stack.Screen 
         name="Register" 
-        component={TestScreen}
+        component={MinimalRegisterScreen}
         options={{
           headerShown: false,
         }}
