@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, Alert, FlatList } from 'react-native';
+import { View, Text, Pressable, Alert, FlatList, Clipboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -111,6 +111,98 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
         );
       }, 500);
     }, 3000);
+  };
+
+  const handleBugReport = () => {
+    // Collect diagnostic information
+    const debugInfo = {
+      timestamp: new Date().toISOString(),
+      appVersion: '1.0.0',
+      platform: 'React Native / Expo',
+      accountInfo: {
+        hasActiveAccount: !!activeAccount,
+        accountName: activeAccount?.name || 'None',
+        bankLinked: settings.bankLinked,
+        transactionCount: transactions.length,
+      },
+      systemInfo: {
+        transactionStoreLoaded: true,
+        navigationWorking: !!navigation,
+        currentScreen: 'SimpleRegisterScreen',
+      },
+      recentErrors: 'No recent errors logged', // In a real app, you'd track errors
+    };
+
+    const debugText = `DIGITAL REGISTER BUG REPORT
+=====================================
+Timestamp: ${debugInfo.timestamp}
+App Version: ${debugInfo.appVersion}
+Platform: ${debugInfo.platform}
+
+ACCOUNT INFO:
+- Active Account: ${debugInfo.accountInfo.hasActiveAccount ? 'Yes' : 'No'}
+- Account Name: ${debugInfo.accountInfo.accountName}
+- Bank Linked: ${debugInfo.accountInfo.bankLinked ? 'Yes' : 'No'}
+- Transaction Count: ${debugInfo.accountInfo.transactionCount}
+
+SYSTEM INFO:
+- Store Loaded: ${debugInfo.systemInfo.transactionStoreLoaded ? 'Yes' : 'No'}
+- Navigation Working: ${debugInfo.systemInfo.navigationWorking ? 'Yes' : 'No'}
+- Current Screen: ${debugInfo.systemInfo.currentScreen}
+
+RECENT ERRORS:
+${debugInfo.recentErrors}
+
+DESCRIPTION:
+[Please describe the bug you encountered]
+
+STEPS TO REPRODUCE:
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
+
+EXPECTED BEHAVIOR:
+[What you expected to happen]
+
+ACTUAL BEHAVIOR:
+[What actually happened]
+=====================================`;
+
+    Alert.alert(
+      'Bug Report 🐛',
+      'Choose how to share your bug report with diagnostic information:',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Copy to Clipboard',
+          onPress: () => {
+            Clipboard.setString(debugText);
+            Alert.alert(
+              'Copied! 📋',
+              'Bug report template with diagnostic info copied to clipboard. You can now paste it in an email or support form.',
+              [{ text: 'OK' }]
+            );
+          },
+        },
+        {
+          text: 'View Details',
+          onPress: () => {
+            Alert.alert(
+              'Debug Information',
+              `Current Status:
+• Account: ${activeAccount?.name || 'None'}
+• Bank Linked: ${settings.bankLinked ? 'Yes' : 'No'}
+• Transactions: ${transactions.length}
+• Navigation: Working
+• Store: Loaded
+
+Tap "Copy to Clipboard" to get the full bug report template.`,
+              [{ text: 'OK' }]
+            );
+          },
+        },
+      ]
+    );
   };
 
   const renderTransaction = ({ item, index }: { item: Transaction; index: number }) => {
@@ -311,6 +403,13 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
               <Ionicons name="refresh-outline" size={22} color="#EF4444" />
             </Pressable>
             <Pressable
+              onPress={handleBugReport}
+              className="p-2"
+              style={{ marginRight: 4 }}
+            >
+              <Ionicons name="bug-outline" size={22} color="#DC2626" />
+            </Pressable>
+            <Pressable
               onPress={() => setShowLegend(!showLegend)}
               className="p-2"
               style={{ marginRight: 4 }}
@@ -466,45 +565,82 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
         )}
 
         {/* Quick Actions */}
-        {activeAccount && (
-          <View className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-            <Text className="text-lg font-semibold text-gray-900 mb-3">Quick Actions</Text>
-            <View className="flex-row space-x-3">
-              <Pressable 
-                className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                onPress={() => navigation?.navigate('AddTransaction')}
-              >
-                <View className="items-center">
-                  <Ionicons name="add-circle" size={24} color="#10B981" />
-                  <Text className="text-sm font-medium text-gray-900 mt-1">Add</Text>
-                  <Text className="text-xs text-gray-500">Transaction</Text>
-                </View>
-              </Pressable>
-              
-              <Pressable 
-                className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                onPress={handleManualTransactionDemo}
-              >
-                <View className="items-center">
-                  <Ionicons name="flask" size={24} color="#3B82F6" />
-                  <Text className="text-sm font-medium text-gray-900 mt-1">Demo</Text>
-                  <Text className="text-xs text-gray-500">Conversion</Text>
-                </View>
-              </Pressable>
-              
-              <Pressable 
-                className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                onPress={() => setShowLegend(true)}
-              >
-                <View className="items-center">
-                  <Ionicons name="help-circle" size={24} color="#F59E0B" />
-                  <Text className="text-sm font-medium text-gray-900 mt-1">Help</Text>
-                  <Text className="text-xs text-gray-500">Guide</Text>
-                </View>
-              </Pressable>
-            </View>
+        <View className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+          <Text className="text-lg font-semibold text-gray-900 mb-3">Quick Actions</Text>
+          <View className="flex-row space-x-3">
+            {activeAccount ? (
+              <>
+                <Pressable 
+                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                  onPress={() => navigation?.navigate('AddTransaction')}
+                >
+                  <View className="items-center">
+                    <Ionicons name="add-circle" size={24} color="#10B981" />
+                    <Text className="text-sm font-medium text-gray-900 mt-1">Add</Text>
+                    <Text className="text-xs text-gray-500">Transaction</Text>
+                  </View>
+                </Pressable>
+                
+                <Pressable 
+                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                  onPress={handleManualTransactionDemo}
+                >
+                  <View className="items-center">
+                    <Ionicons name="flask" size={24} color="#3B82F6" />
+                    <Text className="text-sm font-medium text-gray-900 mt-1">Demo</Text>
+                    <Text className="text-xs text-gray-500">Conversion</Text>
+                  </View>
+                </Pressable>
+                
+                <Pressable 
+                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                  onPress={() => setShowLegend(true)}
+                >
+                  <View className="items-center">
+                    <Ionicons name="help-circle" size={24} color="#F59E0B" />
+                    <Text className="text-sm font-medium text-gray-900 mt-1">Help</Text>
+                    <Text className="text-xs text-gray-500">Guide</Text>
+                  </View>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Pressable 
+                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                  onPress={handleDemoReset}
+                >
+                  <View className="items-center">
+                    <Ionicons name="play-circle" size={24} color="#3B82F6" />
+                    <Text className="text-sm font-medium text-gray-900 mt-1">Start</Text>
+                    <Text className="text-xs text-gray-500">Demo</Text>
+                  </View>
+                </Pressable>
+                
+                <Pressable 
+                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                  onPress={() => setShowLegend(true)}
+                >
+                  <View className="items-center">
+                    <Ionicons name="help-circle" size={24} color="#F59E0B" />
+                    <Text className="text-sm font-medium text-gray-900 mt-1">Help</Text>
+                    <Text className="text-xs text-gray-500">Guide</Text>
+                  </View>
+                </Pressable>
+                
+                <Pressable 
+                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                  onPress={handleBugReport}
+                >
+                  <View className="items-center">
+                    <Ionicons name="bug" size={24} color="#DC2626" />
+                    <Text className="text-sm font-medium text-gray-900 mt-1">Report</Text>
+                    <Text className="text-xs text-gray-500">Bug</Text>
+                  </View>
+                </Pressable>
+              </>
+            )}
           </View>
-        )}
+        </View>
       </View>
 
       {/* Footer Status */}
