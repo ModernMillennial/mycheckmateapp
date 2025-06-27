@@ -25,14 +25,19 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.log('Error caught by boundary:', error, errorInfo);
+    console.error('Error caught by boundary:', error);
+    console.error('Error info:', errorInfo);
+    console.error('Error stack:', error.stack);
   }
 
   render() {
     if (this.state.hasError) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-          <Text>Something went wrong.</Text>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'red' }}>Error Caught</Text>
+          <Text style={{ marginTop: 10, textAlign: 'center', paddingHorizontal: 20 }}>
+            Something went wrong in the app. Check console for details.
+          </Text>
         </View>
       );
     }
@@ -86,13 +91,11 @@ export default function App() {
   }
 
   return (
-    <ErrorBoundary>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <AppNavigator />
-          <StatusBar style="auto" />
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </ErrorBoundary>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <AppNavigator />
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
