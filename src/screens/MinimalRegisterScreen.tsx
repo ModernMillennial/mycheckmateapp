@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTransactionStore } from '../state/transactionStore';
-import InitialBankSyncScreen from './InitialBankSyncScreen';
+import SimpleInitialBankSyncScreen from './SimpleInitialBankSyncScreen';
 
 interface Props {
   navigation: any;
@@ -64,12 +64,12 @@ const MinimalRegisterScreen: React.FC<Props> = ({ navigation }) => {
         <Text className="text-gray-600 mt-2">Show First Time Setup: {showFirstTimeSetup ? 'Yes' : 'No'}</Text>
       </View>
       
-      {/* Test InitialBankSyncScreen */}
-      <InitialBankSyncScreen
+      {/* Test SimpleInitialBankSyncScreen */}
+      <SimpleInitialBankSyncScreen
         visible={showFirstTimeSetup}
         onComplete={() => {
           setShowFirstTimeSetup(false);
-          Alert.alert('Bank Sync Complete!');
+          Alert.alert('Simple Bank Sync Complete!');
         }}
         onCancel={() => setShowFirstTimeSetup(false)}
       />
