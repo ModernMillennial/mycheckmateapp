@@ -196,8 +196,14 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
                   </View>
                   
                   <Pressable
-                    onPress={onComplete}
+                    onPress={() => {
+                      console.log('Start Using Digital Register button pressed');
+                      onComplete();
+                    }}
                     className="w-full py-4 px-6 bg-blue-500 rounded-lg"
+                    style={({ pressed }) => ({
+                      opacity: pressed ? 0.8 : 1,
+                    })}
                   >
                     <Text className="text-white font-semibold text-center text-lg">
                       Start Using Digital Register
