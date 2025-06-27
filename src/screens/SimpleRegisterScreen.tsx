@@ -106,8 +106,8 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       setTimeout(() => {
         Alert.alert(
           'Conversion Complete! 🎉',
-          'The manual "Demo Coffee Shop" entry has been converted to a bank transaction. Notice it now shows:\n\n✅ Green check = Bank confirmed\n🟡 Yellow check = Originally manual\n\nYou can tap the green check to toggle reconciliation.',
-          [{ text: 'Got it!' }]
+          'The manual "Demo Coffee Shop" entry has been converted to a bank transaction. Notice it now shows:\n\n✅ Green check = Bank confirmed\n✅ Yellow check = Originally manual\n\nYou can tap the green check to toggle reconciliation, but the yellow check stays permanent to show it was originally a manual entry.',
+          [{ text: 'Perfect!' }]
         );
       }, 500);
     }, 3000);
