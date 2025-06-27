@@ -365,7 +365,9 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
     </View>
   );
 
-  const renderSelectStartStep = () => (
+  const renderSelectStartStep = () => {
+    try {
+      return (
     <ScrollView className="flex-1 p-6">
       <View className="items-center mb-8">
         <View className="w-16 h-16 bg-green-100 rounded-full items-center justify-center mb-4">
@@ -378,7 +380,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
       </View>
 
       <View className="bg-blue-50 rounded-lg p-4 mb-6">
-        <Text className="text-blue-900 font-semibold mb-2">Current Balance: ${currentBalance.toFixed(2)}</Text>
+        <Text className="text-blue-900 font-semibold mb-2">Current Balance: ${(currentBalance || 0).toFixed(2)}</Text>
         <Text className="text-blue-800 text-sm">Found {fetchedTransactions.length} transactions in the last 90 days</Text>
       </View>
 
@@ -392,7 +394,18 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
         </View>
       )}
       
-      {fetchedTransactions.slice(0, 10).map((transaction) => (
+      {fetchedTransactions.length === 0 ? (
+        <View className="items-center py-8">
+          <Text className="text-gray-500">Loading transactions...</Text>
+        </View>
+      ) : (
+        fetchedTransactions.slice(0, 10).map((transaction) => {
+        // Safety checks to prevent render errors
+        if (!transaction || !transaction.id || !transaction.payee) {
+          return null;
+        }
+        
+        return (
         <Pressable
           key={transaction.id}
           onPress={() => {
@@ -409,14 +422,14 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
           <View className="flex-1">
             <Text className="text-gray-900 font-medium">{transaction.payee}</Text>
             <Text className="text-gray-500 text-sm">
-              {transaction.date.toLocaleDateString()} • Balance: ${transaction.balance.toFixed(2)}
+              {new Date(transaction.date).toLocaleDateString()} • Balance: ${(transaction.balance || 0).toFixed(2)}
             </Text>
           </View>
           <View className="items-end">
             <Text className={`font-semibold ${
-              transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'
+              (transaction.amount || 0) >= 0 ? 'text-green-600' : 'text-red-600'
             }`}>
-              {transaction.amount >= 0 ? '+' : ''}${Math.abs(transaction.amount).toFixed(2)}
+              {(transaction.amount || 0) >= 0 ? '+' : ''}${Math.abs(transaction.amount || 0).toFixed(2)}
             </Text>
           </View>
           {selectedStartingTransaction === transaction.id && (
@@ -425,7 +438,9 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
             </View>
           )}
         </Pressable>
-      ))}
+        );
+      }).filter(Boolean)
+      )}
 
       <View className="flex-row justify-between mt-8">
         <Pressable
@@ -454,7 +469,24 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
         </Pressable>
       </View>
     </ScrollView>
-  );
+      );
+    } catch (error) {
+      console.error('Error rendering selectStart step:', error);
+      return (
+        <View className="flex-1 items-center justify-center p-6">
+          <Text className="text-red-600 text-center">
+            Something went wrong. Please try again.
+          </Text>
+          <Pressable
+            onPress={() => setStep('connect')}
+            className="mt-4 bg-blue-500 px-6 py-3 rounded-lg"
+          >
+            <Text className="text-white font-semibold">Go Back</Text>
+          </Pressable>
+        </View>
+      );
+    }
+  };
 
   const renderCompleteStep = () => (
     <View className="flex-1 items-center justify-center p-6">
