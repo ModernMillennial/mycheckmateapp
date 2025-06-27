@@ -301,20 +301,18 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
 
           {/* Middle-Left: Debit Amount */}
           <View className="w-24 items-end px-1">
-            <Text className="text-xs text-gray-500 font-medium">DEBIT</Text>
             {item.amount < 0 && (
               <Text className="text-base font-semibold text-red-600" numberOfLines={1}>
-                ${Math.abs(item.amount).toFixed(2)}
+                -${Math.abs(item.amount).toFixed(2)}
               </Text>
             )}
           </View>
 
           {/* Middle-Right: Credit Amount */}
           <View className="w-24 items-end px-1">
-            <Text className="text-xs text-gray-500 font-medium">CREDIT</Text>
             {item.amount >= 0 && (
               <Text className="text-base font-semibold text-green-600" numberOfLines={1}>
-                ${item.amount.toFixed(2)}
+                +${item.amount.toFixed(2)}
               </Text>
             )}
           </View>
@@ -575,9 +573,6 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
               <Text className="text-xl font-bold text-gray-900">
                 Transaction Register
               </Text>
-              <Text className="text-sm text-gray-500">
-                Tap "POSTED" to toggle status
-              </Text>
             </View>
             
             {/* Column Headers */}
@@ -587,10 +582,10 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                   <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
                 </View>
                 <View className="w-24 items-center px-1">
-                  <Text className="text-xs font-bold text-gray-700 uppercase">Debit</Text>
+                  <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
                 </View>
                 <View className="w-24 items-center px-1">
-                  <Text className="text-xs font-bold text-gray-700 uppercase">Credit</Text>
+                  <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
                 </View>
                 <View className="w-24 items-center pl-1">
                   <Text className="text-xs font-bold text-gray-700 uppercase">Balance</Text>

@@ -233,22 +233,20 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
               <View className="p-4 border border-gray-200 rounded-lg bg-gray-50">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-base text-gray-700">Manual Entry</Text>
-                  <View className="flex-row items-center">
-                    <Ionicons name="ellipse-outline" size={20} color="#9CA3AF" />
-                    <Ionicons name="ellipse-outline" size={20} color="#9CA3AF" style={{ marginLeft: -8 }} />
+                  <View className="bg-gray-100 px-3 py-1 rounded">
+                    <Text className="text-xs font-medium text-red-600">NOT POSTED</Text>
                   </View>
                 </View>
                 <Text className="text-xs text-gray-500 mt-2">
-                  Manual entries show as two open circles. They will convert to green + yellow checks when found in bank sync.
+                  Manual entries show as "NOT POSTED". They will update to "POSTED" when found in bank sync.
                 </Text>
               </View>
             ) : transaction.notes?.includes('Converted from manual entry') ? (
-              <View className="p-4 border border-yellow-200 rounded-lg bg-yellow-50">
+              <View className="p-4 border border-purple-200 rounded-lg bg-purple-50">
                 <View className="flex-row items-center justify-between mb-2">
                   <Text className="text-base text-gray-900">Converted Manual Entry</Text>
-                  <View className="flex-row items-center">
-                    <Ionicons name="checkmark-circle" size={20} color="#10B981" />
-                    <Ionicons name="checkmark-circle" size={20} color="#F59E0B" style={{ marginLeft: -8 }} />
+                  <View className="bg-gray-100 px-3 py-1 rounded">
+                    <Text className="text-xs font-medium text-blue-600">POSTED</Text>
                   </View>
                 </View>
                 <Pressable
@@ -256,16 +254,18 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
                   className="flex-row items-center justify-between p-3 bg-white rounded border"
                 >
                   <Text className="text-sm text-gray-700">
-                    Toggle green check (bank reconciliation)
+                    Toggle posting status
                   </Text>
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={20}
-                    color={formData.reconciled ? '#10B981' : '#9CA3AF'}
-                  />
+                  <View className="bg-gray-100 px-2 py-1 rounded">
+                    <Text className={`text-xs font-medium ${
+                      formData.reconciled ? 'text-blue-600' : 'text-red-600'
+                    }`}>
+                      {formData.reconciled ? 'POSTED' : 'NOT POSTED'}
+                    </Text>
+                  </View>
                 </Pressable>
-                <Text className="text-xs text-yellow-700 mt-2">
-                  Green check = Bank posting confirmed • Yellow check = Originally manual entry
+                <Text className="text-xs text-purple-700 mt-2">
+                  This transaction was originally manual and converted to bank confirmed.
                 </Text>
               </View>
             ) : (
@@ -274,11 +274,13 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
                 className="flex-row items-center justify-between p-4 border border-gray-300 rounded-lg"
               >
                 <Text className="text-base text-gray-900">Bank Transaction</Text>
-                <Ionicons
-                  name="checkmark-circle"
-                  size={24}
-                  color="#10B981"
-                />
+                <View className="bg-gray-100 px-3 py-1 rounded">
+                  <Text className={`text-xs font-medium ${
+                    formData.reconciled ? 'text-blue-600' : 'text-red-600'
+                  }`}>
+                    {formData.reconciled ? 'POSTED' : 'NOT POSTED'}
+                  </Text>
+                </View>
               </Pressable>
             )}
           </View>
