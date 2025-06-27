@@ -14,6 +14,7 @@ interface Props {
 const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [showTransactions, setShowTransactions] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   
   const {
     settings,
@@ -344,72 +345,133 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
       {/* Header */}
       <View className="bg-white px-4 py-4 border-b border-gray-200">
         <View className="flex-row justify-between items-center mb-4">
-          <View className="flex-1 mr-4">
-            <Text className="text-2xl font-bold text-gray-900" numberOfLines={1}>
-              CheckMate
+          <View className="flex-1">
+            <Text className="text-2xl font-bold text-gray-900">
+              Checkmate
             </Text>
           </View>
-          <View className="flex-row items-center">
-            <Pressable
-              onPress={handleManualTransactionDemo}
-              className="p-2"
-              disabled={!activeAccount}
-              style={{ marginRight: 4 }}
-            >
-              <Ionicons 
-                name="flask-outline" 
-                size={22} 
-                color={activeAccount ? "#3B82F6" : "#9CA3AF"} 
-              />
-            </Pressable>
-            <Pressable
-              onPress={handleDemoReset}
-              className="p-2"
-              style={{ marginRight: 4 }}
-            >
-              <Ionicons name="refresh-outline" size={22} color="#EF4444" />
-            </Pressable>
-            <Pressable
-              onPress={handleBugReport}
-              className="p-2"
-              style={{ marginRight: 4 }}
-            >
-              <Ionicons name="bug-outline" size={22} color="#DC2626" />
-            </Pressable>
-            <Pressable
-              onPress={() => setShowLegend(!showLegend)}
-              className="p-2"
-              style={{ marginRight: 4 }}
-            >
-              <Ionicons name="help-circle-outline" size={22} color="#374151" />
-            </Pressable>
-            <Pressable
-              onPress={() => navigation?.navigate('Reports')}
-              className="p-2"
-              style={{ marginRight: 4 }}
-            >
-              <Ionicons name="bar-chart-outline" size={22} color="#374151" />
-            </Pressable>
-            <Pressable
-              onPress={() => navigation?.navigate('Accounts')}
-              className="p-2"
-              style={{ marginRight: 4 }}
-            >
-              <Ionicons name="wallet-outline" size={22} color="#374151" />
-            </Pressable>
-            <Pressable
-              onPress={() => navigation?.navigate('Settings')}
-              className="p-2"
-              style={{ marginRight: 0 }}
-            >
-              <Ionicons name="settings-outline" size={22} color="#374151" />
-            </Pressable>
-          </View>
+          <Pressable
+            onPress={() => setShowMenu(!showMenu)}
+            className="p-2"
+          >
+            <Ionicons name="menu" size={24} color="#374151" />
+          </Pressable>
         </View>
         <Text className="text-gray-600">
           Your digital checkbook register
         </Text>
       </View>
+
+      {/* Hamburger Menu Overlay */}
+      {showMenu && (
+        <View className="absolute top-0 left-0 right-0 bottom-0 z-50">
+          {/* Background overlay */}
+          <Pressable 
+            onPress={() => setShowMenu(false)}
+            className="flex-1 bg-black/50"
+          />
+          
+          {/* Menu panel */}
+          <View className="absolute top-0 right-0 w-64 h-full bg-white shadow-lg">
+            {/* Menu header */}
+            <View className="bg-blue-500 px-4 py-6 pt-12">
+              <View className="flex-row justify-between items-center">
+                <Text className="text-white text-lg font-semibold">Menu</Text>
+                <Pressable onPress={() => setShowMenu(false)}>
+                  <Ionicons name="close" size={24} color="white" />
+                </Pressable>
+              </View>
+            </View>
+            
+            {/* Menu items */}
+            <View className="flex-1 px-4 py-4">
+              <Pressable
+                onPress={() => {
+                  setShowMenu(false);
+                  navigation?.navigate('Accounts');
+                }}
+                className="flex-row items-center py-4 border-b border-gray-100"
+              >
+                <Ionicons name="wallet-outline" size={22} color="#374151" />
+                <Text className="ml-3 text-gray-900 text-base">Accounts</Text>
+              </Pressable>
+              
+              <Pressable
+                onPress={() => {
+                  setShowMenu(false);
+                  navigation?.navigate('Reports');
+                }}
+                className="flex-row items-center py-4 border-b border-gray-100"
+              >
+                <Ionicons name="bar-chart-outline" size={22} color="#374151" />
+                <Text className="ml-3 text-gray-900 text-base">Reports</Text>
+              </Pressable>
+              
+              <Pressable
+                onPress={() => {
+                  setShowMenu(false);
+                  setShowLegend(true);
+                }}
+                className="flex-row items-center py-4 border-b border-gray-100"
+              >
+                <Ionicons name="help-circle-outline" size={22} color="#374151" />
+                <Text className="ml-3 text-gray-900 text-base">Help Guide</Text>
+              </Pressable>
+              
+              <Pressable
+                onPress={() => {
+                  setShowMenu(false);
+                  handleManualTransactionDemo();
+                }}
+                className="flex-row items-center py-4 border-b border-gray-100"
+                disabled={!activeAccount}
+              >
+                <Ionicons 
+                  name="flask-outline" 
+                  size={22} 
+                  color={activeAccount ? "#3B82F6" : "#9CA3AF"} 
+                />
+                <Text className={`ml-3 text-base ${
+                  activeAccount ? "text-gray-900" : "text-gray-400"
+                }`}>Demo Conversion</Text>
+              </Pressable>
+              
+              <Pressable
+                onPress={() => {
+                  setShowMenu(false);
+                  handleBugReport();
+                }}
+                className="flex-row items-center py-4 border-b border-gray-100"
+              >
+                <Ionicons name="bug-outline" size={22} color="#DC2626" />
+                <Text className="ml-3 text-gray-900 text-base">Report Bug</Text>
+              </Pressable>
+              
+              <Pressable
+                onPress={() => {
+                  setShowMenu(false);
+                  handleDemoReset();
+                }}
+                className="flex-row items-center py-4 border-b border-gray-100"
+              >
+                <Ionicons name="refresh-outline" size={22} color="#EF4444" />
+                <Text className="ml-3 text-gray-900 text-base">Reset Demo</Text>
+              </Pressable>
+              
+              <Pressable
+                onPress={() => {
+                  setShowMenu(false);
+                  navigation?.navigate('Settings');
+                }}
+                className="flex-row items-center py-4"
+              >
+                <Ionicons name="settings-outline" size={22} color="#374151" />
+                <Text className="ml-3 text-gray-900 text-base">Settings</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* Main Content */}
       <View className="flex-1 px-6 py-8">
