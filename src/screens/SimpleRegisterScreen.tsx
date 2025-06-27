@@ -127,7 +127,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       recentErrors: 'No recent errors logged', // In a real app, you'd track errors
     };
 
-    const debugText = `DIGITAL REGISTER BUG REPORT
+    const debugText = `CHECKMATE BUG REPORT
 =====================================
 Timestamp: ${debugInfo.timestamp}
 App Version: ${debugInfo.appVersion}
@@ -346,7 +346,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
         <View className="flex-row justify-between items-center mb-4">
           <View className="flex-1">
             <Text className="text-2xl font-bold text-gray-900">
-              Digital Register
+              CheckMate
             </Text>
           </View>
           <View className="flex-row items-center">
@@ -615,7 +615,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
         <View className="flex-row items-center justify-center">
           <Ionicons name="checkmark-circle" size={20} color="#10B981" />
           <Text className="text-green-600 font-medium ml-2">
-            Digital Register Active
+            CheckMate Active
           </Text>
         </View>
         <Text className="text-center text-gray-500 text-sm mt-1">

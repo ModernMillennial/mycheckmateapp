@@ -386,7 +386,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           
           <View className="bg-white">
             <SettingRow
-              title="About Digital Register"
+              title="About CheckMate"
               subtitle="Version 1.0.0"
               rightComponent={<Ionicons name="information-circle-outline" size={20} color="#9CA3AF" />}
             />

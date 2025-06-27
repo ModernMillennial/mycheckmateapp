@@ -115,7 +115,7 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
             Connect Your Bank
           </Text>
           <Text className="text-gray-600 text-center mb-8">
-            Welcome to Digital Register! Let's connect your bank account to get started with automatic transaction tracking.
+            Welcome to CheckMate! Let's connect your bank account to get started with automatic transaction tracking.
           </Text>
           
           {step === 'connect' && (
@@ -206,7 +206,7 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
                     })}
                   >
                     <Text className="text-white font-semibold text-center text-lg">
-                      Start Using Digital Register
+                      Start Using CheckMate
                     </Text>
                   </Pressable>
                 </>
