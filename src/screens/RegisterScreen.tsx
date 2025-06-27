@@ -39,6 +39,10 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const activeAccount = getActiveAccount();
   const transactions = getActiveTransactions();
 
+  // Debug logging
+  console.log('Active Account:', activeAccount?.name);
+  console.log('Transactions for account:', transactions.length);
+
   const filteredTransactions = useMemo(() => {
     let filtered = [...transactions];
 
@@ -333,6 +337,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* Transaction List */}
       <FlatList
+        key={activeAccount?.id} // Force re-render when account changes
         data={filteredTransactions}
         renderItem={renderTransaction}
         keyExtractor={(item) => item.id}

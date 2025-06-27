@@ -41,6 +41,7 @@ interface TransactionState {
   switchAccount: (accountId: string) => void;
   getActiveAccount: () => Account | null;
   getActiveTransactions: () => Transaction[];
+  calculateAllAccountBalances: () => void;
 }
 
 const defaultAccounts: Account[] = [
@@ -51,8 +52,8 @@ const defaultAccounts: Account[] = [
     bankName: 'First National Bank',
     accountNumber: '1234',
     isActive: true,
-    startingBalance: 2500.00,
-    currentBalance: 2500.00,
+    startingBalance: 1000.00, // Starting lower so transactions show meaningful balance changes
+    currentBalance: 1000.00,
     color: '#3B82F6',
   },
   {
@@ -62,8 +63,8 @@ const defaultAccounts: Account[] = [
     bankName: 'First National Bank',
     accountNumber: '5678',
     isActive: true,
-    startingBalance: 10000.00,
-    currentBalance: 10000.00,
+    startingBalance: 9500.00, // Starting lower to show transaction effects
+    currentBalance: 9500.00,
     color: '#10B981',
   },
 ];
@@ -221,6 +222,9 @@ export const useTransactionStore = create<TransactionState>()(
           transactions: allUpdatedTransactions,
           accounts: updatedAccounts,
         });
+
+        // Also update other accounts if needed
+        get().calculateAllAccountBalances();
       },
 
       syncBankTransactions: (bankTransactions) => {
@@ -268,9 +272,9 @@ export const useTransactionStore = create<TransactionState>()(
         const { isInitialized } = get();
         if (!isInitialized) {
           const seedTransactions = generateSeedTransactions();
-          const transactionsWithIds = seedTransactions.map(t => ({
+          const transactionsWithIds = seedTransactions.map((t, index) => ({
             ...t,
-            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            id: Date.now().toString() + index + Math.random().toString(36).substr(2, 9),
             accountId: t.accountId || 'checking-1', // Default to checking account
             runningBalance: 0,
           }));
@@ -280,7 +284,8 @@ export const useTransactionStore = create<TransactionState>()(
             isInitialized: true,
           });
           
-          get().calculateRunningBalance();
+          // Calculate running balance for all accounts
+          get().calculateAllAccountBalances();
         }
       },
 
@@ -330,6 +335,8 @@ export const useTransactionStore = create<TransactionState>()(
         set((state) => ({
           settings: { ...state.settings, activeAccountId: accountId },
         }));
+        // Ensure balances are calculated for the new active account
+        get().calculateAllAccountBalances();
       },
 
       getActiveAccount: () => {
@@ -340,6 +347,52 @@ export const useTransactionStore = create<TransactionState>()(
       getActiveTransactions: () => {
         const { transactions, settings } = get();
         return transactions.filter(t => t.accountId === settings.activeAccountId);
+      },
+
+      calculateAllAccountBalances: () => {
+        const { transactions, accounts } = get();
+        
+        // Calculate balances for each account
+        const updatedAccounts = accounts.map(account => {
+          const accountTransactions = transactions
+            .filter(t => t.accountId === account.id)
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+          let runningBalance = account.startingBalance;
+          const updatedTransactions = accountTransactions.map(transaction => {
+            runningBalance += transaction.amount;
+            return { ...transaction, runningBalance };
+          });
+
+          return {
+            ...account,
+            currentBalance: runningBalance,
+          };
+        });
+
+        // Update all transactions with correct running balances
+        const allUpdatedTransactions = transactions.map(transaction => {
+          const account = updatedAccounts.find(a => a.id === transaction.accountId);
+          if (!account) return transaction;
+
+          const accountTransactions = transactions
+            .filter(t => t.accountId === account.id)
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+          let runningBalance = account.startingBalance;
+          for (const t of accountTransactions) {
+            runningBalance += t.amount;
+            if (t.id === transaction.id) {
+              return { ...transaction, runningBalance };
+            }
+          }
+          return transaction;
+        });
+
+        set({
+          accounts: updatedAccounts,
+          transactions: allUpdatedTransactions,
+        });
       },
     }),
     {

@@ -27,7 +27,9 @@ interface MonthlyReport {
 }
 
 const ReportsScreen: React.FC<Props> = ({ navigation }) => {
-  const { transactions } = useTransactionStore();
+  const { getActiveTransactions, getActiveAccount } = useTransactionStore();
+  const transactions = getActiveTransactions();
+  const activeAccount = getActiveAccount();
 
   const categorizeTransaction = (transaction: Transaction): string => {
     const payee = transaction.payee.toLowerCase();
@@ -111,9 +113,7 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
       .sort((a, b) => b.key.localeCompare(a.key));
   }, [transactions]);
 
-  const totalBalance = transactions.length > 0 
-    ? transactions[transactions.length - 1]?.runningBalance || 0 
-    : 0;
+  const totalBalance = activeAccount?.currentBalance || 0;
 
   const totalIncome = transactions
     .filter(t => t.amount > 0)
@@ -186,9 +186,16 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
             <Ionicons name="arrow-back" size={24} color="#374151" />
           </Pressable>
           
-          <Text className="text-lg font-semibold text-gray-900">
-            Financial Reports
-          </Text>
+          <View className="items-center">
+            <Text className="text-lg font-semibold text-gray-900">
+              Financial Reports
+            </Text>
+            {activeAccount && (
+              <Text className="text-sm text-gray-500">
+                {activeAccount.name}
+              </Text>
+            )}
+          </View>
           
           <View className="w-10" />
         </View>
