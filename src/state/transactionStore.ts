@@ -357,12 +357,20 @@ export const useTransactionStore = create<TransactionState>()(
         if (!isInitialized || transactions.length === 0) {
           console.log('Initializing seed data...');
           const seedTransactions = generateSeedTransactions();
-          const transactionsWithIds = seedTransactions.map((t, index) => ({
-            ...t,
-            id: Date.now().toString() + index + Math.random().toString(36).substr(2, 9),
-            accountId: t.accountId || 'checking-1', // Default to checking account
-            runningBalance: 0,
-          }));
+          const transactionsWithIds = seedTransactions.map((t, index) => {
+            // Create special ID for starting balance transactions
+            const isStartingBalance = t.payee === 'Starting Balance';
+            const id = isStartingBalance 
+              ? `starting-balance-${t.accountId}-${Date.now()}`
+              : Date.now().toString() + index + Math.random().toString(36).substr(2, 9);
+            
+            return {
+              ...t,
+              id,
+              accountId: t.accountId || 'checking-1', // Default to checking account
+              runningBalance: 0,
+            };
+          });
 
           console.log('Created transactions:', transactionsWithIds.length);
 
