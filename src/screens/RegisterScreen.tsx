@@ -163,16 +163,27 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               <>
                 {/* Reconciliation Status Icons */}
                 <View className="flex-row items-center">
+                  {/* Manual Transactions - Show gray circles */}
                   {item.source === 'manual' && (
-                    <View className="p-1">
-                      <Ionicons
-                        name="ellipse-outline"
-                        size={20}
-                        color="#9CA3AF"
-                      />
+                    <View className="flex-row items-center">
+                      <View className="p-1">
+                        <Ionicons
+                          name="ellipse-outline"
+                          size={20}
+                          color="#9CA3AF"
+                        />
+                      </View>
+                      <View className="p-1 -ml-2">
+                        <Ionicons
+                          name="ellipse-outline"
+                          size={20}
+                          color="#9CA3AF"
+                        />
+                      </View>
                     </View>
                   )}
                   
+                  {/* Regular Bank Transactions - Show single green check */}
                   {item.source === 'bank' && !item.notes?.includes('Converted from manual entry') && (
                     <Pressable
                       onPress={() => toggleReconciled(item.id)}
@@ -186,25 +197,26 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
                     </Pressable>
                   )}
                   
+                  {/* Converted Transactions - Show green check + yellow check */}
                   {item.source === 'bank' && item.notes?.includes('Converted from manual entry') && (
-                    <View className="flex-row">
-                      <View className="p-1">
-                        <Ionicons
-                          name="ellipse-outline"
-                          size={20}
-                          color="#9CA3AF"
-                        />
-                      </View>
+                    <View className="flex-row items-center">
                       <Pressable
                         onPress={() => toggleReconciled(item.id)}
-                        className="p-1 -ml-2"
+                        className="p-1"
                       >
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={20}
+                          color="#10B981"
+                        />
+                      </Pressable>
+                      <View className="p-1 -ml-2">
                         <Ionicons
                           name="checkmark-circle"
                           size={20}
                           color="#F59E0B"
                         />
-                      </Pressable>
+                      </View>
                     </View>
                   )}
                 </View>
