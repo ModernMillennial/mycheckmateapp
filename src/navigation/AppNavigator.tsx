@@ -4,6 +4,7 @@ import RegisterScreen from '../screens/RegisterScreen';
 import AddTransactionScreen from '../screens/AddTransactionScreen';
 import EditTransactionScreen from '../screens/EditTransactionScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import ReportsScreen from '../screens/ReportsScreen';
 import { Transaction } from '../types';
 
 export type RootStackParamList = {
@@ -11,6 +12,7 @@ export type RootStackParamList = {
   AddTransaction: undefined;
   EditTransaction: { transaction: Transaction };
   Settings: undefined;
+  Reports: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -43,6 +45,10 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen 
         name="Settings" 
         component={SettingsScreen}
+      />
+      <Stack.Screen 
+        name="Reports" 
+        component={ReportsScreen}
       />
     </Stack.Navigator>
   );

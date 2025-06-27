@@ -192,12 +192,20 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           <Text className="text-2xl font-bold text-gray-900">
             My Digital Register
           </Text>
-          <Pressable
-            onPress={() => navigation.navigate('Settings')}
-            className="p-2"
-          >
-            <Ionicons name="settings-outline" size={24} color="#374151" />
-          </Pressable>
+          <View className="flex-row">
+            <Pressable
+              onPress={() => navigation.navigate('Reports')}
+              className="p-2 mr-1"
+            >
+              <Ionicons name="analytics-outline" size={24} color="#374151" />
+            </Pressable>
+            <Pressable
+              onPress={() => navigation.navigate('Settings')}
+              className="p-2"
+            >
+              <Ionicons name="settings-outline" size={24} color="#374151" />
+            </Pressable>
+          </View>
         </View>
 
         {/* Balance Display */}
