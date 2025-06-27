@@ -22,6 +22,7 @@ interface Props {
 }
 
 const RegisterScreen: React.FC<Props> = ({ navigation }) => {
+  console.log('RegisterScreen rendering, navigation:', !!navigation);
   const insets = useSafeAreaInsets();
   const [showLegend, setShowLegend] = React.useState(false);
   const [showFirstTimeSetup, setShowFirstTimeSetup] = React.useState(false);
@@ -55,12 +56,18 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 
   // Check for first-time user setup
   useEffect(() => {
+    console.log('First-time setup check:', { 
+      hasTransactions: transactions.length > 0, 
+      isBankLinked: settings.bankLinked 
+    });
+    
     const hasTransactions = transactions.length > 0;
     const isBankLinked = settings.bankLinked;
     
     if (!hasTransactions && !isBankLinked) {
       // Show first-time setup after a brief delay
       setTimeout(() => {
+        console.log('Showing first-time setup');
         setShowFirstTimeSetup(true);
       }, 500);
     }
@@ -168,7 +175,11 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         onPress={() => {
           if (!isStarting) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            navigation.navigate('EditTransaction', { transaction: item });
+            if (navigation && navigation.navigate) {
+              navigation.navigate('EditTransaction', { transaction: item });
+            } else {
+              console.warn('Navigation not available yet');
+            }
           }
         }}
         disabled={isStarting}
@@ -637,7 +648,13 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* Floating Action Button */}
       <Pressable
-        onPress={() => navigation.navigate('AddTransaction')}
+        onPress={() => {
+          if (navigation && navigation.navigate) {
+            navigation.navigate('AddTransaction');
+          } else {
+            console.warn('Navigation not available yet');
+          }
+        }}
         className="absolute bottom-6 right-6 bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
         style={{ elevation: 8 }}
       >

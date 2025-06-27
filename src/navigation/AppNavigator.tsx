@@ -24,6 +24,8 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
+  console.log('AppNavigator rendering...');
+  
   return (
     <Stack.Navigator
       initialRouteName="Register"
@@ -34,7 +36,10 @@ const AppNavigator: React.FC = () => {
     >
       <Stack.Screen 
         name="Register" 
-        component={RegisterScreen} 
+        component={RegisterScreen}
+        options={{
+          headerShown: false,
+        }}
       />
       <Stack.Screen 
         name="AddTransaction" 

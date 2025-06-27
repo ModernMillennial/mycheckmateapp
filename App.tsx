@@ -33,9 +33,18 @@ export default function App() {
     return unsubscribe;
   }, []);
 
+  console.log('App component rendering...');
+
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
+      <NavigationContainer
+        onReady={() => {
+          console.log('NavigationContainer is ready');
+        }}
+        onStateChange={(state) => {
+          console.log('Navigation state changed:', state?.routeNames);
+        }}
+      >
         <AppNavigator />
         <StatusBar style="auto" />
       </NavigationContainer>
