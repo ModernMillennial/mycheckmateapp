@@ -39,31 +39,54 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     switchAccount,
     addTransaction,
     syncBankTransactions,
+    clearAndReinitialize,
+    updateSettings,
   } = useTransactionStore();
 
   useEffect(() => {
-    initializeWithSeedData();
-  }, [initializeWithSeedData]);
+    // Only initialize seed data if bank is already linked (returning user)
+    if (settings.bankLinked) {
+      initializeWithSeedData();
+    }
+  }, [initializeWithSeedData, settings.bankLinked]);
 
   const activeAccount = getActiveAccount();
   const transactions = getActiveTransactions();
 
-  // Check for first-time user setup (temporarily disabled)
-  // useEffect(() => {
-  //   const hasTransactions = transactions.length > 0;
-  //   const isBankLinked = settings.bankLinked;
-  //   
-  //   if (!hasTransactions && !isBankLinked) {
-  //     // Show first-time setup after a brief delay
-  //     setTimeout(() => {
-  //       setShowFirstTimeSetup(true);
-  //     }, 1000);
-  //   }
-  // }, [transactions.length, settings.bankLinked]);
+  // Check for first-time user setup
+  useEffect(() => {
+    const hasTransactions = transactions.length > 0;
+    const isBankLinked = settings.bankLinked;
+    
+    if (!hasTransactions && !isBankLinked) {
+      // Show first-time setup after a brief delay
+      setTimeout(() => {
+        setShowFirstTimeSetup(true);
+      }, 500);
+    }
+  }, [transactions.length, settings.bankLinked]);
 
   // Debug logging
   console.log('Active Account:', activeAccount?.name);
   console.log('Transactions for account:', transactions.length);
+
+  const handleDemoReset = () => {
+    Alert.alert(
+      'Demo Reset',
+      'This will reset the app to show the initial bank setup demo. Continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: () => {
+            updateSettings({ bankLinked: false });
+            clearAndReinitialize();
+          },
+        },
+      ]
+    );
+  };
 
   const filteredTransactions = useMemo(() => {
     let filtered = [...transactions];
@@ -419,6 +442,12 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               className="p-2 mr-1"
             >
               <Ionicons name="flask-outline" size={24} color="#3B82F6" />
+            </Pressable>
+            <Pressable
+              onPress={handleDemoReset}
+              className="p-2 mr-1"
+            >
+              <Ionicons name="refresh-outline" size={24} color="#EF4444" />
             </Pressable>
             <Pressable
               onPress={() => setShowLegend(!showLegend)}

@@ -493,12 +493,11 @@ export const useTransactionStore = create<TransactionState>()(
         set({
           transactions: [],
           accounts: defaultAccounts,
-          settings: initialSettings,
+          settings: { ...initialSettings, bankLinked: false },
           isInitialized: false,
         });
         
-        // Force reinitialize
-        get().initializeWithSeedData();
+        // Don't auto-initialize seed data - let first-time setup handle it
       },
     }),
     {
