@@ -113,12 +113,19 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     }, 3000);
   };
 
-  const renderTransaction = ({ item }: { item: Transaction }) => {
+  const renderTransaction = ({ item, index }: { item: Transaction; index: number }) => {
     const isStartingBalance = item.id.startsWith('starting-balance-');
+    
+    // Calculate running balance (working backwards from current balance)
+    const sortedTransactions = transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    let runningBalance = activeAccount?.currentBalance || 0;
+    for (let i = 0; i < index; i++) {
+      runningBalance -= sortedTransactions[i].amount;
+    }
     
     return (
       <Pressable
-        className="mx-4 mb-2 p-4 bg-white rounded-lg shadow-sm border border-gray-100"
+        className="mx-4 mb-1 px-4 py-3 bg-white rounded-lg shadow-sm border border-gray-100"
         onPress={() => {
           if (!isStartingBalance) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -126,73 +133,142 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
           }
         }}
         disabled={isStartingBalance}
+        style={({ pressed }) => ({
+          opacity: pressed ? 0.7 : 1,
+          transform: [{ scale: pressed ? 0.98 : 1 }],
+        })}
       >
-        <View className="flex-row justify-between items-center">
-          <View className="flex-1">
-            <Text className={`font-semibold ${isStartingBalance ? 'text-blue-900' : 'text-gray-900'}`}>
+        {/* Header Row - Payee and Check Number */}
+        <View className="flex-row items-center mb-2">
+          <View className="flex-row items-center flex-1">
+            {isStartingBalance && (
+              <Ionicons 
+                name="flag-outline" 
+                size={16} 
+                color="#3B82F6" 
+                style={{ marginRight: 8 }}
+              />
+            )}
+            <Text className={`text-base font-semibold flex-1 ${
+              isStartingBalance ? "text-blue-900" : "text-gray-900"
+            }`}>
               {item.payee}
             </Text>
-            <View className="flex-row items-center mt-1">
-              <Text className="text-sm text-gray-500">
-                {new Date(item.date).toLocaleDateString()}
-              </Text>
-              <Text className="text-sm text-gray-400 mx-2">•</Text>
-              <Text className={`text-sm ${
-                item.source === 'manual' ? 'text-gray-500' : 
-                item.notes?.includes('Converted') ? 'text-yellow-600' : 'text-green-600'
+          </View>
+          {item.checkNumber && (
+            <Text className="text-sm text-gray-500 mr-2">
+              #{item.checkNumber}
+            </Text>
+          )}
+          
+          {/* Reconciliation Status */}
+          <Pressable
+            onPress={() => !isStartingBalance && toggleReconciled(item.id)}
+            disabled={isStartingBalance}
+            className="ml-2"
+          >
+            {item.source === 'manual' && !item.reconciled ? (
+              // Manual transaction - two gray circles
+              <View className="flex-row">
+                <Ionicons name="ellipse-outline" size={16} color="#9CA3AF" />
+                <Ionicons name="ellipse-outline" size={16} color="#9CA3AF" style={{ marginLeft: 2 }} />
+              </View>
+            ) : item.source === 'bank' && item.notes?.includes('Converted') ? (
+              // Converted transaction - green + yellow
+              <View className="flex-row">
+                <Ionicons 
+                  name={item.reconciled ? "checkmark-circle" : "checkmark-circle-outline"} 
+                  size={16} 
+                  color="#10B981" 
+                />
+                <Ionicons name="checkmark-circle" size={16} color="#F59E0B" style={{ marginLeft: 2 }} />
+              </View>
+            ) : (
+              // Regular bank transaction - single green check
+              <Ionicons 
+                name={item.reconciled ? "checkmark-circle" : "checkmark-circle-outline"} 
+                size={16} 
+                color="#10B981" 
+              />
+            )}
+          </Pressable>
+        </View>
+
+        {/* Main Row - Date, Type, Debit, Credit, Balance */}
+        <View className="flex-row items-center">
+          {/* Left: Date and Transaction Type */}
+          <View className="w-20 pr-2">
+            <Text className="text-sm text-gray-600" numberOfLines={1}>
+              {new Date(item.date).toLocaleDateString('en-US', { 
+                month: 'numeric', 
+                day: 'numeric' 
+              })}
+            </Text>
+            <View className="flex-row items-center">
+              <Ionicons
+                name={item.source === 'manual' ? 'receipt-outline' : 'card-outline'}
+                size={12}
+                color={
+                  item.source === 'manual' 
+                    ? '#9CA3AF' 
+                    : item.notes?.includes('Converted')
+                      ? '#F59E0B'
+                      : '#10B981'
+                }
+              />
+              <Text className={`text-xs ml-1 capitalize ${
+                item.source === 'manual' 
+                  ? 'text-gray-500' 
+                  : item.notes?.includes('Converted')
+                    ? 'text-yellow-600'
+                    : 'text-green-600'
               }`}>
-                {item.source === 'bank' && item.notes?.includes('Converted') ? 'converted' : item.source}
+                {item.source === 'bank' && item.notes?.includes('Converted')
+                  ? 'converted'
+                  : item.source}
               </Text>
             </View>
           </View>
-          
-          <View className="items-end">
-            <Text className={`font-semibold ${
-              item.amount >= 0 
-                ? isStartingBalance ? 'text-blue-600' : 'text-green-600'
-                : 'text-red-600'
-            }`}>
-              {item.amount >= 0 ? '+' : ''}${Math.abs(item.amount).toFixed(2)}
-            </Text>
-            
-            {/* Reconciliation Status */}
-            <Pressable
-              onPress={() => !isStartingBalance && toggleReconciled(item.id)}
-              className="flex-row items-center mt-1"
-              disabled={isStartingBalance}
-            >
-              {item.source === 'manual' && !item.reconciled ? (
-                // Manual transaction - two gray circles
-                <View className="flex-row">
-                  <Ionicons name="ellipse-outline" size={12} color="#9CA3AF" />
-                  <Ionicons name="ellipse-outline" size={12} color="#9CA3AF" style={{ marginLeft: 2 }} />
-                </View>
-              ) : item.source === 'bank' && item.notes?.includes('Converted') ? (
-                // Converted transaction - green + yellow
-                <View className="flex-row">
-                  <Ionicons 
-                    name={item.reconciled ? "checkmark-circle" : "checkmark-circle-outline"} 
-                    size={12} 
-                    color="#10B981" 
-                  />
-                  <Ionicons name="checkmark-circle" size={12} color="#F59E0B" style={{ marginLeft: 2 }} />
-                </View>
-              ) : (
-                // Regular bank transaction - single green check
-                <Ionicons 
-                  name={item.reconciled ? "checkmark-circle" : "checkmark-circle-outline"} 
-                  size={12} 
-                  color="#10B981" 
-                />
-              )}
-              <Text className="text-xs text-gray-500 ml-1">
-                {isStartingBalance ? 'Starting Balance' :
-                 item.source === 'manual' && !item.reconciled ? 'Pending' :
-                 item.reconciled ? 'Reconciled' : 'Tap to reconcile'}
+
+          {/* Middle-Left: Debit Amount */}
+          <View className="w-24 items-end px-1">
+            <Text className="text-xs text-gray-500 font-medium">DEBIT</Text>
+            {item.amount < 0 && (
+              <Text className="text-base font-semibold text-red-600" numberOfLines={1}>
+                ${Math.abs(item.amount).toFixed(2)}
               </Text>
-            </Pressable>
+            )}
+          </View>
+
+          {/* Middle-Right: Credit Amount */}
+          <View className="w-24 items-end px-1">
+            <Text className="text-xs text-gray-500 font-medium">CREDIT</Text>
+            {item.amount >= 0 && (
+              <Text className={`text-base font-semibold ${
+                isStartingBalance ? "text-blue-600" : "text-green-600"
+              }`} numberOfLines={1}>
+                ${item.amount.toFixed(2)}
+              </Text>
+            )}
+          </View>
+
+          {/* Right: Running Balance */}
+          <View className="w-24 items-end pl-1">
+            <Text className="text-xs text-gray-500 font-medium">BALANCE</Text>
+            <Text className={`text-base font-bold ${
+              runningBalance >= 0 ? "text-gray-900" : "text-red-600"
+            }`} numberOfLines={1}>
+              ${Math.abs(runningBalance).toFixed(2)}
+            </Text>
           </View>
         </View>
+
+        {/* Notes Row (if exists) */}
+        {item.notes && (
+          <View className="mt-2 pt-2 border-t border-gray-100">
+            <Text className="text-sm text-gray-500">{item.notes}</Text>
+          </View>
+        )}
       </Pressable>
     );
   };
@@ -343,12 +419,31 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
           <View className="mb-6">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-xl font-bold text-gray-900">
-                Recent Transactions
+                Transaction Register
               </Text>
               <Text className="text-sm text-gray-500">
-                Tap green checks to toggle reconciliation
+                Tap checks to reconcile
               </Text>
             </View>
+            
+            {/* Column Headers */}
+            <View className="mx-4 mb-2 px-4 py-2 bg-gray-50 rounded-lg">
+              <View className="flex-row items-center">
+                <View className="w-20 pr-2">
+                  <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
+                </View>
+                <View className="w-24 items-center px-1">
+                  <Text className="text-xs font-bold text-gray-700 uppercase">Debit</Text>
+                </View>
+                <View className="w-24 items-center px-1">
+                  <Text className="text-xs font-bold text-gray-700 uppercase">Credit</Text>
+                </View>
+                <View className="w-24 items-center pl-1">
+                  <Text className="text-xs font-bold text-gray-700 uppercase">Balance</Text>
+                </View>
+              </View>
+            </View>
+            
             <FlatList
               data={transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
               renderItem={renderTransaction}
