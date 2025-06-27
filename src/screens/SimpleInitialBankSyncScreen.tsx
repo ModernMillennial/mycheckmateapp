@@ -10,11 +10,63 @@ interface Props {
 }
 
 const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel }) => {
+  // Add all the state variables from the original component
   const [step, setStep] = useState('connect');
+  const [selectedBank, setSelectedBank] = useState('');
+  const [fetchedTransactions, setFetchedTransactions] = useState([]);
+  const [selectedStartingTransaction, setSelectedStartingTransaction] = useState('');
+  const [currentBalance, setCurrentBalance] = useState(0);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
   
-  // Test store usage
-  const { addAccount, updateSettings } = useTransactionStore();
-  console.log('SimpleInitialBankSyncScreen: Store accessed successfully');
+  // Test all store functions from original component
+  const { addAccount, updateAccount, addTransaction, switchAccount, updateSettings } = useTransactionStore();
+  console.log('SimpleInitialBankSyncScreen: All store functions accessed successfully');
+
+  // Add the problematic simulateImport function
+  const simulateImport = async () => {
+    setIsImporting(true);
+    
+    // Find the selected starting transaction
+    const startingTransaction = fetchedTransactions.find(t => t.id === selectedStartingTransaction);
+    if (!startingTransaction) return;
+    
+    // Create new account
+    const bankName = 'Demo Bank';
+    
+    const newAccount = {
+      name: `${bankName} Checking`,
+      type: 'checking' as const,
+      balance: currentBalance,
+      startingBalance: startingTransaction.balance || 1000,
+      startingBalanceDate: new Date().toISOString().split('T')[0],
+      isConnected: true,
+      lastSyncDate: new Date(),
+      bankName: bankName,
+      accountNumber: '****1234',
+      isActive: true,
+      currentBalance: currentBalance,
+      color: '#3B82F6',
+    };
+    
+    addAccount(newAccount);
+    
+    // Simple approach: add transactions to the default account for now
+    setTimeout(() => {
+      const demoAccountId = 'checking-1';
+      switchAccount(demoAccountId);
+      
+      // Mark bank as linked
+      updateSettings({ bankLinked: true });
+      
+      setTimeout(() => {
+        setIsImporting(false);
+        console.log('Import simulation complete');
+      }, 1000);
+    }, 150);
+  };
 
   if (!visible) {
     return null;
@@ -32,10 +84,14 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
           </Text>
           
           <Pressable
-            onPress={onComplete}
+            onPress={() => {
+              console.log('Testing simulateImport function...');
+              simulateImport();
+              onComplete();
+            }}
             className="bg-blue-500 px-8 py-4 rounded-lg mb-4"
           >
-            <Text className="text-white font-semibold">Complete</Text>
+            <Text className="text-white font-semibold">Test Import & Complete</Text>
           </Pressable>
           
           <Pressable
