@@ -527,23 +527,23 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
               </Pressable>
             </View>
             <View className="space-y-3">
-              <View className="flex-row items-center">
-                <View className="bg-gray-100 px-2 py-1 rounded mr-3">
+              <View className="flex-row items-start">
+                <View className="bg-gray-100 px-2 py-1 rounded mr-3 mt-0.5">
                   <Text className="text-xs font-medium text-red-600">NOT POSTED</Text>
                 </View>
-                <Text className="text-blue-800">Manual transactions (not yet posted to bank)</Text>
+                <Text className="text-blue-800 text-sm flex-1">Manual transactions (not yet posted to bank)</Text>
               </View>
-              <View className="flex-row items-center">
-                <View className="bg-gray-100 px-2 py-1 rounded mr-3">
+              <View className="flex-row items-start">
+                <View className="bg-gray-100 px-2 py-1 rounded mr-3 mt-0.5">
                   <Text className="text-xs font-medium text-blue-600">POSTED</Text>
                 </View>
-                <Text className="text-blue-800">Bank transactions (tap to toggle posted status)</Text>
+                <Text className="text-blue-800 text-sm flex-1">Bank transactions (tap to toggle posted status)</Text>
               </View>
-              <View className="flex-row items-center">
-                <View className="bg-gray-100 px-2 py-1 rounded mr-3">
+              <View className="flex-row items-start">
+                <View className="bg-gray-100 px-2 py-1 rounded mr-3 mt-0.5">
                   <Text className="text-xs font-medium text-black">MANUAL</Text>
                 </View>
-                <Text className="text-blue-800">Transaction type (converted from manual to bank confirmed)</Text>
+                <Text className="text-blue-800 text-sm flex-1">Transaction type (converted from manual to bank confirmed)</Text>
               </View>
             </View>
           </View>
