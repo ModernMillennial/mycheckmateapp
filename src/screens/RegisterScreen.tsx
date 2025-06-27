@@ -174,11 +174,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         onPress={() => {
           if (!isStarting) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            if (navigation) {
-              navigation.navigate('EditTransaction', { transaction: item });
-            } else {
-              console.warn('Navigation not available yet');
-            }
+            console.log('Transaction pressed, navigation disabled for testing');
           }
         }}
         disabled={isStarting}
@@ -648,11 +644,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
       {/* Floating Action Button */}
       <Pressable
         onPress={() => {
-          if (navigation) {
-            navigation.navigate('AddTransaction');
-          } else {
-            console.warn('Navigation not available yet');
-          }
+          console.log('Add transaction pressed, navigation disabled for testing');
         }}
         className="absolute bottom-6 right-6 bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
         style={{ elevation: 8 }}
@@ -660,22 +652,16 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         <Ionicons name="add" size={28} color="white" />
       </Pressable>
 
-      {/* First-time Bank Setup Modal */}
-      <InitialBankSyncScreen
-        visible={showFirstTimeSetup}
-        onComplete={() => {
-          setShowFirstTimeSetup(false);
-          // Use setTimeout to ensure state is updated before showing alert
-          setTimeout(() => {
-            Alert.alert(
-              'Welcome to Digital Register!',
-              'Your bank account has been connected and you\'re ready to start tracking your finances.',
-              [{ text: 'Let\'s Go!' }]
-            );
-          }, 100);
-        }}
-        onCancel={() => setShowFirstTimeSetup(false)}
-      />
+      {/* First-time Bank Setup Modal - Temporarily disabled for testing */}
+      {false && (
+        <InitialBankSyncScreen
+          visible={showFirstTimeSetup}
+          onComplete={() => {
+            setShowFirstTimeSetup(false);
+          }}
+          onCancel={() => setShowFirstTimeSetup(false)}
+        />
+      )}
     </SafeAreaView>
   );
 };
