@@ -26,7 +26,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
   
-  const { addAccount, updateAccount, addTransaction, switchAccount, updateSettings, accounts } = useTransactionStore();
+  const { addAccount, updateAccount, addTransaction, switchAccount, updateSettings } = useTransactionStore();
 
   const demoBank = [
     { id: 'chase', name: 'Chase Bank', icon: '🏦' },
@@ -182,8 +182,9 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
     // The addAccount function generates the ID internally, so we need to find the new account
     // by its unique properties rather than trying to get it from state immediately
     setTimeout(() => {
-      // Find the newly created account by name
-      const newAccount = accounts.find(acc => acc.name === `${bankName} Checking`);
+      // Find the newly created account by name using store's getState
+      const storeState = useTransactionStore.getState();
+      const newAccount = storeState.accounts.find(acc => acc.name === `${bankName} Checking`);
       const newAccountId = newAccount?.id;
       
       if (newAccountId) {
@@ -325,7 +326,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
         </View>
         <View className="w-full bg-gray-200 rounded-full h-2">
           <View 
-            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+            className="bg-blue-500 h-2 rounded-full"
             style={{ width: `${importProgress}%` }}
           />
         </View>
@@ -369,7 +370,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
         </View>
         <View className="w-full bg-gray-200 rounded-full h-2">
           <View 
-            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+            className="bg-blue-500 h-2 rounded-full"
             style={{ width: `${importProgress}%` }}
           />
         </View>
@@ -421,9 +422,13 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
         <Pressable
           key={transaction.id}
           onPress={() => {
-            console.log('Transaction selected:', transaction.id, transaction.payee);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            setSelectedStartingTransaction(transaction.id);
+            try {
+              console.log('Transaction selected:', transaction.id, transaction.payee);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setSelectedStartingTransaction(transaction.id);
+            } catch (error) {
+              console.error('Error selecting transaction:', error);
+            }
           }}
           className={`flex-row items-center p-4 rounded-lg border-2 mb-3 ${
             selectedStartingTransaction === transaction.id
