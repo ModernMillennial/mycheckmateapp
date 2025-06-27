@@ -30,7 +30,6 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     getActiveAccount,
     getActiveTransactions,
     switchAccount,
-    clearAndReinitialize,
   } = useTransactionStore();
 
   useEffect(() => {
@@ -161,74 +160,75 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           )}
         </View>
 
-      {/* Register Row - Date, Type, Debit, Credit, Balance */}
-      <View className="flex-row items-center">
-        {/* Left: Date & Type */}
-        <View className="flex-1">
-          <Text className="text-sm text-gray-600 mb-1">
-            {new Date(item.date).toLocaleDateString('en-US', { 
-              month: 'short', 
-              day: '2-digit' 
-            })}
-          </Text>
-          <View className="flex-row items-center">
-            <Ionicons
-              name={item.source === 'manual' ? 'receipt-outline' : 'card-outline'}
-              size={14}
-              color={item.reconciled ? '#10B981' : '#9CA3AF'}
-            />
-            <Text className={cn(
-              "text-xs ml-1 capitalize",
-              item.reconciled ? 'text-green-600' : 'text-gray-500'
-            )}>
-              {item.source}
+        {/* Register Row - Date, Type, Debit, Credit, Balance */}
+        <View className="flex-row items-center">
+          {/* Left: Date & Type */}
+          <View className="flex-1">
+            <Text className="text-sm text-gray-600 mb-1">
+              {new Date(item.date).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: '2-digit' 
+              })}
             </Text>
-            {!item.reconciled && item.source === 'manual' && (
-              <Text className="text-xs text-orange-500 ml-1">• Pending</Text>
+            <View className="flex-row items-center">
+              <Ionicons
+                name={item.source === 'manual' ? 'receipt-outline' : 'card-outline'}
+                size={14}
+                color={item.reconciled ? '#10B981' : '#9CA3AF'}
+              />
+              <Text className={cn(
+                "text-xs ml-1 capitalize",
+                item.reconciled ? 'text-green-600' : 'text-gray-500'
+              )}>
+                {item.source}
+              </Text>
+              {!item.reconciled && item.source === 'manual' && (
+                <Text className="text-xs text-orange-500 ml-1">• Pending</Text>
+              )}
+            </View>
+          </View>
+
+          {/* Middle-Left: Debit Amount */}
+          <View className="w-24 items-end px-1">
+            {item.amount < 0 && (
+              <Text className="text-base font-semibold text-red-600" numberOfLines={1}>
+                ${Math.abs(item.amount).toFixed(2)}
+              </Text>
             )}
+          </View>
+
+          {/* Middle-Right: Credit Amount */}
+          <View className="w-24 items-end px-1">
+            {item.amount >= 0 && (
+              <Text className={cn(
+                "text-base font-semibold",
+                isStarting ? "text-blue-600" : "text-green-600"
+              )} numberOfLines={1}>
+                ${item.amount.toFixed(2)}
+              </Text>
+            )}
+          </View>
+
+          {/* Right: Balance */}
+          <View className="w-28 items-end px-1">
+            <Text className={cn(
+              "text-base font-semibold",
+              isStarting ? "text-blue-900" : "text-gray-900"
+            )} numberOfLines={1}>
+              ${item.runningBalance.toFixed(2)}
+            </Text>
           </View>
         </View>
 
-        {/* Middle-Left: Debit Amount */}
-        <View className="w-24 items-end px-1">
-          {item.amount < 0 && (
-            <Text className="text-base font-semibold text-red-600" numberOfLines={1}>
-              ${Math.abs(item.amount).toFixed(2)}
-            </Text>
-          )}
-        </View>
-
-        {/* Middle-Right: Credit Amount */}
-        <View className="w-24 items-end px-1">
-          {item.amount >= 0 && (
-            <Text className={cn(
-              "text-base font-semibold",
-              isStarting ? "text-blue-600" : "text-green-600"
-            )} numberOfLines={1}>
-              ${item.amount.toFixed(2)}
-            </Text>
-          )}
-        </View>
-
-        {/* Right: Balance */}
-        <View className="w-28 items-end px-1">
-          <Text className={cn(
-            "text-base font-semibold",
-            isStarting ? "text-blue-900" : "text-gray-900"
-          )} numberOfLines={1}>
-            ${item.runningBalance.toFixed(2)}
+        {/* Notes Row (if present) */}
+        {item.notes && (
+          <Text className="text-sm text-gray-600 mt-2" numberOfLines={2}>
+            {item.notes}
           </Text>
-        </View>
-      </View>
-
-      {/* Notes Row (if present) */}
-      {item.notes && (
-        <Text className="text-sm text-gray-600 mt-2" numberOfLines={2}>
-          {item.notes}
-        </Text>
-      )}
-    </Pressable>
-  );
+        )}
+      </Pressable>
+    );
+  };
 
   const FilterButton = ({ filter, title }: { filter: FilterType; title: string }) => (
     <Pressable
@@ -265,14 +265,6 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               className="p-2 mr-1"
             >
               <Ionicons name="analytics-outline" size={24} color="#374151" />
-            </Pressable>
-            <Pressable
-              onPress={() => {
-                initializeWithSeedData();
-              }}
-              className="p-2 mr-1"
-            >
-              <Ionicons name="refresh" size={24} color="#374151" />
             </Pressable>
             <Pressable
               onPress={() => navigation.navigate('Settings')}
@@ -417,20 +409,6 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             <Text className="text-gray-400 text-sm mt-2 text-center px-8">
               Add your first transaction or sync with your bank account
             </Text>
-            <Text className="text-gray-400 text-xs mt-4 text-center px-8">
-              Debug: Active Account: {activeAccount?.name || 'None'}{'\n'}
-              Transactions: {transactions.length}{'\n'}
-              Filtered: {filteredTransactions.length}
-            </Text>
-            <Pressable
-              onPress={() => {
-                console.log('Force refresh pressed');
-                clearAndReinitialize();
-              }}
-              className="mt-4 px-4 py-2 bg-blue-500 rounded-lg"
-            >
-              <Text className="text-white text-sm">Force Refresh Data</Text>
-            </Pressable>
           </View>
         }
         refreshControl={
