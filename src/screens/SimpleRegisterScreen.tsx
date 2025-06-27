@@ -5,15 +5,14 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTransactionStore } from '../state/transactionStore';
 import { Transaction } from '../types';
-import SimpleInitialBankSyncScreen from './SimpleInitialBankSyncScreen';
+
 
 interface Props {
   navigation: any;
 }
 
 const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
-  const [showFirstTimeSetup, setShowFirstTimeSetup] = useState(false);
-  const [showTransactions, setShowTransactions] = useState(false);
+  const [showTransactions, setShowTransactions] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
   
   const {
@@ -29,26 +28,21 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   } = useTransactionStore();
 
   useEffect(() => {
-    if (settings.bankLinked) {
-      initializeWithSeedData();
-      setShowTransactions(true);
+    // Auto-setup for working app (bypassing demo mode)
+    if (!settings.bankLinked) {
+      updateSettings({ bankLinked: true });
     }
+    initializeWithSeedData();
+    setShowTransactions(true);
   }, [initializeWithSeedData, settings.bankLinked]);
 
   const activeAccount = getActiveAccount();
   const transactions = getActiveTransactions();
 
-  // Check for first-time user setup
+  // Auto-setup for working app (no first-time setup needed)
   useEffect(() => {
-    const hasTransactions = transactions.length > 0;
-    const isBankLinked = settings.bankLinked;
-    
-    if (!hasTransactions && !isBankLinked) {
-      setTimeout(() => {
-        setShowFirstTimeSetup(true);
-      }, 500);
-    }
-  }, [transactions.length, settings.bankLinked]);
+    // App will automatically initialize with working data
+  }, []);
 
   const handleDemoReset = () => {
     Alert.alert(
@@ -640,22 +634,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
         </Pressable>
       )}
 
-      {/* Initial Bank Setup Modal */}
-      <SimpleInitialBankSyncScreen
-        visible={showFirstTimeSetup}
-        onComplete={() => {
-          setShowFirstTimeSetup(false);
-          setShowTransactions(true);
-          setTimeout(() => {
-            Alert.alert(
-              'Welcome to Digital Register! 🎉',
-              'Your bank account has been connected and demo transactions imported. You can now:\n\n• View and post transactions\n• Add manual entries\n• See real-time balance updates\n• Try the manual→bank conversion demo',
-              [{ text: "Let's Explore!" }]
-            );
-          }, 100);
-        }}
-        onCancel={() => setShowFirstTimeSetup(false)}
-      />
+
     </SafeAreaView>
   );
 };
