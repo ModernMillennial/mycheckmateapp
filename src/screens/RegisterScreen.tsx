@@ -75,70 +75,85 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 
   const renderTransaction = ({ item }: { item: Transaction }) => (
     <Pressable
-      className="bg-white mx-4 mb-2 p-4 rounded-lg shadow-sm border border-gray-100"
+      className="bg-white mx-4 mb-1 px-4 py-3 rounded-lg shadow-sm border border-gray-100"
       onPress={() => navigation.navigate('EditTransaction', { transaction: item })}
     >
-      <View className="flex-row justify-between items-start">
-        <View className="flex-1">
-          <View className="flex-row items-center mb-1">
-            <Text className="text-base font-semibold text-gray-900">
-              {item.payee}
-            </Text>
-            {item.source === 'manual' && (
-              <Ionicons
-                name="receipt-outline"
-                size={16}
-                color="#6B7280"
-                style={{ marginLeft: 8 }}
-              />
-            )}
-            {item.checkNumber && (
-              <Text className="text-sm text-gray-500 ml-2">
-                #{item.checkNumber}
-              </Text>
-            )}
-          </View>
-          
-          <Text className="text-sm text-gray-500 mb-1">
-            {new Date(item.date).toLocaleDateString()}
+      {/* Header Row - Payee and Check Number */}
+      <View className="flex-row items-center mb-2">
+        <Text className="text-base font-semibold text-gray-900 flex-1">
+          {item.payee}
+        </Text>
+        {item.checkNumber && (
+          <Text className="text-sm text-gray-500 mr-2">
+            #{item.checkNumber}
           </Text>
-          
-          {item.notes && (
-            <Text className="text-sm text-gray-600" numberOfLines={2}>
-              {item.notes}
+        )}
+        <Pressable
+          onPress={() => toggleReconciled(item.id)}
+          className="ml-2"
+        >
+          <Ionicons
+            name={item.reconciled ? 'checkmark-circle' : 'ellipse-outline'}
+            size={20}
+            color={item.reconciled ? '#10B981' : '#9CA3AF'}
+          />
+        </Pressable>
+      </View>
+
+      {/* Register Row - Date, Type, Debit, Credit, Balance */}
+      <View className="flex-row items-center">
+        {/* Left: Date & Type */}
+        <View className="flex-1">
+          <Text className="text-sm text-gray-600 mb-1">
+            {new Date(item.date).toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: '2-digit' 
+            })}
+          </Text>
+          <View className="flex-row items-center">
+            <Ionicons
+              name={item.source === 'manual' ? 'receipt-outline' : 'card-outline'}
+              size={14}
+              color="#9CA3AF"
+            />
+            <Text className="text-xs text-gray-500 ml-1 capitalize">
+              {item.source}
+            </Text>
+          </View>
+        </View>
+
+        {/* Middle-Left: Debit Amount */}
+        <View className="w-20 items-end">
+          {item.amount < 0 && (
+            <Text className="text-base font-semibold text-red-600">
+              ${Math.abs(item.amount).toFixed(2)}
             </Text>
           )}
         </View>
-        
-        <View className="items-end ml-4">
-          <Text
-            className={cn(
-              "text-lg font-semibold",
-              item.amount >= 0 ? "text-green-600" : "text-red-600"
-            )}
-          >
-            {item.amount >= 0 ? '+' : ''}${Math.abs(item.amount).toFixed(2)}
-          </Text>
-          
-          <Text className="text-sm text-gray-500">
-            Balance: ${item.runningBalance.toFixed(2)}
-          </Text>
-          
-          <Pressable
-            onPress={() => toggleReconciled(item.id)}
-            className="mt-2 flex-row items-center"
-          >
-            <Ionicons
-              name={item.reconciled ? 'checkmark-circle' : 'ellipse-outline'}
-              size={20}
-              color={item.reconciled ? '#10B981' : '#9CA3AF'}
-            />
-            <Text className="text-xs text-gray-500 ml-1">
-              {item.reconciled ? 'Reconciled' : 'Pending'}
+
+        {/* Middle-Right: Credit Amount */}
+        <View className="w-20 items-end">
+          {item.amount >= 0 && (
+            <Text className="text-base font-semibold text-green-600">
+              ${item.amount.toFixed(2)}
             </Text>
-          </Pressable>
+          )}
+        </View>
+
+        {/* Right: Balance */}
+        <View className="w-24 items-end">
+          <Text className="text-base font-semibold text-gray-900">
+            ${item.runningBalance.toFixed(2)}
+          </Text>
         </View>
       </View>
+
+      {/* Notes Row (if present) */}
+      {item.notes && (
+        <Text className="text-sm text-gray-600 mt-2" numberOfLines={2}>
+          {item.notes}
+        </Text>
+      )}
     </Pressable>
   );
 
@@ -222,13 +237,39 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         />
       </View>
 
+      {/* Column Headers */}
+      <View className="bg-gray-50 mx-4 px-4 py-2 rounded-lg mb-2">
+        <View className="flex-row items-center">
+          <View className="flex-1">
+            <Text className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+              Date & Type
+            </Text>
+          </View>
+          <View className="w-20 items-end">
+            <Text className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+              Debit
+            </Text>
+          </View>
+          <View className="w-20 items-end">
+            <Text className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+              Credit
+            </Text>
+          </View>
+          <View className="w-24 items-end">
+            <Text className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+              Balance
+            </Text>
+          </View>
+        </View>
+      </View>
+
       {/* Transaction List */}
       <FlatList
         data={filteredTransactions}
         renderItem={renderTransaction}
         keyExtractor={(item) => item.id}
         className="flex-1"
-        contentContainerStyle={{ paddingTop: 16, paddingBottom: 100 }}
+        contentContainerStyle={{ paddingTop: 8, paddingBottom: 100 }}
         ListEmptyComponent={
           <View className="items-center justify-center py-16">
             <Ionicons name="receipt-outline" size={64} color="#D1D5DB" />
