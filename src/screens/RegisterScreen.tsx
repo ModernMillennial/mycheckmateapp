@@ -95,7 +95,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           <Ionicons
             name={item.reconciled ? 'checkmark-circle' : 'ellipse-outline'}
             size={20}
-            color={item.reconciled ? '#10B981' : '#9CA3AF'}
+            color={item.reconciled ? '#10B981' : (item.source === 'bank' ? '#3B82F6' : '#9CA3AF')}
           />
         </Pressable>
       </View>
@@ -114,11 +114,17 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             <Ionicons
               name={item.source === 'manual' ? 'receipt-outline' : 'card-outline'}
               size={14}
-              color="#9CA3AF"
+              color={item.reconciled ? '#10B981' : '#9CA3AF'}
             />
-            <Text className="text-xs text-gray-500 ml-1 capitalize">
+            <Text className={cn(
+              "text-xs ml-1 capitalize",
+              item.reconciled ? 'text-green-600' : 'text-gray-500'
+            )}>
               {item.source}
             </Text>
+            {!item.reconciled && item.source === 'manual' && (
+              <Text className="text-xs text-orange-500 ml-1">• Pending</Text>
+            )}
           </View>
         </View>
 

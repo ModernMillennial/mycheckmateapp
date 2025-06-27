@@ -1,6 +1,7 @@
 import { Transaction } from '../types';
 
 export const generateSeedTransactions = (): Omit<Transaction, 'id' | 'runningBalance'>[] => [
+  // Manual transaction that will be matched by bank sync
   {
     userId: 'user-1',
     date: new Date(Date.now() - 86400000 * 7).toISOString().split('T')[0], // 7 days ago
@@ -9,52 +10,58 @@ export const generateSeedTransactions = (): Omit<Transaction, 'id' | 'runningBal
     source: 'manual',
     checkNumber: '1001',
     notes: 'Weekly grocery shopping',
-    reconciled: true,
+    reconciled: false, // Will be auto-reconciled when bank sync finds matching transaction
   },
+  // Bank transaction - auto reconciled
   {
     userId: 'user-1',
     date: new Date(Date.now() - 86400000 * 5).toISOString().split('T')[0], // 5 days ago
-    payee: 'Monthly Salary',
+    payee: 'Payroll Direct Deposit',
     amount: 3250.00,
     source: 'bank',
-    notes: 'Direct deposit payroll',
-    reconciled: false,
+    notes: 'Monthly salary deposit',
+    reconciled: true, // Bank transactions are always reconciled
   },
+  // Manual transaction that hasn't cleared yet
   {
     userId: 'user-1',
     date: new Date(Date.now() - 86400000 * 4).toISOString().split('T')[0], // 4 days ago
-    payee: 'Electric Bill',
+    payee: 'Electric Company',
     amount: -89.45,
     source: 'manual',
     checkNumber: '1002',
-    notes: 'Monthly utility payment',
-    reconciled: false,
+    notes: 'Monthly utility payment - Check mailed',
+    reconciled: false, // Still pending - check hasn't cleared
   },
+  // Bank transaction - auto reconciled
   {
     userId: 'user-1',
     date: new Date(Date.now() - 86400000 * 3).toISOString().split('T')[0], // 3 days ago
-    payee: 'Coffee Shop',
+    payee: 'Starbucks Coffee',
     amount: -12.50,
     source: 'bank',
-    notes: 'Morning coffee',
-    reconciled: false,
+    notes: 'Card purchase',
+    reconciled: true, // Bank transactions are always reconciled
   },
+  // Manual transaction that will match upcoming bank sync
   {
     userId: 'user-1',
     date: new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0], // 2 days ago
-    payee: 'Gas Station',
+    payee: 'Shell Gas Station',
     amount: -45.00,
     source: 'manual',
+    checkNumber: '1003',
     notes: 'Fill up tank',
-    reconciled: true,
+    reconciled: false, // Will be matched during bank sync
   },
+  // Recent manual transaction - too new to have cleared
   {
     userId: 'user-1',
-    date: new Date(Date.now() - 86400000).toISOString().split('T')[0], // Yesterday
-    payee: 'ATM Withdrawal',
-    amount: -100.00,
-    source: 'bank',
-    notes: 'Cash withdrawal',
-    reconciled: false,
+    date: new Date().toISOString().split('T')[0], // Today
+    payee: 'Local Restaurant',
+    amount: -28.75,
+    source: 'manual',
+    notes: 'Lunch - Card payment',
+    reconciled: false, // Too recent to have cleared
   },
 ];

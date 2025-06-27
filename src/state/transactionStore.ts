@@ -113,18 +113,42 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       syncBankTransactions: (bankTransactions) => {
-        const existingIds = new Set(get().transactions.map(t => t.id));
-        const newTransactions = bankTransactions
-          .filter(t => !existingIds.has(t.id))
+        const { transactions } = get();
+        
+        // Create new bank transactions that don't already exist
+        const existingBankTransactions = transactions.filter(t => t.source === 'bank');
+        const existingBankIds = new Set(existingBankTransactions.map(t => `${t.date}-${t.amount}-${t.payee}`));
+        
+        const newBankTransactions = bankTransactions
+          .filter(t => !existingBankIds.has(`${t.date}-${t.amount}-${t.payee}`))
           .map(t => ({
             ...t,
             id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
             runningBalance: 0,
+            reconciled: true, // Bank transactions are automatically reconciled
           }));
 
-        set((state) => ({
-          transactions: [...state.transactions, ...newTransactions],
-        }));
+        // Auto-reconcile existing manual transactions that match bank data
+        const updatedTransactions = transactions.map(transaction => {
+          if (transaction.source === 'manual' && !transaction.reconciled) {
+            // Check if this manual transaction matches any bank transaction
+            const matchingBankTransaction = [...existingBankTransactions, ...newBankTransactions].find(bankTx => 
+              Math.abs(new Date(bankTx.date).getTime() - new Date(transaction.date).getTime()) <= 86400000 * 3 && // Within 3 days
+              Math.abs(bankTx.amount - transaction.amount) < 0.01 && // Same amount (within 1 cent)
+              (bankTx.payee.toLowerCase().includes(transaction.payee.toLowerCase().split(' ')[0]) ||
+               transaction.payee.toLowerCase().includes(bankTx.payee.toLowerCase().split(' ')[0]))
+            );
+            
+            if (matchingBankTransaction) {
+              return { ...transaction, reconciled: true };
+            }
+          }
+          return transaction;
+        });
+
+        set({
+          transactions: [...updatedTransactions, ...newBankTransactions],
+        });
         
         get().calculateRunningBalance();
       },

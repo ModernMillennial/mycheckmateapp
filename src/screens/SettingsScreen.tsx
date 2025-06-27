@@ -31,42 +31,68 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
       
       const mockBankTransactions = [
+        // This will match the "Grocery Store" manual transaction
+        {
+          userId: 'user-1',
+          date: new Date(Date.now() - 86400000 * 6).toISOString().split('T')[0], // 6 days ago (within 3 day window)
+          payee: 'SAFEWAY GROCERY #1234',
+          amount: -125.67,
+          source: 'bank' as const,
+          notes: 'Debit card purchase',
+          reconciled: false,
+        },
+        // This will match the "Shell Gas Station" manual transaction  
+        {
+          userId: 'user-1',
+          date: new Date(Date.now() - 86400000 * 1).toISOString().split('T')[0], // Yesterday (1 day after manual entry)
+          payee: 'SHELL OIL #4567',
+          amount: -45.00,
+          source: 'bank' as const,
+          notes: 'Debit card purchase',
+          reconciled: false,
+        },
+        // New bank transaction with no manual match
         {
           userId: 'user-1',
           date: new Date(Date.now() - 86400000).toISOString().split('T')[0], // Yesterday
-          payee: 'Direct Deposit - Payroll',
-          amount: 2500.00,
-          source: 'bank' as const,
-          notes: 'Monthly salary deposit',
-          reconciled: false,
-        },
-        {
-          userId: 'user-1',
-          date: new Date(Date.now() - 172800000).toISOString().split('T')[0], // 2 days ago
-          payee: 'Amazon Purchase',
+          payee: 'Amazon.com',
           amount: -89.99,
           source: 'bank' as const,
           notes: 'Online purchase',
           reconciled: false,
         },
+        // Another new transaction
         {
           userId: 'user-1',
-          date: new Date(Date.now() - 259200000).toISOString().split('T')[0], // 3 days ago
-          payee: 'Gas Station',
-          amount: -45.67,
+          date: new Date().toISOString().split('T')[0], // Today
+          payee: 'ATM Withdrawal',
+          amount: -60.00,
           source: 'bank' as const,
-          notes: 'Fuel purchase',
+          notes: 'Cash withdrawal',
           reconciled: false,
         },
       ];
       
+      const { transactions: currentTransactions } = useTransactionStore.getState();
+      const manualUnreconciledBefore = currentTransactions.filter(t => t.source === 'manual' && !t.reconciled).length;
+      
       syncBankTransactions(mockBankTransactions);
       updateSettings({ bankLinked: true });
       
-      Alert.alert(
-        'Sync Complete',
-        `Successfully imported ${mockBankTransactions.length} transactions from your bank account.`
-      );
+      // Check how many manual transactions were auto-reconciled
+      setTimeout(() => {
+        const { transactions: updatedTransactions } = useTransactionStore.getState();
+        const manualUnreconciledAfter = updatedTransactions.filter(t => t.source === 'manual' && !t.reconciled).length;
+        const autoReconciled = manualUnreconciledBefore - manualUnreconciledAfter;
+        
+        let message = `Successfully imported ${mockBankTransactions.length} new transactions from your bank account.`;
+        if (autoReconciled > 0) {
+          message += `\n\n${autoReconciled} manual transaction${autoReconciled > 1 ? 's were' : ' was'} automatically reconciled with matching bank transactions.`;
+        }
+        
+        Alert.alert('Sync Complete', message);
+      }, 100);
+      
     } catch (error) {
       Alert.alert('Sync Failed', 'Unable to sync with bank account. Please try again later.');
     } finally {
