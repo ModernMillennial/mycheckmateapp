@@ -48,18 +48,18 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const activeAccount = getActiveAccount();
   const transactions = getActiveTransactions();
 
-  // Check for first-time user setup
-  useEffect(() => {
-    const hasTransactions = transactions.length > 0;
-    const isBankLinked = settings.bankLinked;
-    
-    if (!hasTransactions && !isBankLinked) {
-      // Show first-time setup after a brief delay
-      setTimeout(() => {
-        setShowFirstTimeSetup(true);
-      }, 1000);
-    }
-  }, [transactions.length, settings.bankLinked]);
+  // Check for first-time user setup (temporarily disabled)
+  // useEffect(() => {
+  //   const hasTransactions = transactions.length > 0;
+  //   const isBankLinked = settings.bankLinked;
+  //   
+  //   if (!hasTransactions && !isBankLinked) {
+  //     // Show first-time setup after a brief delay
+  //     setTimeout(() => {
+  //       setShowFirstTimeSetup(true);
+  //     }, 1000);
+  //   }
+  // }, [transactions.length, settings.bankLinked]);
 
   // Debug logging
   console.log('Active Account:', activeAccount?.name);
