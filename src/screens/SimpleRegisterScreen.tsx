@@ -362,68 +362,85 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
         </Text>
       </View>
 
-      {/* Hamburger Menu Overlay */}
+      {/* Hamburger Menu */}
       {showMenu && (
-        <View className="absolute top-0 left-0 right-0 bottom-0 z-50">
-          {/* Background overlay */}
+        <View 
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1000,
+            backgroundColor: 'rgba(0,0,0,0.5)'
+          }}
+        >
           <Pressable 
             onPress={() => setShowMenu(false)}
-            className="flex-1 bg-black/50"
+            style={{ flex: 1 }}
           />
           
-          {/* Menu panel */}
-          <View className="absolute top-0 right-0 w-64 h-full bg-white shadow-lg">
-            {/* Menu header */}
-            <View className="bg-blue-500 px-4 py-6 pt-12">
-              <View className="flex-row justify-between items-center">
-                <Text className="text-white text-lg font-semibold">Menu</Text>
+          <View 
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              width: 250,
+              height: '100%',
+              backgroundColor: 'white'
+            }}
+          >
+            <View style={{ backgroundColor: '#3B82F6', paddingHorizontal: 16, paddingTop: 48, paddingBottom: 16 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ color: 'white', fontSize: 18, fontWeight: '600' }}>Menu</Text>
                 <Pressable onPress={() => setShowMenu(false)}>
                   <Ionicons name="close" size={24} color="white" />
                 </Pressable>
               </View>
             </View>
             
-            {/* Menu items */}
-            <View className="flex-1 px-4 py-4">
+            <View style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 16 }}>
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  navigation?.navigate('Accounts');
+                  setTimeout(() => navigation?.navigate('Accounts'), 100);
                 }}
-                className="flex-row items-center py-4 border-b border-gray-100"
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
               >
                 <Ionicons name="wallet-outline" size={22} color="#374151" />
-                <Text className="ml-3 text-gray-900 text-base">Accounts</Text>
+                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Accounts</Text>
               </Pressable>
               
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  navigation?.navigate('Reports');
+                  setTimeout(() => navigation?.navigate('Reports'), 100);
                 }}
-                className="flex-row items-center py-4 border-b border-gray-100"
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
               >
                 <Ionicons name="bar-chart-outline" size={22} color="#374151" />
-                <Text className="ml-3 text-gray-900 text-base">Reports</Text>
+                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Reports</Text>
               </Pressable>
               
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  setShowLegend(true);
+                  setTimeout(() => setShowLegend(true), 100);
                 }}
-                className="flex-row items-center py-4 border-b border-gray-100"
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
               >
                 <Ionicons name="help-circle-outline" size={22} color="#374151" />
-                <Text className="ml-3 text-gray-900 text-base">Help Guide</Text>
+                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Help Guide</Text>
               </Pressable>
               
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  handleManualTransactionDemo();
+                  if (activeAccount) {
+                    setTimeout(() => handleManualTransactionDemo(), 100);
+                  }
                 }}
-                className="flex-row items-center py-4 border-b border-gray-100"
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
                 disabled={!activeAccount}
               >
                 <Ionicons 
@@ -431,42 +448,44 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                   size={22} 
                   color={activeAccount ? "#3B82F6" : "#9CA3AF"} 
                 />
-                <Text className={`ml-3 text-base ${
-                  activeAccount ? "text-gray-900" : "text-gray-400"
-                }`}>Demo Conversion</Text>
+                <Text style={{ 
+                  marginLeft: 12, 
+                  fontSize: 16,
+                  color: activeAccount ? '#111827' : '#9CA3AF'
+                }}>Demo Conversion</Text>
               </Pressable>
               
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  handleBugReport();
+                  setTimeout(() => handleBugReport(), 100);
                 }}
-                className="flex-row items-center py-4 border-b border-gray-100"
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
               >
                 <Ionicons name="bug-outline" size={22} color="#DC2626" />
-                <Text className="ml-3 text-gray-900 text-base">Report Bug</Text>
+                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Report Bug</Text>
               </Pressable>
               
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  handleDemoReset();
+                  setTimeout(() => handleDemoReset(), 100);
                 }}
-                className="flex-row items-center py-4 border-b border-gray-100"
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
               >
                 <Ionicons name="refresh-outline" size={22} color="#EF4444" />
-                <Text className="ml-3 text-gray-900 text-base">Reset Demo</Text>
+                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Reset Demo</Text>
               </Pressable>
               
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  navigation?.navigate('Settings');
+                  setTimeout(() => navigation?.navigate('Settings'), 100);
                 }}
-                className="flex-row items-center py-4"
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16 }}
               >
                 <Ionicons name="settings-outline" size={22} color="#374151" />
-                <Text className="ml-3 text-gray-900 text-base">Settings</Text>
+                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Settings</Text>
               </Pressable>
             </View>
           </View>
