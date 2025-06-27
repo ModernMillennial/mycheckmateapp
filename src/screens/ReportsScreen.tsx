@@ -27,9 +27,13 @@ interface MonthlyReport {
 }
 
 const ReportsScreen: React.FC<Props> = ({ navigation }) => {
-  const { getActiveTransactions, getActiveAccount } = useTransactionStore();
+  const { getActiveTransactions, getActiveAccount, accounts, switchAccount } = useTransactionStore();
   const transactions = getActiveTransactions();
   const activeAccount = getActiveAccount();
+
+  // Debug logging
+  console.log('Reports - Active Account:', activeAccount?.name);
+  console.log('Reports - Transactions:', transactions.length);
 
   const categorizeTransaction = (transaction: Transaction): string => {
     const payee = transaction.payee.toLowerCase();
@@ -75,7 +79,12 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
 
     const reports: { [key: string]: MonthlyReport } = {};
 
-    transactions.forEach((transaction) => {
+    // Filter out starting balance entries for reports
+    const realTransactions = transactions.filter(t => 
+      !t.id.startsWith('starting-balance-') && t.payee !== 'Starting Balance'
+    );
+
+    realTransactions.forEach((transaction) => {
       const date = new Date(transaction.date);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -115,11 +124,16 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
 
   const totalBalance = activeAccount?.currentBalance || 0;
 
-  const totalIncome = transactions
+  // Filter out starting balance for totals
+  const realTransactions = transactions.filter(t => 
+    !t.id.startsWith('starting-balance-') && t.payee !== 'Starting Balance'
+  );
+
+  const totalIncome = realTransactions
     .filter(t => t.amount > 0)
     .reduce((sum, t) => sum + t.amount, 0);
     
-  const totalExpenses = transactions
+  const totalExpenses = realTransactions
     .filter(t => t.amount < 0)
     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
@@ -175,7 +189,7 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView key={activeAccount?.id} className="flex-1 bg-gray-50">
       {/* Header */}
       <View className="bg-white px-4 py-4 border-b border-gray-200">
         <View className="flex-row items-center justify-between">
@@ -201,14 +215,63 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
         </View>
       </View>
 
+      {/* Account Selector */}
+      <View className="px-4 py-2">
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={accounts.filter(a => a.isActive)}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() => switchAccount(item.id)}
+              className={cn(
+                "mr-3 px-3 py-2 rounded-lg border",
+                activeAccount?.id === item.id
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-200 bg-white"
+              )}
+              style={{ borderColor: activeAccount?.id === item.id ? item.color : '#E5E7EB' }}
+            >
+              <View className="flex-row items-center">
+                <View
+                  className="w-3 h-3 rounded-full mr-2"
+                  style={{ backgroundColor: item.color }}
+                />
+                <Text className={cn(
+                  "text-sm font-medium",
+                  activeAccount?.id === item.id ? "text-gray-900" : "text-gray-600"
+                )}>
+                  {item.name}
+                </Text>
+              </View>
+            </Pressable>
+          )}
+          keyExtractor={(item) => item.id}
+        />
+      </View>
+
       {/* Summary Cards */}
       <View className="px-4 py-4">
-        <View className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
-          <Text className="text-sm font-medium text-gray-500 mb-3">Account Overview</Text>
+        <View className="p-4 rounded-lg shadow-sm border border-gray-100 mb-4" style={{ 
+          backgroundColor: activeAccount ? activeAccount.color + '10' : 'white' 
+        }}>
+          <View className="flex-row items-center justify-between mb-3">
+            <Text className="text-sm font-medium text-gray-500">
+              {activeAccount?.name || 'Account'} Overview
+            </Text>
+            {activeAccount && (
+              <View
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: activeAccount.color }}
+              />
+            )}
+          </View>
           <View className="flex-row justify-between">
             <View className="flex-1">
               <Text className="text-sm text-gray-500">Current Balance</Text>
-              <Text className="text-xl font-bold text-blue-600">
+              <Text className="text-xl font-bold" style={{ 
+                color: activeAccount?.color || '#3B82F6' 
+              }}>
                 ${totalBalance.toFixed(2)}
               </Text>
             </View>
@@ -236,6 +299,7 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
         
         {monthlyReports.length > 0 ? (
           <FlatList
+            key={`reports-${activeAccount?.id}`} // Force re-render when account changes
             data={monthlyReports}
             renderItem={renderMonthlyReport}
             keyExtractor={(item) => item.key}
@@ -247,7 +311,14 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
             <Ionicons name="analytics-outline" size={64} color="#D1D5DB" />
             <Text className="text-gray-500 text-lg mt-4">No Data Available</Text>
             <Text className="text-gray-400 text-sm mt-2 text-center px-8">
-              Add some transactions to see your monthly reports
+              {activeAccount 
+                ? `No transactions found for ${activeAccount.name}`
+                : 'Add some transactions to see your monthly reports'
+              }
+            </Text>
+            {/* Debug info */}
+            <Text className="text-gray-300 text-xs mt-4 text-center px-8">
+              Debug: {transactions.length} total transactions
             </Text>
           </View>
         )}
