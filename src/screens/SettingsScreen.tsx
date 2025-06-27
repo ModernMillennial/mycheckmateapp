@@ -18,13 +18,20 @@ interface Props {
 }
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
-  const { settings, updateSettings, syncBankTransactions } = useTransactionStore();
+  const { settings, updateSettings, syncBankTransactions, getActiveAccount } = useTransactionStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [startBalance, setStartBalance] = useState(settings.lastBalance.toString());
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSyncBank = async () => {
     setIsLoading(true);
+    
+    const activeAccount = getActiveAccount();
+    if (!activeAccount) {
+      Alert.alert('No Active Account', 'Please select an account first.');
+      setIsLoading(false);
+      return;
+    }
     
     // Simulate bank sync with mock data
     try {
@@ -34,6 +41,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         // Recent deposit that will trigger notification
         {
           userId: 'user-1',
+          accountId: activeAccount.id,
           date: new Date().toISOString().split('T')[0], // Today
           payee: 'Bonus Payment',
           amount: 500.00,
@@ -44,6 +52,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         // Recent debit that will trigger notification
         {
           userId: 'user-1',
+          accountId: activeAccount.id,
           date: new Date().toISOString().split('T')[0], // Today
           payee: 'Target Store',
           amount: -125.50,
@@ -54,6 +63,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         // This will match the "Grocery Store" manual transaction
         {
           userId: 'user-1',
+          accountId: activeAccount.id,
           date: new Date(Date.now() - 86400000 * 6).toISOString().split('T')[0], // 6 days ago (within 3 day window)
           payee: 'SAFEWAY GROCERY #1234',
           amount: -125.67,
@@ -64,6 +74,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         // This will match the "Shell Gas Station" manual transaction  
         {
           userId: 'user-1',
+          accountId: activeAccount.id,
           date: new Date(Date.now() - 86400000 * 1).toISOString().split('T')[0], // Yesterday (1 day after manual entry)
           payee: 'SHELL OIL #4567',
           amount: -45.00,
@@ -197,6 +208,22 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
               rightComponent={
                 <Ionicons name="calendar-outline" size={20} color="#9CA3AF" />
               }
+            />
+          </View>
+        </View>
+
+        {/* Account Management Section */}
+        <View className="mt-8">
+          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
+            Account Management
+          </Text>
+          
+          <View className="bg-white">
+            <SettingRow
+              title="Manage Accounts"
+              subtitle="Add, edit, or switch between your bank accounts"
+              onPress={() => navigation.navigate('Accounts')}
+              rightComponent={<Ionicons name="card-outline" size={20} color="#9CA3AF" />}
             />
           </View>
         </View>

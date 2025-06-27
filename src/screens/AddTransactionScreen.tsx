@@ -20,7 +20,7 @@ interface Props {
 }
 
 const AddTransactionScreen: React.FC<Props> = ({ navigation }) => {
-  const { addTransaction } = useTransactionStore();
+  const { addTransaction, getActiveAccount } = useTransactionStore();
   
   const [formData, setFormData] = useState({
     date: new Date(),
@@ -54,11 +54,15 @@ const AddTransactionScreen: React.FC<Props> = ({ navigation }) => {
   const handleSave = () => {
     if (!validateForm()) return;
 
+    const activeAccount = getActiveAccount();
+    if (!activeAccount) return;
+
     const amount = parseFloat(formData.amount);
     const finalAmount = formData.isCredit ? amount : -amount;
 
     addTransaction({
       userId: 'user-1', // In a real app, this would come from auth
+      accountId: activeAccount.id,
       date: formData.date.toISOString().split('T')[0],
       payee: formData.payee.trim(),
       amount: finalAmount,

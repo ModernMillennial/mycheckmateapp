@@ -6,6 +6,7 @@ import EditTransactionScreen from '../screens/EditTransactionScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
+import AccountsScreen from '../screens/AccountsScreen';
 import { Transaction } from '../types';
 
 export type RootStackParamList = {
@@ -15,6 +16,7 @@ export type RootStackParamList = {
   Settings: undefined;
   Reports: undefined;
   NotificationSettings: undefined;
+  Accounts: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -55,6 +57,10 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen 
         name="NotificationSettings" 
         component={NotificationSettingsScreen}
+      />
+      <Stack.Screen 
+        name="Accounts" 
+        component={AccountsScreen}
       />
     </Stack.Navigator>
   );

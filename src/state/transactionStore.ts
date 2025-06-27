@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Transaction, UserSettings, FilterType } from '../types';
+import { Transaction, UserSettings, FilterType, Account } from '../types';
 import { generateSeedTransactions } from '../utils/seedData';
 import {
   NotificationSettings,
@@ -14,6 +14,7 @@ import {
 
 interface TransactionState {
   transactions: Transaction[];
+  accounts: Account[];
   settings: UserSettings;
   notificationSettings: NotificationSettings;
   searchQuery: string;
@@ -32,19 +33,54 @@ interface TransactionState {
   calculateRunningBalance: () => void;
   syncBankTransactions: (bankTransactions: Omit<Transaction, 'id' | 'runningBalance'>[]) => void;
   initializeWithSeedData: () => void;
+  
+  // Account management
+  addAccount: (account: Omit<Account, 'id'>) => void;
+  updateAccount: (id: string, updates: Partial<Account>) => void;
+  deleteAccount: (id: string) => void;
+  switchAccount: (accountId: string) => void;
+  getActiveAccount: () => Account | null;
+  getActiveTransactions: () => Transaction[];
 }
+
+const defaultAccounts: Account[] = [
+  {
+    id: 'checking-1',
+    name: 'Primary Checking',
+    type: 'checking',
+    bankName: 'First National Bank',
+    accountNumber: '1234',
+    isActive: true,
+    startingBalance: 2500.00,
+    currentBalance: 2500.00,
+    color: '#3B82F6',
+  },
+  {
+    id: 'savings-1',
+    name: 'Emergency Savings',
+    type: 'savings',
+    bankName: 'First National Bank',
+    accountNumber: '5678',
+    isActive: true,
+    startingBalance: 10000.00,
+    currentBalance: 10000.00,
+    color: '#10B981',
+  },
+];
 
 const initialSettings: UserSettings = {
   startDate: new Date().toISOString().split('T')[0],
   monthlyResetEnabled: false,
   lastBalance: 0,
   bankLinked: false,
+  activeAccountId: 'checking-1',
 };
 
 export const useTransactionStore = create<TransactionState>()(
   persist(
     (set, get) => ({
       transactions: [],
+      accounts: defaultAccounts,
       settings: initialSettings,
       notificationSettings: defaultNotificationSettings,
       searchQuery: '',
@@ -115,15 +151,21 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       calculateRunningBalance: () => {
-        const { transactions, settings, notificationSettings } = get();
-        const sortedTransactions = [...transactions].sort(
+        const { transactions, accounts, settings, notificationSettings } = get();
+        const activeAccount = accounts.find(a => a.id === settings.activeAccountId);
+        
+        if (!activeAccount) return;
+
+        // Get transactions for active account only
+        const accountTransactions = transactions.filter(t => t.accountId === settings.activeAccountId);
+        const sortedTransactions = [...accountTransactions].sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
         );
 
-        let runningBalance = settings.lastBalance;
+        let runningBalance = activeAccount.startingBalance;
         let previousBalance = runningBalance;
         
-        const updatedTransactions = sortedTransactions.map((transaction, index) => {
+        const updatedAccountTransactions = sortedTransactions.map((transaction) => {
           previousBalance = runningBalance;
           runningBalance += transaction.amount;
           
@@ -131,7 +173,7 @@ export const useTransactionStore = create<TransactionState>()(
           const isRecentBankTransaction = transaction.source === 'bank' && 
             new Date(transaction.date).getTime() > Date.now() - 86400000; // Within 24 hours
           
-          if (isRecentBankTransaction) {
+          if (isRecentBankTransaction && transaction.accountId === settings.activeAccountId) {
             // Trigger deposit notification
             if (transaction.amount > 0 && notificationSettings.depositsEnabled) {
               scheduleDepositNotification(transaction.amount, transaction.payee, runningBalance);
@@ -146,10 +188,24 @@ export const useTransactionStore = create<TransactionState>()(
           return { ...transaction, runningBalance };
         });
 
-        // Check for overdraft warnings after all transactions are processed
+        // Update account balance
         const finalBalance = runningBalance;
         
-        if (notificationSettings.overdraftWarningEnabled) {
+        // Update all transactions (keeping non-active account transactions unchanged)
+        const allUpdatedTransactions = transactions.map(t => {
+          const updatedTransaction = updatedAccountTransactions.find(ut => ut.id === t.id);
+          return updatedTransaction || t;
+        });
+
+        // Update account current balance
+        const updatedAccounts = accounts.map(a => 
+          a.id === settings.activeAccountId 
+            ? { ...a, currentBalance: finalBalance }
+            : a
+        );
+
+        // Check for overdraft warnings after all transactions are processed
+        if (notificationSettings.overdraftWarningEnabled && settings.activeAccountId === activeAccount.id) {
           // Overdraft alert (balance is negative)
           if (finalBalance < 0 && previousBalance >= 0) {
             scheduleOverdraftAlert(finalBalance);
@@ -161,7 +217,10 @@ export const useTransactionStore = create<TransactionState>()(
           }
         }
 
-        set({ transactions: updatedTransactions });
+        set({ 
+          transactions: allUpdatedTransactions,
+          accounts: updatedAccounts,
+        });
       },
 
       syncBankTransactions: (bankTransactions) => {
@@ -212,6 +271,7 @@ export const useTransactionStore = create<TransactionState>()(
           const transactionsWithIds = seedTransactions.map(t => ({
             ...t,
             id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            accountId: t.accountId || 'checking-1', // Default to checking account
             runningBalance: 0,
           }));
 
@@ -223,12 +283,71 @@ export const useTransactionStore = create<TransactionState>()(
           get().calculateRunningBalance();
         }
       },
+
+      // Account management functions
+      addAccount: (account) => {
+        const newAccount: Account = {
+          ...account,
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        };
+
+        set((state) => ({
+          accounts: [...state.accounts, newAccount],
+        }));
+      },
+
+      updateAccount: (id, updates) => {
+        set((state) => ({
+          accounts: state.accounts.map((a) =>
+            a.id === id ? { ...a, ...updates } : a
+          ),
+        }));
+      },
+
+      deleteAccount: (id) => {
+        const { settings } = get();
+        
+        // Don't allow deleting the active account if it has transactions
+        const accountTransactions = get().transactions.filter(t => t.accountId === id);
+        if (accountTransactions.length > 0) {
+          throw new Error('Cannot delete account with existing transactions');
+        }
+
+        set((state) => ({
+          accounts: state.accounts.filter((a) => a.id !== id),
+        }));
+
+        // If we deleted the active account, switch to the first available account
+        if (settings.activeAccountId === id) {
+          const remainingAccounts = get().accounts;
+          if (remainingAccounts.length > 0) {
+            get().switchAccount(remainingAccounts[0].id);
+          }
+        }
+      },
+
+      switchAccount: (accountId) => {
+        set((state) => ({
+          settings: { ...state.settings, activeAccountId: accountId },
+        }));
+      },
+
+      getActiveAccount: () => {
+        const { accounts, settings } = get();
+        return accounts.find(a => a.id === settings.activeAccountId) || null;
+      },
+
+      getActiveTransactions: () => {
+        const { transactions, settings } = get();
+        return transactions.filter(t => t.accountId === settings.activeAccountId);
+      },
     }),
     {
       name: 'transaction-storage',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         transactions: state.transactions,
+        accounts: state.accounts,
         settings: state.settings,
         notificationSettings: state.notificationSettings,
         isInitialized: state.isInitialized,

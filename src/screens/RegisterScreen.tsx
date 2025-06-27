@@ -20,18 +20,24 @@ interface Props {
 const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const {
-    transactions,
+    accounts,
     searchQuery,
     filterType,
     setSearchQuery,
     setFilterType,
     toggleReconciled,
     initializeWithSeedData,
+    getActiveAccount,
+    getActiveTransactions,
+    switchAccount,
   } = useTransactionStore();
 
   useEffect(() => {
     initializeWithSeedData();
   }, [initializeWithSeedData]);
+
+  const activeAccount = getActiveAccount();
+  const transactions = getActiveTransactions();
 
   const filteredTransactions = useMemo(() => {
     let filtered = [...transactions];
@@ -69,9 +75,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     );
   }, [transactions, searchQuery, filterType]);
 
-  const totalBalance = transactions.length > 0 
-    ? transactions[transactions.length - 1]?.runningBalance || 0 
-    : 0;
+  const totalBalance = activeAccount?.currentBalance || 0;
 
   const renderTransaction = ({ item }: { item: Transaction }) => (
     <Pressable
@@ -208,13 +212,63 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Balance Display */}
-        <View className="bg-blue-50 p-4 rounded-lg mb-4">
-          <Text className="text-sm text-blue-600 font-medium">Current Balance</Text>
-          <Text className="text-3xl font-bold text-blue-900">
-            ${totalBalance.toFixed(2)}
-          </Text>
+        {/* Account Selector */}
+        <View className="mb-4">
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={accounts.filter(a => a.isActive)}
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={() => switchAccount(item.id)}
+                className={cn(
+                  "mr-3 px-4 py-3 rounded-lg border-2 min-w-[140px]",
+                  activeAccount?.id === item.id
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 bg-white"
+                )}
+                style={{ borderColor: activeAccount?.id === item.id ? item.color : '#E5E7EB' }}
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-1">
+                    <Text className={cn(
+                      "text-sm font-semibold",
+                      activeAccount?.id === item.id ? "text-gray-900" : "text-gray-600"
+                    )}>
+                      {item.name}
+                    </Text>
+                    <Text className="text-xs text-gray-500">
+                      {item.bankName} •••{item.accountNumber}
+                    </Text>
+                  </View>
+                  <View
+                    className="w-3 h-3 rounded-full ml-2"
+                    style={{ backgroundColor: item.color }}
+                  />
+                </View>
+                <Text className={cn(
+                  "text-lg font-bold mt-1",
+                  activeAccount?.id === item.id ? "text-gray-900" : "text-gray-700"
+                )}>
+                  ${item.currentBalance.toFixed(2)}
+                </Text>
+              </Pressable>
+            )}
+            keyExtractor={(item) => item.id}
+          />
         </View>
+
+        {/* Balance Display */}
+        {activeAccount && (
+          <View className="p-4 rounded-lg mb-4" style={{ backgroundColor: activeAccount.color + '20' }}>
+            <Text className="text-sm font-medium" style={{ color: activeAccount.color }}>
+              {activeAccount.name} Balance
+            </Text>
+            <Text className="text-3xl font-bold" style={{ color: activeAccount.color }}>
+              ${totalBalance.toFixed(2)}
+            </Text>
+          </View>
+        )}
 
         {/* Search Bar */}
         <View className="flex-row items-center bg-gray-100 rounded-lg px-4 py-3 mb-4">

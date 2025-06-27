@@ -4,6 +4,7 @@ export const generateSeedTransactions = (): Omit<Transaction, 'id' | 'runningBal
   // Manual transaction that will be matched by bank sync
   {
     userId: 'user-1',
+    accountId: 'checking-1',
     date: new Date(Date.now() - 86400000 * 7).toISOString().split('T')[0], // 7 days ago
     payee: 'Grocery Store',
     amount: -125.67,
@@ -15,6 +16,7 @@ export const generateSeedTransactions = (): Omit<Transaction, 'id' | 'runningBal
   // Bank transaction - auto reconciled
   {
     userId: 'user-1',
+    accountId: 'checking-1',
     date: new Date(Date.now() - 86400000 * 5).toISOString().split('T')[0], // 5 days ago
     payee: 'Payroll Direct Deposit',
     amount: 3250.00,
@@ -25,6 +27,7 @@ export const generateSeedTransactions = (): Omit<Transaction, 'id' | 'runningBal
   // Manual transaction that hasn't cleared yet
   {
     userId: 'user-1',
+    accountId: 'checking-1',
     date: new Date(Date.now() - 86400000 * 4).toISOString().split('T')[0], // 4 days ago
     payee: 'Electric Company',
     amount: -89.45,
@@ -36,6 +39,7 @@ export const generateSeedTransactions = (): Omit<Transaction, 'id' | 'runningBal
   // Bank transaction - auto reconciled
   {
     userId: 'user-1',
+    accountId: 'checking-1',
     date: new Date(Date.now() - 86400000 * 3).toISOString().split('T')[0], // 3 days ago
     payee: 'Starbucks Coffee',
     amount: -12.50,
@@ -46,6 +50,7 @@ export const generateSeedTransactions = (): Omit<Transaction, 'id' | 'runningBal
   // Manual transaction that will match upcoming bank sync
   {
     userId: 'user-1',
+    accountId: 'checking-1',
     date: new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0], // 2 days ago
     payee: 'Shell Gas Station',
     amount: -45.00,
@@ -57,11 +62,33 @@ export const generateSeedTransactions = (): Omit<Transaction, 'id' | 'runningBal
   // Recent manual transaction - too new to have cleared
   {
     userId: 'user-1',
+    accountId: 'checking-1',
     date: new Date().toISOString().split('T')[0], // Today
     payee: 'Local Restaurant',
     amount: -28.75,
     source: 'manual',
     notes: 'Lunch - Card payment',
     reconciled: false, // Too recent to have cleared
+  },
+  // Some savings account transactions
+  {
+    userId: 'user-1',
+    accountId: 'savings-1', 
+    date: new Date(Date.now() - 86400000 * 10).toISOString().split('T')[0],
+    payee: 'Transfer from Checking',
+    amount: 500.00,
+    source: 'bank',
+    notes: 'Monthly savings transfer',
+    reconciled: true,
+  },
+  {
+    userId: 'user-1',
+    accountId: 'savings-1',
+    date: new Date(Date.now() - 86400000 * 30).toISOString().split('T')[0],
+    payee: 'Interest Payment',
+    amount: 15.50,
+    source: 'bank',
+    notes: 'Monthly interest',
+    reconciled: true,
   },
 ];
