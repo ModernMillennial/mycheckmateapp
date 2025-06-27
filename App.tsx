@@ -1,9 +1,45 @@
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { View, Text } from "react-native";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { setupNotificationListeners } from "./src/utils/notifications";
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.log('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+          <Text>Something went wrong.</Text>
+        </View>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 /*
 IMPORTANT NOTICE: DO NOT REMOVE
@@ -27,18 +63,36 @@ const openai_api_key = Constants.expoConfig.extra.apikey;
 */
 
 export default function App() {
+  const [isReady, setIsReady] = useState(false);
+
   useEffect(() => {
     // Setup notification listeners
     const unsubscribe = setupNotificationListeners();
+    
+    // Add a small delay to ensure everything is ready
+    setTimeout(() => {
+      setIsReady(true);
+    }, 100);
+    
     return unsubscribe;
   }, []);
 
+  if (!isReady) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+        <Text>Initializing...</Text>
+      </View>
+    );
+  }
+
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <AppNavigator />
-        <StatusBar style="auto" />
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <AppNavigator />
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
