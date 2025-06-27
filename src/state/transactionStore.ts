@@ -128,6 +128,15 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       deleteTransaction: (id) => {
+        const { transactions } = get();
+        const transactionToDelete = transactions.find(t => t.id === id);
+        
+        // Prevent deletion of bank transactions
+        if (transactionToDelete && transactionToDelete.source === 'bank') {
+          console.warn('Attempted to delete bank transaction - operation blocked');
+          return;
+        }
+
         set((state) => ({
           transactions: state.transactions.filter((t) => t.id !== id),
         }));

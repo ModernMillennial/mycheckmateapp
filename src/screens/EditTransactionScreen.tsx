@@ -88,9 +88,19 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
   };
 
   const handleDelete = () => {
+    // Extra protection: Don't allow deletion of bank transactions
+    if (transaction.source === 'bank') {
+      Alert.alert(
+        'Cannot Delete Bank Transaction',
+        'Bank transactions cannot be deleted as they reflect actual bank records. Only manual entries can be deleted.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     Alert.alert(
-      'Delete Transaction',
-      'Are you sure you want to delete this transaction? This action cannot be undone.',
+      'Delete Manual Transaction',
+      'Are you sure you want to delete this manual transaction? This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -139,12 +149,15 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
           </View>
           
           <View className="flex-row">
-            <Pressable
-              onPress={handleDelete}
-              className="p-2 mr-2"
-            >
-              <Ionicons name="trash-outline" size={24} color="#EF4444" />
-            </Pressable>
+            {/* Only show delete button for manual transactions */}
+            {transaction.source === 'manual' && (
+              <Pressable
+                onPress={handleDelete}
+                className="p-2 mr-2"
+              >
+                <Ionicons name="trash-outline" size={24} color="#EF4444" />
+              </Pressable>
+            )}
             <Pressable
               onPress={handleSave}
               className="px-4 py-2 bg-blue-500 rounded-lg"
@@ -178,8 +191,21 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
             {transaction.source === 'bank' && (
               <View>
                 <Text className="text-xs text-gray-500 mt-2">
-                  Bank transactions allow editing of payee, date, notes, and reconciliation status, but the amount cannot be modified.
+                  Bank transactions allow editing of payee, date, notes, and reconciliation status, but the amount cannot be modified and cannot be deleted.
                 </Text>
+                
+                <View className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded">
+                  <View className="flex-row items-center">
+                    <Ionicons name="shield-checkmark" size={14} color="#F97316" />
+                    <Text className="text-xs text-orange-800 ml-1 font-medium">
+                      Protected Bank Transaction
+                    </Text>
+                  </View>
+                  <Text className="text-xs text-orange-700 mt-1">
+                    Bank transactions cannot be deleted as they reflect actual bank records. Only manual entries can be deleted.
+                  </Text>
+                </View>
+
                 {transaction.notes?.includes('Converted from manual entry') && (
                   <View className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
                     <View className="flex-row items-center">
