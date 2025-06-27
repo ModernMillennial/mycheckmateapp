@@ -53,7 +53,8 @@ const defaultAccounts: Account[] = [
     bankName: 'First National Bank',
     accountNumber: '1234',
     isActive: true,
-    startingBalance: 1000.00, // Starting lower so transactions show meaningful balance changes
+    startingBalance: 1000.00,
+    startingBalanceDate: new Date(Date.now() - 86400000 * 30).toISOString().split('T')[0], // 30 days ago
     currentBalance: 1000.00,
     color: '#3B82F6',
   },
@@ -64,7 +65,8 @@ const defaultAccounts: Account[] = [
     bankName: 'First National Bank',
     accountNumber: '5678',
     isActive: true,
-    startingBalance: 9500.00, // Starting lower to show transaction effects
+    startingBalance: 9500.00,
+    startingBalanceDate: new Date(Date.now() - 86400000 * 60).toISOString().split('T')[0], // 60 days ago
     currentBalance: 9500.00,
     color: '#10B981',
   },

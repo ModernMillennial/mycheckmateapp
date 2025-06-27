@@ -18,10 +18,19 @@ interface Props {
 }
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
-  const { settings, updateSettings, syncBankTransactions, getActiveAccount } = useTransactionStore();
+  const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount } = useTransactionStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [startBalance, setStartBalance] = useState(settings.lastBalance.toString());
+  const [showBalanceDatePicker, setShowBalanceDatePicker] = useState(false);
+  const [startBalance, setStartBalance] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  const activeAccount = getActiveAccount();
+  
+  React.useEffect(() => {
+    if (activeAccount) {
+      setStartBalance(activeAccount.startingBalance.toString());
+    }
+  }, [activeAccount]);
 
   const handleSyncBank = async () => {
     setIsLoading(true);
@@ -112,15 +121,32 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleSaveStartBalance = () => {
+    if (!activeAccount) return;
+    
     const balance = parseFloat(startBalance) || 0;
-    updateSettings({ lastBalance: balance });
+    updateAccount(activeAccount.id, { startingBalance: balance });
     Alert.alert('Saved', 'Starting balance updated successfully.');
+  };
+
+  const handleSaveStartBalanceDate = (selectedDate: Date) => {
+    if (!activeAccount) return;
+    
+    updateAccount(activeAccount.id, { 
+      startingBalanceDate: selectedDate.toISOString().split('T')[0] 
+    });
   };
 
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
       updateSettings({ startDate: selectedDate.toISOString().split('T')[0] });
+    }
+  };
+
+  const onBalanceDateChange = (event: any, selectedDate?: Date) => {
+    setShowBalanceDatePicker(false);
+    if (selectedDate) {
+      handleSaveStartBalanceDate(selectedDate);
     }
   };
 
@@ -236,10 +262,12 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           
           <View className="bg-white">
             <View className="p-4 border-b border-gray-100">
-              <Text className="text-base font-medium text-gray-900 mb-2">
-                Starting Balance
+              <Text className="text-base font-medium text-gray-900 mb-3">
+                Starting Balance for {activeAccount?.name || 'Active Account'}
               </Text>
-              <View className="flex-row items-center">
+              
+              {/* Starting Balance Amount */}
+              <View className="flex-row items-center mb-4">
                 <Text className="text-xl font-medium text-gray-600 mr-2">$</Text>
                 <TextInput
                   className="flex-1 p-3 border border-gray-300 rounded-lg text-base mr-3"
@@ -254,6 +282,28 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
                 >
                   <Text className="text-white font-medium">Save</Text>
                 </Pressable>
+              </View>
+
+              {/* Starting Balance Date */}
+              <View>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Starting Balance Date
+                </Text>
+                <Pressable
+                  onPress={() => setShowBalanceDatePicker(true)}
+                  className="flex-row items-center justify-between p-3 border border-gray-300 rounded-lg"
+                >
+                  <Text className="text-base text-gray-900">
+                    {activeAccount 
+                      ? new Date(activeAccount.startingBalanceDate).toLocaleDateString()
+                      : 'Select Date'
+                    }
+                  </Text>
+                  <Ionicons name="calendar-outline" size={20} color="#6B7280" />
+                </Pressable>
+                <Text className="text-xs text-gray-500 mt-2">
+                  This date determines when your starting balance is shown in the transaction list
+                </Text>
               </View>
             </View>
             
@@ -330,13 +380,22 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         </View>
       </ScrollView>
 
-      {/* Date Picker Modal */}
+      {/* Date Picker Modals */}
       {showDatePicker && (
         <DateTimePicker
           value={new Date(settings.startDate)}
           mode="date"
           display="default"
           onChange={onDateChange}
+        />
+      )}
+      
+      {showBalanceDatePicker && activeAccount && (
+        <DateTimePicker
+          value={new Date(activeAccount.startingBalanceDate)}
+          mode="date"
+          display="default"
+          onChange={onBalanceDateChange}
         />
       )}
     </SafeAreaView>

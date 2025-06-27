@@ -20,6 +20,7 @@ export interface Account {
   accountNumber: string; // Last 4 digits only
   isActive: boolean;
   startingBalance: number;
+  startingBalanceDate: string;
   currentBalance: number;
   color: string; // For visual distinction
 }

@@ -74,40 +74,92 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         break;
     }
 
-    // Sort by date (newest first)
-    return filtered.sort(
+    // Sort by date (newest first) 
+    const sortedTransactions = filtered.sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
-  }, [transactions, searchQuery, filterType]);
+
+    // Add starting balance entry if we have an active account and no search/filter applied
+    if (activeAccount && !searchQuery.trim() && filterType === 'all') {
+      const startingBalanceEntry: Transaction = {
+        id: `starting-balance-${activeAccount.id}`,
+        userId: 'system',
+        accountId: activeAccount.id,
+        date: activeAccount.startingBalanceDate,
+        payee: 'Starting Balance',
+        amount: activeAccount.startingBalance,
+        source: 'manual',
+        notes: `Opening balance for ${activeAccount.name}`,
+        reconciled: true,
+        runningBalance: activeAccount.startingBalance,
+      };
+
+      // Insert starting balance at the correct chronological position
+      const allWithStarting = [...sortedTransactions, startingBalanceEntry];
+      return allWithStarting.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+    }
+
+    return sortedTransactions;
+  }, [transactions, searchQuery, filterType, activeAccount]);
 
   const totalBalance = activeAccount?.currentBalance || 0;
 
-  const renderTransaction = ({ item }: { item: Transaction }) => (
-    <Pressable
-      className="bg-white mx-4 mb-1 px-4 py-3 rounded-lg shadow-sm border border-gray-100"
-      onPress={() => navigation.navigate('EditTransaction', { transaction: item })}
-    >
-      {/* Header Row - Payee and Check Number */}
-      <View className="flex-row items-center mb-2">
-        <Text className="text-base font-semibold text-gray-900 flex-1">
-          {item.payee}
-        </Text>
-        {item.checkNumber && (
-          <Text className="text-sm text-gray-500 mr-2">
-            #{item.checkNumber}
-          </Text>
+  const isStartingBalance = (transaction: Transaction) => {
+    return transaction.id.startsWith('starting-balance-');
+  };
+
+  const renderTransaction = ({ item }: { item: Transaction }) => {
+    const isStarting = isStartingBalance(item);
+    
+    return (
+      <Pressable
+        className={cn(
+          "mx-4 mb-1 px-4 py-3 rounded-lg shadow-sm border",
+          isStarting 
+            ? "bg-blue-50 border-blue-200" 
+            : "bg-white border-gray-100"
         )}
-        <Pressable
-          onPress={() => toggleReconciled(item.id)}
-          className="ml-2"
-        >
-          <Ionicons
-            name={item.reconciled ? 'checkmark-circle' : 'ellipse-outline'}
-            size={20}
-            color={item.reconciled ? '#10B981' : (item.source === 'bank' ? '#3B82F6' : '#9CA3AF')}
-          />
-        </Pressable>
-      </View>
+        onPress={() => !isStarting && navigation.navigate('EditTransaction', { transaction: item })}
+        disabled={isStarting}
+      >
+        {/* Header Row - Payee and Check Number */}
+        <View className="flex-row items-center mb-2">
+          <View className="flex-row items-center flex-1">
+            {isStarting && (
+              <Ionicons 
+                name="flag-outline" 
+                size={16} 
+                color="#3B82F6" 
+                style={{ marginRight: 8 }}
+              />
+            )}
+            <Text className={cn(
+              "text-base font-semibold flex-1",
+              isStarting ? "text-blue-900" : "text-gray-900"
+            )}>
+              {item.payee}
+            </Text>
+          </View>
+          {item.checkNumber && (
+            <Text className="text-sm text-gray-500 mr-2">
+              #{item.checkNumber}
+            </Text>
+          )}
+          {!isStarting && (
+            <Pressable
+              onPress={() => toggleReconciled(item.id)}
+              className="ml-2"
+            >
+              <Ionicons
+                name={item.reconciled ? 'checkmark-circle' : 'ellipse-outline'}
+                size={20}
+                color={item.reconciled ? '#10B981' : (item.source === 'bank' ? '#3B82F6' : '#9CA3AF')}
+              />
+            </Pressable>
+          )}
+        </View>
 
       {/* Register Row - Date, Type, Debit, Credit, Balance */}
       <View className="flex-row items-center">
@@ -149,7 +201,10 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         {/* Middle-Right: Credit Amount */}
         <View className="w-24 items-end px-1">
           {item.amount >= 0 && (
-            <Text className="text-base font-semibold text-green-600" numberOfLines={1}>
+            <Text className={cn(
+              "text-base font-semibold",
+              isStarting ? "text-blue-600" : "text-green-600"
+            )} numberOfLines={1}>
               ${item.amount.toFixed(2)}
             </Text>
           )}
@@ -157,7 +212,10 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* Right: Balance */}
         <View className="w-28 items-end px-1">
-          <Text className="text-base font-semibold text-gray-900" numberOfLines={1}>
+          <Text className={cn(
+            "text-base font-semibold",
+            isStarting ? "text-blue-900" : "text-gray-900"
+          )} numberOfLines={1}>
             ${item.runningBalance.toFixed(2)}
           </Text>
         </View>

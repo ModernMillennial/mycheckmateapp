@@ -9,6 +9,7 @@ import {
   TextInput,
   Modal,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
@@ -183,8 +184,11 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClose, onS
     bankName: '',
     accountNumber: '',
     startingBalance: '',
+    startingBalanceDate: new Date(),
     color: '#3B82F6',
   });
+  
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const colors = [
     '#3B82F6', // Blue
@@ -212,6 +216,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClose, onS
       accountNumber: formData.accountNumber.trim(),
       isActive: true,
       startingBalance: balance,
+      startingBalanceDate: formData.startingBalanceDate.toISOString().split('T')[0],
       currentBalance: balance,
       color: formData.color,
     });
@@ -223,6 +228,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClose, onS
       bankName: '',
       accountNumber: '',
       startingBalance: '',
+      startingBalanceDate: new Date(),
       color: '#3B82F6',
     });
 
@@ -319,7 +325,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClose, onS
           {/* Starting Balance */}
           <View className="mb-6">
             <Text className="text-sm font-medium text-gray-700 mb-2">Starting Balance</Text>
-            <View className="flex-row items-center border border-gray-300 rounded-lg">
+            <View className="flex-row items-center border border-gray-300 rounded-lg mb-3">
               <Text className="text-xl font-medium text-gray-600 pl-4">$</Text>
               <TextInput
                 className="flex-1 p-4 text-base"
@@ -329,6 +335,18 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClose, onS
                 keyboardType="decimal-pad"
               />
             </View>
+            
+            {/* Starting Balance Date */}
+            <Text className="text-sm font-medium text-gray-700 mb-2">Starting Balance Date</Text>
+            <Pressable
+              onPress={() => setShowDatePicker(true)}
+              className="flex-row items-center justify-between p-4 border border-gray-300 rounded-lg"
+            >
+              <Text className="text-base text-gray-900">
+                {formData.startingBalanceDate.toLocaleDateString()}
+              </Text>
+              <Ionicons name="calendar-outline" size={20} color="#6B7280" />
+            </Pressable>
           </View>
 
           {/* Color Selection */}
@@ -353,6 +371,21 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClose, onS
             </View>
           </View>
         </ScrollView>
+        
+        {/* Date Picker */}
+        {showDatePicker && (
+          <DateTimePicker
+            value={formData.startingBalanceDate}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowDatePicker(false);
+              if (selectedDate) {
+                setFormData({ ...formData, startingBalanceDate: selectedDate });
+              }
+            }}
+          />
+        )}
       </SafeAreaView>
     </Modal>
   );
