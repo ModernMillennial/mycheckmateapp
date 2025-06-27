@@ -15,6 +15,7 @@ import { useTransactionStore } from '../state/transactionStore';
 import { Transaction, FilterType } from '../types';
 import { cn } from '../utils/cn';
 import ReconciliationLegend from '../components/ReconciliationLegend';
+import InitialBankSyncScreen from './InitialBankSyncScreen';
 
 interface Props {
   navigation: any;
@@ -23,10 +24,12 @@ interface Props {
 const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [showLegend, setShowLegend] = React.useState(false);
+  const [showFirstTimeSetup, setShowFirstTimeSetup] = React.useState(false);
   const {
     accounts,
     searchQuery,
     filterType,
+    settings,
     setSearchQuery,
     setFilterType,
     toggleReconciled,
@@ -40,7 +43,18 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 
   useEffect(() => {
     initializeWithSeedData();
-  }, [initializeWithSeedData]);
+    
+    // Check if this is a first-time user (no bank linked and no manual transactions)
+    const hasTransactions = transactions.length > 0;
+    const isBankLinked = settings.bankLinked;
+    
+    if (!hasTransactions && !isBankLinked) {
+      // Show first-time setup after a brief delay
+      setTimeout(() => {
+        setShowFirstTimeSetup(true);
+      }, 1000);
+    }
+  }, [initializeWithSeedData, transactions.length, settings.bankLinked]);
 
   const activeAccount = getActiveAccount();
   const transactions = getActiveTransactions();
@@ -598,6 +612,20 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
       >
         <Ionicons name="add" size={28} color="white" />
       </Pressable>
+
+      {/* First-time Bank Setup Modal */}
+      <InitialBankSyncScreen
+        visible={showFirstTimeSetup}
+        onComplete={() => {
+          setShowFirstTimeSetup(false);
+          Alert.alert(
+            'Welcome to Digital Register!',
+            'Your bank account has been connected and you\'re ready to start tracking your finances.',
+            [{ text: 'Let\'s Go!' }]
+          );
+        }}
+        onCancel={() => setShowFirstTimeSetup(false)}
+      />
     </SafeAreaView>
   );
 };

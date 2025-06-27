@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
+import InitialBankSyncScreen from './InitialBankSyncScreen';
 
 interface Props {
   navigation: any;
@@ -23,6 +24,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const [showBalanceDatePicker, setShowBalanceDatePicker] = useState(false);
   const [startBalance, setStartBalance] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showInitialSync, setShowInitialSync] = useState(false);
   
   const activeAccount = getActiveAccount();
   
@@ -238,6 +240,15 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
                 </View>
               }
             />
+
+            {!settings.bankLinked && (
+              <SettingRow
+                title="Initial Bank Setup"
+                subtitle="Connect your bank account with starting balance"
+                onPress={() => setShowInitialSync(true)}
+                rightComponent={<Ionicons name="add-circle-outline" size={20} color="#3B82F6" />}
+              />
+            )}
             
             <SettingRow
               title="Sync Bank Transactions"
@@ -423,6 +434,20 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           onChange={onBalanceDateChange}
         />
       )}
+
+      {/* Initial Bank Sync Modal */}
+      <InitialBankSyncScreen
+        visible={showInitialSync}
+        onComplete={() => {
+          setShowInitialSync(false);
+          Alert.alert(
+            'Bank Account Connected!',
+            'Your bank account has been successfully connected and your transaction history has been imported.',
+            [{ text: 'Great!' }]
+          );
+        }}
+        onCancel={() => setShowInitialSync(false)}
+      />
     </SafeAreaView>
   );
 };

@@ -7,6 +7,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
 import AccountsScreen from '../screens/AccountsScreen';
+import InitialBankSyncScreen from '../screens/InitialBankSyncScreen';
 import { Transaction } from '../types';
 
 export type RootStackParamList = {
@@ -17,6 +18,7 @@ export type RootStackParamList = {
   Reports: undefined;
   NotificationSettings: undefined;
   Accounts: undefined;
+  InitialBankSync: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
