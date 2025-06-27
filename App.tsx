@@ -63,33 +63,14 @@ const openai_api_key = Constants.expoConfig.extra.apikey;
 */
 
 export default function App() {
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    // Setup notification listeners
-    const unsubscribe = setupNotificationListeners();
-    
-    // Add a small delay to ensure everything is ready
-    setTimeout(() => {
-      setIsReady(true);
-    }, 100);
-    
-    return unsubscribe;
-  }, []);
-
-  if (!isReady) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-        <Text>Initializing...</Text>
-      </View>
-    );
-  }
-
   return (
     <ErrorBoundary>
       <SafeAreaProvider>
         <NavigationContainer>
-          <AppNavigator />
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Digital Register App</Text>
+            <Text style={{ marginTop: 10, color: 'gray' }}>Navigation Context Test</Text>
+          </View>
           <StatusBar style="auto" />
         </NavigationContainer>
       </SafeAreaProvider>

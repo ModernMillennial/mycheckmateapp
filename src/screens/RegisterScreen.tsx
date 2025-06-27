@@ -174,11 +174,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         onPress={() => {
           if (!isStarting) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            if (navigation) {
-              navigation.navigate('EditTransaction', { transaction: item });
-            } else {
-              console.warn('Navigation not available yet');
-            }
+            console.log('Transaction pressed - navigation temporarily disabled');
           }
         }}
         disabled={isStarting}
@@ -648,11 +644,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
       {/* Floating Action Button */}
       <Pressable
         onPress={() => {
-          if (navigation) {
-            navigation.navigate('AddTransaction');
-          } else {
-            console.warn('Navigation not available yet');
-          }
+          console.log('Add transaction pressed - navigation temporarily disabled');
         }}
         className="absolute bottom-6 right-6 bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
         style={{ elevation: 8 }}
