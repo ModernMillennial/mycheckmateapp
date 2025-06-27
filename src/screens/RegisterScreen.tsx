@@ -169,6 +169,14 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
                     color={item.reconciled ? '#10B981' : (item.source === 'bank' ? '#3B82F6' : '#9CA3AF')}
                   />
                 </Pressable>
+                {item.source === 'bank' && (
+                  <Ionicons
+                    name="lock-closed"
+                    size={12}
+                    color="#9CA3AF"
+                    style={{ marginLeft: 4 }}
+                  />
+                )}
                 <Ionicons
                   name="chevron-forward"
                   size={16}

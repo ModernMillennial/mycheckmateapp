@@ -51,10 +51,13 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
       newErrors.payee = 'Payee is required';
     }
     
-    if (!formData.amount.trim()) {
-      newErrors.amount = 'Amount is required';
-    } else if (isNaN(parseFloat(formData.amount)) || parseFloat(formData.amount) <= 0) {
-      newErrors.amount = 'Please enter a valid amount';
+    // Only validate amount for manual transactions
+    if (transaction.source === 'manual') {
+      if (!formData.amount.trim()) {
+        newErrors.amount = 'Amount is required';
+      } else if (isNaN(parseFloat(formData.amount)) || parseFloat(formData.amount) <= 0) {
+        newErrors.amount = 'Please enter a valid amount';
+      }
     }
     
     setErrors(newErrors);
@@ -64,18 +67,23 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
   const handleSave = () => {
     if (!validateForm()) return;
 
-    const amount = parseFloat(formData.amount);
-    const finalAmount = formData.isCredit ? amount : -amount;
-
-    updateTransaction(transaction.id, {
+    // Prepare update object
+    const updates: Partial<Transaction> = {
       date: formData.date.toISOString().split('T')[0],
       payee: formData.payee.trim(),
-      amount: finalAmount,
       checkNumber: formData.checkNumber.trim() || undefined,
       notes: formData.notes.trim() || undefined,
       reconciled: formData.reconciled,
-    });
+    };
 
+    // Only update amount for manual transactions
+    if (transaction.source === 'manual') {
+      const amount = parseFloat(formData.amount);
+      const finalAmount = formData.isCredit ? amount : -amount;
+      updates.amount = finalAmount;
+    }
+
+    updateTransaction(transaction.id, updates);
     navigation.goBack();
   };
 
@@ -149,16 +157,29 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
         <ScrollView className="flex-1 px-4 py-6">
           {/* Source Indicator */}
           <View className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <View className="flex-row items-center">
-              <Ionicons
-                name={transaction.source === 'manual' ? 'receipt-outline' : 'card-outline'}
-                size={20}
-                color="#6B7280"
-              />
-              <Text className="text-sm text-gray-600 ml-2 capitalize">
-                {transaction.source} Transaction
-              </Text>
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center">
+                <Ionicons
+                  name={transaction.source === 'manual' ? 'receipt-outline' : 'card-outline'}
+                  size={20}
+                  color="#6B7280"
+                />
+                <Text className="text-sm text-gray-600 ml-2 capitalize">
+                  {transaction.source} Transaction
+                </Text>
+              </View>
+              {transaction.source === 'bank' && (
+                <View className="flex-row items-center">
+                  <Ionicons name="lock-closed" size={16} color="#9CA3AF" />
+                  <Text className="text-xs text-gray-500 ml-1">Amount locked</Text>
+                </View>
+              )}
             </View>
+            {transaction.source === 'bank' && (
+              <Text className="text-xs text-gray-500 mt-2">
+                Bank transactions allow editing of payee, date, notes, and reconciliation status, but the amount cannot be modified.
+              </Text>
+            )}
           </View>
 
           {/* Reconciliation Status */}
@@ -176,47 +197,69 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
             </Pressable>
           </View>
 
-          {/* Transaction Type Toggle */}
-          <View className="mb-6">
-            <Text className="text-sm font-medium text-gray-700 mb-3">
-              Transaction Type
-            </Text>
-            <View className="flex-row bg-gray-100 rounded-lg p-1">
-              <Pressable
-                onPress={() => setFormData({ ...formData, isCredit: false })}
-                className={cn(
-                  "flex-1 py-3 rounded-md items-center",
-                  !formData.isCredit ? "bg-red-500" : "bg-transparent"
-                )}
-              >
-                <Text
+          {/* Transaction Type Toggle - Only for manual transactions */}
+          {transaction.source === 'manual' && (
+            <View className="mb-6">
+              <Text className="text-sm font-medium text-gray-700 mb-3">
+                Transaction Type
+              </Text>
+              <View className="flex-row bg-gray-100 rounded-lg p-1">
+                <Pressable
+                  onPress={() => setFormData({ ...formData, isCredit: false })}
                   className={cn(
-                    "font-medium",
-                    !formData.isCredit ? "text-white" : "text-gray-600"
+                    "flex-1 py-3 rounded-md items-center",
+                    !formData.isCredit ? "bg-red-500" : "bg-transparent"
                   )}
                 >
-                  Debit (-)
-                </Text>
-              </Pressable>
-              
-              <Pressable
-                onPress={() => setFormData({ ...formData, isCredit: true })}
-                className={cn(
-                  "flex-1 py-3 rounded-md items-center",
-                  formData.isCredit ? "bg-green-500" : "bg-transparent"
-                )}
-              >
-                <Text
+                  <Text
+                    className={cn(
+                      "font-medium",
+                      !formData.isCredit ? "text-white" : "text-gray-600"
+                    )}
+                  >
+                    Debit (-)
+                  </Text>
+                </Pressable>
+                
+                <Pressable
+                  onPress={() => setFormData({ ...formData, isCredit: true })}
                   className={cn(
-                    "font-medium",
-                    formData.isCredit ? "text-white" : "text-gray-600"
+                    "flex-1 py-3 rounded-md items-center",
+                    formData.isCredit ? "bg-green-500" : "bg-transparent"
                   )}
                 >
-                  Credit (+)
-                </Text>
-              </Pressable>
+                  <Text
+                    className={cn(
+                      "font-medium",
+                      formData.isCredit ? "text-white" : "text-gray-600"
+                    )}
+                  >
+                    Credit (+)
+                  </Text>
+                </Pressable>
+              </View>
             </View>
-          </View>
+          )}
+
+          {/* Bank Transaction Type Display - Read-only */}
+          {transaction.source === 'bank' && (
+            <View className="mb-6">
+              <Text className="text-sm font-medium text-gray-700 mb-3">
+                Transaction Type
+              </Text>
+              <View className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <Text className={cn(
+                  "text-base font-medium text-center",
+                  formData.isCredit ? "text-green-600" : "text-red-600"
+                )}>
+                  {formData.isCredit ? "Credit (+)" : "Debit (-)"}
+                </Text>
+                <Text className="text-xs text-gray-500 text-center mt-1">
+                  Bank transaction type cannot be changed
+                </Text>
+              </View>
+            </View>
+          )}
 
           {/* Date */}
           <View className="mb-6">
@@ -263,29 +306,48 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
             )}
           </View>
 
-          {/* Amount */}
+          {/* Amount - Editable for manual, read-only for bank */}
           <View className="mb-6">
             <Text className="text-sm font-medium text-gray-700 mb-2">
               Amount *
             </Text>
-            <View
-              className={cn(
-                "flex-row items-center border rounded-lg",
-                errors.amount ? "border-red-500" : "border-gray-300"
-              )}
-            >
-              <Text className="text-xl font-medium text-gray-600 pl-4">$</Text>
-              <TextInput
-                className="flex-1 p-4 text-base"
-                placeholder="0.00"
-                value={formData.amount}
-                onChangeText={(text) => setFormData({ ...formData, amount: text })}
-                keyboardType="decimal-pad"
-                placeholderTextColor="#9CA3AF"
-              />
-            </View>
+            {transaction.source === 'manual' ? (
+              <View
+                className={cn(
+                  "flex-row items-center border rounded-lg",
+                  errors.amount ? "border-red-500" : "border-gray-300"
+                )}
+              >
+                <Text className="text-xl font-medium text-gray-600 pl-4">$</Text>
+                <TextInput
+                  className="flex-1 p-4 text-base"
+                  placeholder="0.00"
+                  value={formData.amount}
+                  onChangeText={(text) => setFormData({ ...formData, amount: text })}
+                  keyboardType="decimal-pad"
+                  placeholderTextColor="#9CA3AF"
+                />
+              </View>
+            ) : (
+              <View className="flex-row items-center border border-gray-200 rounded-lg bg-gray-50">
+                <Text className="text-xl font-medium text-gray-600 pl-4">$</Text>
+                <View className="flex-1 p-4">
+                  <Text className="text-base text-gray-700">
+                    {formData.amount}
+                  </Text>
+                </View>
+                <View className="pr-4">
+                  <Ionicons name="lock-closed" size={16} color="#9CA3AF" />
+                </View>
+              </View>
+            )}
             {errors.amount && (
               <Text className="text-red-500 text-sm mt-1">{errors.amount}</Text>
+            )}
+            {transaction.source === 'bank' && (
+              <Text className="text-xs text-gray-500 mt-1">
+                Bank transaction amounts cannot be modified
+              </Text>
             )}
           </View>
 
