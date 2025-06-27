@@ -27,7 +27,9 @@ interface Props {
 
 const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
   const { transaction } = route.params;
-  const { updateTransaction, deleteTransaction } = useTransactionStore();
+  const { updateTransaction, deleteTransaction, accounts } = useTransactionStore();
+  
+  const account = accounts.find(a => a.id === transaction.accountId);
   
   const [formData, setFormData] = useState({
     date: new Date(transaction.date),
@@ -117,9 +119,16 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
             <Ionicons name="arrow-back" size={24} color="#374151" />
           </Pressable>
           
-          <Text className="text-lg font-semibold text-gray-900">
-            Edit Transaction
-          </Text>
+          <View className="items-center">
+            <Text className="text-lg font-semibold text-gray-900">
+              Edit Transaction
+            </Text>
+            {account && (
+              <Text className="text-sm text-gray-500">
+                {account.name}
+              </Text>
+            )}
+          </View>
           
           <View className="flex-row">
             <Pressable

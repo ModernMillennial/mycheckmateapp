@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useTransactionStore } from '../state/transactionStore';
 import { Transaction, FilterType } from '../types';
 import { cn } from '../utils/cn';
@@ -120,8 +121,17 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             ? "bg-blue-50 border-blue-200" 
             : "bg-white border-gray-100"
         )}
-        onPress={() => !isStarting && navigation.navigate('EditTransaction', { transaction: item })}
+        onPress={() => {
+          if (!isStarting) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            navigation.navigate('EditTransaction', { transaction: item });
+          }
+        }}
         disabled={isStarting}
+        style={({ pressed }) => ({
+          opacity: pressed ? 0.7 : 1,
+          transform: [{ scale: pressed ? 0.98 : 1 }],
+        })}
       >
         {/* Header Row - Payee and Check Number */}
         <View className="flex-row items-center mb-2">
@@ -146,18 +156,28 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               #{item.checkNumber}
             </Text>
           )}
-          {!isStarting && (
-            <Pressable
-              onPress={() => toggleReconciled(item.id)}
-              className="ml-2"
-            >
-              <Ionicons
-                name={item.reconciled ? 'checkmark-circle' : 'ellipse-outline'}
-                size={20}
-                color={item.reconciled ? '#10B981' : (item.source === 'bank' ? '#3B82F6' : '#9CA3AF')}
-              />
-            </Pressable>
-          )}
+          <View className="flex-row items-center">
+            {!isStarting && (
+              <>
+                <Pressable
+                  onPress={() => toggleReconciled(item.id)}
+                  className="p-1"
+                >
+                  <Ionicons
+                    name={item.reconciled ? 'checkmark-circle' : 'ellipse-outline'}
+                    size={20}
+                    color={item.reconciled ? '#10B981' : (item.source === 'bank' ? '#3B82F6' : '#9CA3AF')}
+                  />
+                </Pressable>
+                <Ionicons
+                  name="chevron-forward"
+                  size={16}
+                  color="#9CA3AF"
+                  style={{ marginLeft: 4 }}
+                />
+              </>
+            )}
+          </View>
         </View>
 
         {/* Register Row - Date, Type, Debit, Credit, Balance */}
@@ -409,6 +429,11 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             <Text className="text-gray-400 text-sm mt-2 text-center px-8">
               Add your first transaction or sync with your bank account
             </Text>
+            {transactions.length > 0 && (
+              <Text className="text-gray-400 text-xs mt-4 text-center px-8">
+                💡 Tip: Tap any transaction to edit its details
+              </Text>
+            )}
           </View>
         }
         refreshControl={
