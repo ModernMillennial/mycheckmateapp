@@ -1,6 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import DigitalRegisterMain from '../screens/DigitalRegisterMain';
+import MinimalTestScreen from '../screens/MinimalTestScreen';
 import AddTransactionScreen from '../screens/AddTransactionScreen';
 import EditTransactionScreen from '../screens/EditTransactionScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -34,7 +34,7 @@ const AppNavigator: React.FC = () => {
     >
       <Stack.Screen 
         name="Register" 
-        component={DigitalRegisterMain}
+        component={MinimalTestScreen}
         options={{
           headerShown: false,
         }}
