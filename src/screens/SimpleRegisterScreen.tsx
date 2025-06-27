@@ -106,7 +106,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       setTimeout(() => {
         Alert.alert(
           'Conversion Complete! 🎉',
-          'The manual "Demo Coffee Shop" entry has been converted to a bank transaction. Notice it now shows:\n\n✅ Green check = Bank confirmed\n✅ Yellow check = Originally manual\n\nYou can tap the green check to toggle reconciliation, but the yellow check stays permanent to show it was originally a manual entry.',
+          'The manual "Demo Coffee Shop" entry has been converted to a bank transaction. Notice the change:\n\n• Before: ⚪⚪ Two circles (manual entry)\n• After: ✅✅ Two checkmarks (converted transaction)\n\nThe double checkmarks show this was originally manual but is now bank-confirmed. You can tap the first checkmark to toggle reconciliation.',
           [{ text: 'Perfect!' }]
         );
       }, 500);
@@ -116,11 +116,18 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   const renderTransaction = ({ item, index }: { item: Transaction; index: number }) => {
     const isStartingBalance = item.id.startsWith('starting-balance-');
     
-    // Calculate running balance (working backwards from current balance)
-    const sortedTransactions = transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // Calculate running balance safely
     let runningBalance = activeAccount?.currentBalance || 0;
-    for (let i = 0; i < index; i++) {
-      runningBalance -= sortedTransactions[i].amount;
+    try {
+      const sortedTransactions = transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      for (let i = 0; i < index && i < sortedTransactions.length; i++) {
+        if (sortedTransactions[i] && typeof sortedTransactions[i].amount === 'number') {
+          runningBalance -= sortedTransactions[i].amount;
+        }
+      }
+    } catch (error) {
+      console.log('Error calculating running balance:', error);
+      runningBalance = activeAccount?.currentBalance || 0;
     }
     
     return (
@@ -355,7 +362,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
                   </Text>
                 </View>
               </View>
-              {activeAccount.isConnected && (
+              {settings.bankLinked && (
                 <Ionicons name="link" size={20} color="#10B981" />
               )}
             </View>
@@ -445,11 +452,15 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
             </View>
             
             <FlatList
-              data={transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
+              data={transactions.slice().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
               renderItem={renderTransaction}
               keyExtractor={(item) => item.id}
               scrollEnabled={false}
               showsVerticalScrollIndicator={false}
+              removeClippedSubviews={false}
+              initialNumToRender={10}
+              maxToRenderPerBatch={5}
+              windowSize={10}
             />
           </View>
         )}
