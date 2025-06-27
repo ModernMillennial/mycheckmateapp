@@ -18,7 +18,6 @@ export type RootStackParamList = {
   Reports: undefined;
   NotificationSettings: undefined;
   Accounts: undefined;
-  InitialBankSync: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

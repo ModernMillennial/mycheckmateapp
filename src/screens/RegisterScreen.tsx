@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTransactionStore } from '../state/transactionStore';
@@ -16,12 +17,10 @@ import { Transaction, FilterType } from '../types';
 import { cn } from '../utils/cn';
 import ReconciliationLegend from '../components/ReconciliationLegend';
 import InitialBankSyncScreen from './InitialBankSyncScreen';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
-interface Props {
-  navigation: any;
-}
-
-const RegisterScreen: React.FC<Props> = ({ navigation }) => {
+const RegisterScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   console.log('RegisterScreen rendering, navigation:', !!navigation);
   const insets = useSafeAreaInsets();
   const [showLegend, setShowLegend] = React.useState(false);
