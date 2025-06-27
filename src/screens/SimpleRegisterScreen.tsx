@@ -202,50 +202,58 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       {/* Header */}
       <View className="bg-white px-4 py-4 border-b border-gray-200">
         <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-2xl font-bold text-gray-900">
-            Digital Register
-          </Text>
-          <View className="flex-row">
+          <View className="flex-1">
+            <Text className="text-2xl font-bold text-gray-900">
+              Digital Register
+            </Text>
+          </View>
+          <View className="flex-row items-center">
             <Pressable
               onPress={handleManualTransactionDemo}
-              className="p-2 mr-1"
+              className="p-2"
               disabled={!activeAccount}
+              style={{ marginRight: 4 }}
             >
               <Ionicons 
                 name="flask-outline" 
-                size={24} 
+                size={22} 
                 color={activeAccount ? "#3B82F6" : "#9CA3AF"} 
               />
             </Pressable>
             <Pressable
               onPress={handleDemoReset}
-              className="p-2 mr-1"
+              className="p-2"
+              style={{ marginRight: 4 }}
             >
-              <Ionicons name="refresh-outline" size={24} color="#EF4444" />
+              <Ionicons name="refresh-outline" size={22} color="#EF4444" />
             </Pressable>
             <Pressable
               onPress={() => setShowLegend(!showLegend)}
-              className="p-2 mr-1"
+              className="p-2"
+              style={{ marginRight: 4 }}
             >
-              <Ionicons name="help-circle-outline" size={24} color="#374151" />
+              <Ionicons name="help-circle-outline" size={22} color="#374151" />
             </Pressable>
             <Pressable
               onPress={() => navigation?.navigate('Reports')}
-              className="p-2 mr-1"
+              className="p-2"
+              style={{ marginRight: 4 }}
             >
-              <Ionicons name="bar-chart-outline" size={24} color="#374151" />
+              <Ionicons name="bar-chart-outline" size={22} color="#374151" />
             </Pressable>
             <Pressable
               onPress={() => navigation?.navigate('Accounts')}
-              className="p-2 mr-1"
+              className="p-2"
+              style={{ marginRight: 4 }}
             >
-              <Ionicons name="wallet-outline" size={24} color="#374151" />
+              <Ionicons name="wallet-outline" size={22} color="#374151" />
             </Pressable>
             <Pressable
               onPress={() => navigation?.navigate('Settings')}
               className="p-2"
+              style={{ marginRight: 0 }}
             >
-              <Ionicons name="settings-outline" size={24} color="#374151" />
+              <Ionicons name="settings-outline" size={22} color="#374151" />
             </Pressable>
           </View>
         </View>
