@@ -3,6 +3,7 @@ import { View, Text, Modal, Pressable, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useTransactionStore } from '../state/transactionStore';
 
 interface Props {
@@ -125,6 +126,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
   };
 
   const handleStartingPointSubmit = () => {
+    console.log('Starting point submit clicked, selected:', selectedStartingTransaction);
     if (!selectedStartingTransaction) {
       Alert.alert('Select Starting Point', 'Please select a transaction to start tracking from.');
       return;
@@ -205,6 +207,11 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
       setStep('complete');
       // Mark bank as linked
       updateSettings({ bankLinked: true });
+      
+      // Log completion for debugging
+      const startingTransactionIndex = fetchedTransactions.findIndex(t => t.id === selectedStartingTransaction);
+      const importedCount = startingTransactionIndex + 1;
+      console.log(`Import complete: ${importedCount} transactions imported`);
     }, 1000);
   };
 
@@ -366,7 +373,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
         </View>
         <Text className="text-2xl font-bold text-gray-900 mb-2">Choose Starting Point</Text>
         <Text className="text-gray-600 text-center">
-          Select the transaction you want to start tracking from. All transactions from this point forward will be imported.
+          Tap a transaction below to select your starting point. All transactions from that point forward will be imported.
         </Text>
       </View>
 
@@ -377,10 +384,22 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
 
       <Text className="text-lg font-semibold text-gray-900 mb-4">Recent Transactions</Text>
       
+      {selectedStartingTransaction && (
+        <View className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+          <Text className="text-green-800 font-medium text-center">
+            ✓ Starting point selected! Tap "Import" to continue.
+          </Text>
+        </View>
+      )}
+      
       {fetchedTransactions.slice(0, 10).map((transaction) => (
         <Pressable
           key={transaction.id}
-          onPress={() => setSelectedStartingTransaction(transaction.id)}
+          onPress={() => {
+            console.log('Transaction selected:', transaction.id, transaction.payee);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            setSelectedStartingTransaction(transaction.id);
+          }}
           className={`flex-row items-center p-4 rounded-lg border-2 mb-3 ${
             selectedStartingTransaction === transaction.id
               ? 'border-blue-500 bg-blue-50'
@@ -420,10 +439,18 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
           onPress={handleStartingPointSubmit}
           disabled={!selectedStartingTransaction}
           className={`flex-1 ml-2 py-4 px-6 rounded-lg ${
-            selectedStartingTransaction ? 'bg-blue-500' : 'bg-gray-300'
+            selectedStartingTransaction ? 'bg-blue-500 shadow-lg' : 'bg-gray-300'
           }`}
+          style={({ pressed }) => ({
+            opacity: pressed ? 0.8 : 1,
+            transform: [{ scale: pressed ? 0.98 : 1 }],
+          })}
         >
-          <Text className="text-white font-semibold text-center">Import</Text>
+          <Text className={`font-semibold text-center ${
+            selectedStartingTransaction ? 'text-white' : 'text-gray-500'
+          }`}>
+            {selectedStartingTransaction ? 'Import Transactions' : 'Select Transaction First'}
+          </Text>
         </Pressable>
       </View>
     </ScrollView>
