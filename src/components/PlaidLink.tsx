@@ -34,6 +34,54 @@ const PlaidLink: React.FC<Props> = ({
   const initializePlaidLink = async () => {
     try {
       setLoading(true);
+      
+      // Check if Plaid is configured
+      if (!plaidService.isPlaidConfigured()) {
+        // Show demo mode alert
+        Alert.alert(
+          'Demo Mode',
+          'Plaid integration is not configured. The app will use mock data for demonstration purposes.',
+          [
+            {
+              text: 'Continue with Demo',
+              onPress: () => {
+                // Simulate successful connection with mock data
+                const mockResult: PlaidLinkResult = {
+                  publicToken: 'demo_public_token',
+                  metadata: {
+                    institution: {
+                      name: 'Demo Bank',
+                      institution_id: 'demo_bank',
+                    },
+                    accounts: [
+                      {
+                        account_id: 'demo_account_1',
+                        name: 'Demo Checking',
+                        official_name: 'Demo Checking Account',
+                        type: 'depository',
+                        subtype: 'checking',
+                        balances: {
+                          available: 1250.75,
+                          current: 1250.75,
+                          limit: null,
+                        },
+                        mask: '1234',
+                      },
+                    ],
+                  },
+                };
+                onSuccess(mockResult);
+              },
+            },
+            {
+              text: 'Cancel',
+              style: 'cancel',
+            },
+          ]
+        );
+        return;
+      }
+      
       const token = await plaidService.createLinkToken(userId);
       setLinkToken(token);
     } catch (error) {

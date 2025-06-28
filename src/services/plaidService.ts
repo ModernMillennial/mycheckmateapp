@@ -40,16 +40,22 @@ class PlaidService {
   private baseUrl = 'https://production.plaid.com';
   private clientId = process.env.EXPO_PUBLIC_PLAID_CLIENT_ID;
   private secret = process.env.EXPO_PUBLIC_PLAID_SECRET;
+  private isConfigured = false;
 
   constructor() {
-    if (!this.clientId || !this.secret) {
-      throw new Error('Plaid credentials not configured. Please set EXPO_PUBLIC_PLAID_CLIENT_ID and EXPO_PUBLIC_PLAID_SECRET environment variables.');
+    this.isConfigured = !!(this.clientId && this.secret);
+    if (!this.isConfigured) {
+      console.warn('Plaid credentials not configured. App will run in demo mode.');
     }
   }
 
+  isPlaidConfigured(): boolean {
+    return this.isConfigured;
+  }
+
   async createLinkToken(userId: string): Promise<string> {
-    if (!this.clientId || !this.secret) {
-      throw new Error('Plaid credentials not configured');
+    if (!this.isConfigured) {
+      throw new Error('Plaid credentials not configured. Running in demo mode.');
     }
 
     try {
@@ -89,8 +95,8 @@ class PlaidService {
   }
 
   async exchangePublicToken(publicToken: string): Promise<string> {
-    if (!this.clientId || !this.secret) {
-      throw new Error('Plaid credentials not configured');
+    if (!this.isConfigured) {
+      throw new Error('Plaid credentials not configured. Running in demo mode.');
     }
 
     try {
@@ -124,8 +130,8 @@ class PlaidService {
   }
 
   async getAccounts(accessToken: string): Promise<PlaidAccount[]> {
-    if (!this.clientId || !this.secret) {
-      throw new Error('Plaid credentials not configured');
+    if (!this.isConfigured) {
+      throw new Error('Plaid credentials not configured. Running in demo mode.');
     }
 
     try {
@@ -164,8 +170,8 @@ class PlaidService {
     startDate: string, 
     endDate: string
   ): Promise<PlaidTransaction[]> {
-    if (!this.clientId || !this.secret) {
-      throw new Error('Plaid credentials not configured');
+    if (!this.isConfigured) {
+      throw new Error('Plaid credentials not configured. Running in demo mode.');
     }
 
     try {
@@ -217,4 +223,59 @@ class PlaidService {
 
 }
 
-export const plaidService = new PlaidService();
+// Create a safe instance that won't throw on initialization
+let _plaidService: PlaidService | null = null;
+
+export const plaidService = {
+  isPlaidConfigured(): boolean {
+    try {
+      if (!_plaidService) {
+        _plaidService = new PlaidService();
+      }
+      return _plaidService.isPlaidConfigured();
+    } catch (error) {
+      console.warn('Plaid service initialization failed:', error);
+      return false;
+    }
+  },
+
+  async createLinkToken(userId: string): Promise<string> {
+    if (!_plaidService) {
+      _plaidService = new PlaidService();
+    }
+    return _plaidService.createLinkToken(userId);
+  },
+
+  async exchangePublicToken(publicToken: string): Promise<string> {
+    if (!_plaidService) {
+      _plaidService = new PlaidService();
+    }
+    return _plaidService.exchangePublicToken(publicToken);
+  },
+
+  async getAccounts(accessToken: string): Promise<PlaidAccount[]> {
+    if (!_plaidService) {
+      _plaidService = new PlaidService();
+    }
+    return _plaidService.getAccounts(accessToken);
+  },
+
+  async getTransactions(
+    accessToken: string, 
+    accountIds: string[], 
+    startDate: string, 
+    endDate: string
+  ): Promise<PlaidTransaction[]> {
+    if (!_plaidService) {
+      _plaidService = new PlaidService();
+    }
+    return _plaidService.getTransactions(accessToken, accountIds, startDate, endDate);
+  },
+
+  convertPlaidTransactionToApp(plaidTx: PlaidTransaction, userId: string): Omit<Transaction, 'id' | 'runningBalance'> {
+    if (!_plaidService) {
+      _plaidService = new PlaidService();
+    }
+    return _plaidService.convertPlaidTransactionToApp(plaidTx, userId);
+  }
+};
