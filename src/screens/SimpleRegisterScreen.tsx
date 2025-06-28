@@ -50,10 +50,10 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
         initializeWithSeedData();
       }
     }
-  }, [transactions.length, settings.bankLinked]);
+  }, [transactions?.length, settings.bankLinked]);
 
   const activeAccount = getActiveAccount();
-  const transactions = getActiveTransactions();
+  const transactions = getActiveTransactions() || [];
   
   // Debug logging
   console.log('Register - Active Account:', activeAccount?.name);

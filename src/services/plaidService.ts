@@ -43,7 +43,7 @@ class PlaidService {
 
   constructor() {
     if (!this.clientId || !this.secret) {
-      console.warn('Plaid credentials not found. Using mock data.');
+      console.log('Plaid credentials not configured. Using demo mode with mock data.');
     }
   }
 

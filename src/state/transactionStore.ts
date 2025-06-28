@@ -185,10 +185,13 @@ export const useTransactionStore = create<TransactionState>()(
         const { transactions, accounts, settings, notificationSettings } = get();
         const activeAccount = accounts.find(a => a.id === settings.activeAccountId);
         
+        // Ensure transactions is always an array
+        const allTransactions = transactions || [];
+        
         if (!activeAccount) return;
 
         // Get transactions for active account only
-        const accountTransactions = transactions.filter(t => t.accountId === settings.activeAccountId);
+        const accountTransactions = allTransactions.filter(t => t.accountId === settings.activeAccountId);
         const sortedTransactions = [...accountTransactions].sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
         );
@@ -223,7 +226,7 @@ export const useTransactionStore = create<TransactionState>()(
         const finalBalance = runningBalance;
         
         // Update all transactions (keeping non-active account transactions unchanged)
-        const allUpdatedTransactions = transactions.map(t => {
+        const allUpdatedTransactions = allTransactions.map(t => {
           const updatedTransaction = updatedAccountTransactions.find(ut => ut.id === t.id);
           return updatedTransaction || t;
         });
@@ -359,8 +362,11 @@ export const useTransactionStore = create<TransactionState>()(
       initializeWithSeedData: () => {
         const { isInitialized, transactions } = get();
         
+        // Ensure transactions is always an array
+        const currentTransactions = transactions || [];
+        
         // Force reinitialize if no transactions exist or not initialized
-        if (!isInitialized || transactions.length === 0) {
+        if (!isInitialized || currentTransactions.length === 0) {
           console.log('Initializing seed data...');
           const seedTransactions = generateSeedTransactions();
           const transactionsWithIds = seedTransactions.map((t, index) => {
@@ -449,9 +455,13 @@ export const useTransactionStore = create<TransactionState>()(
 
       getActiveTransactions: () => {
         const { transactions, settings } = get();
-        console.log('All transactions:', transactions.length);
+        
+        // Ensure transactions is always an array
+        const allTransactions = transactions || [];
+        console.log('All transactions:', allTransactions.length);
         console.log('Active account ID:', settings.activeAccountId);
-        const filtered = transactions.filter(t => t.accountId === settings.activeAccountId);
+        
+        const filtered = allTransactions.filter(t => t.accountId === settings.activeAccountId);
         console.log('Filtered transactions:', filtered.length);
         return filtered;
       },
