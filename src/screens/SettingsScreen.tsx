@@ -21,6 +21,7 @@ interface Props {
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount } = useTransactionStore();
+  const { logout } = useAuthStore();
   const { user, logout } = useAuthStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -382,6 +383,29 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
               title="Help & Support"
               subtitle="Get help with using the app"
               rightComponent={<Ionicons name="help-circle-outline" size={20} color="#9CA3AF" />}
+            />
+            
+            <SettingRow
+              title="Sign Out"
+              subtitle="Sign out of your account"
+              onPress={() => {
+                Alert.alert(
+                  'Sign Out',
+                  'Are you sure you want to sign out? This will clear all your data.',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { 
+                      text: 'Sign Out', 
+                      style: 'destructive',
+                      onPress: () => {
+                        logout();
+                        // Navigation will automatically redirect to login screen
+                      }
+                    }
+                  ]
+                );
+              }}
+              rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
             />
           </View>
         </View>

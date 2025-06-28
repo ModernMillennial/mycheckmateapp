@@ -14,7 +14,7 @@ interface Props {
 }
 
 const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
 
   const features = [
     {
@@ -56,10 +56,10 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
               Welcome to CheckMate!
             </Text>
             <Text className="text-lg text-gray-600 text-center mb-2">
-              {user?.firstName ? `Hi ${user.firstName}! ` : ''}Ready to take control of your finances?
+              {isAuthenticated && user?.firstName ? `Hi ${user.firstName}! ` : ''}Ready to take control of your finances?
             </Text>
             <Text className="text-gray-500 text-center">
-              Let's get you started with your digital checkbook
+              {isAuthenticated ? 'Let\'s get you started with your digital checkbook' : 'Your modern digital checkbook awaits'}
             </Text>
           </View>
 
@@ -91,23 +91,47 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
 
           {/* Get Started Button */}
           <View className="mb-8">
-            <Pressable
-              onPress={() => navigation.replace('Register')}
-              className="bg-blue-500 active:bg-blue-600 rounded-lg py-4 items-center justify-center mb-4"
-            >
-              <Text className="text-white text-lg font-semibold">
-                Get Started
-              </Text>
-            </Pressable>
+            {isAuthenticated ? (
+              <>
+                <Pressable
+                  onPress={() => navigation.replace('Register')}
+                  className="bg-blue-500 active:bg-blue-600 rounded-lg py-4 items-center justify-center mb-4"
+                >
+                  <Text className="text-white text-lg font-semibold">
+                    Get Started
+                  </Text>
+                </Pressable>
 
-            <Pressable
-              onPress={() => navigation.navigate('BankConnection')}
-              className="border border-blue-500 rounded-lg py-4 items-center justify-center"
-            >
-              <Text className="text-blue-500 text-base font-semibold">
-                Connect Bank Account First
-              </Text>
-            </Pressable>
+                <Pressable
+                  onPress={() => navigation.navigate('BankConnection')}
+                  className="border border-blue-500 rounded-lg py-4 items-center justify-center"
+                >
+                  <Text className="text-blue-500 text-base font-semibold">
+                    Connect Bank Account First
+                  </Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Pressable
+                  onPress={() => navigation.navigate('Signup')}
+                  className="bg-blue-500 active:bg-blue-600 rounded-lg py-4 items-center justify-center mb-4"
+                >
+                  <Text className="text-white text-lg font-semibold">
+                    Create Account
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => navigation.navigate('Login')}
+                  className="border border-blue-500 rounded-lg py-4 items-center justify-center"
+                >
+                  <Text className="text-blue-500 text-base font-semibold">
+                    I Already Have an Account
+                  </Text>
+                </Pressable>
+              </>
+            )}
           </View>
 
           {/* Tips */}

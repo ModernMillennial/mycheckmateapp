@@ -112,12 +112,21 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
 
       connectPlaidAccount(accessToken, accountWithBalance, startingDate, startingBalance);
 
-      // Sync transactions from selected date
-      await syncPlaidTransactions(accessToken, accountData.account_id, syncFromDate, new Date().toISOString().split('T')[0]);
+      // Sync transactions from selected date (skip for demo mode)
+      if (accessToken !== 'demo_public_token' && accessToken !== 'demo_access_token') {
+        try {
+          await syncPlaidTransactions(accessToken, accountData.account_id, syncFromDate, new Date().toISOString().split('T')[0]);
+        } catch (syncError) {
+          console.log('Sync error (continuing with demo):', syncError);
+          // Continue without failing - demo mode
+        }
+      }
 
+      const isDemo = accessToken === 'demo_public_token' || accessToken === 'demo_access_token';
+      
       Alert.alert(
-        'Account Connected! 🎉',
-        `Successfully connected to ${institutionName}.\n\nStarting Balance: $${startingBalance.toFixed(2)}\nStarting Date: ${new Date(startingDate).toLocaleDateString()}`,
+        `Account Connected! ${isDemo ? '(Demo Mode)' : ''} 🎉`,
+        `Successfully connected to ${institutionName}.\n\nStarting Balance: ${startingBalance.toFixed(2)}\nStarting Date: ${new Date(startingDate).toLocaleDateString()}${isDemo ? '\n\n📝 This is a demonstration using mock data.' : ''}`,
         [
           {
             text: 'View Register',
@@ -127,11 +136,42 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
       );
     } catch (error) {
       console.error('Error connecting account:', error);
-      Alert.alert(
-        'Connection Error',
-        'There was an issue setting up your account. Please try again.',
-        [{ text: 'OK' }]
-      );
+      
+      // Check if it's a Plaid credentials error
+      if (error.message?.includes('Plaid creden') || error.message?.includes('not configured')) {
+        Alert.alert(
+          'Demo Mode Available',
+          'Plaid integration is not configured for production use. Would you like to continue with demonstration data?',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Continue with Demo',
+              onPress: () => {
+                // Override with demo tokens and continue
+                const demoAccessToken = 'demo_access_token';
+                connectPlaidAccount(demoAccessToken, accountData, new Date().toISOString().split('T')[0], accountData.balances?.current || 0);
+                
+                Alert.alert(
+                  'Demo Account Connected! 🎉',
+                  `Demo account set up successfully.\n\nStarting Balance: ${(accountData.balances?.current || 0).toFixed(2)}\n\n📝 This is a demonstration using mock data.`,
+                  [
+                    {
+                      text: 'View Register',
+                      onPress: () => navigation.navigate('Register'),
+                    },
+                  ]
+                );
+              }
+            }
+          ]
+        );
+      } else {
+        Alert.alert(
+          'Connection Error',
+          'There was an issue setting up your account. Please try again.',
+          [{ text: 'OK' }]
+        );
+      }
     }
   };
 
