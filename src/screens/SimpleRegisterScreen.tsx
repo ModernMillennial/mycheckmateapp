@@ -187,7 +187,7 @@ ACTUAL BEHAVIOR:
               const isAvailable = await MailComposer.isAvailableAsync();
               if (isAvailable) {
                 await MailComposer.composeAsync({
-                  recipients: ['support@checkmate-app.com'], // Replace with your support email
+                  recipients: ['support@mycheckmateapp.com'],
                   subject: 'Checkmate Bug Report',
                   body: debugText,
                   isHtml: false,
