@@ -23,8 +23,9 @@ export type RootStackParamList = {
   Login: undefined;
   Signup: undefined;
   Welcome: undefined;
-  // Terms screen
+  // Terms screens - two separate flows
   TermsAndConditions: { isFirstTime?: boolean };
+  PrivacyPolicy: { isFirstTime?: boolean };
   // App screens
   Register: undefined;
   AddTransaction: undefined;
@@ -39,7 +40,6 @@ export type RootStackParamList = {
     accountData: any;
     institutionName: string;
   };
-  PrivacyPolicy: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -52,8 +52,8 @@ const AppNavigator: React.FC = () => {
   const getInitialRoute = () => {
     // Always start with Welcome screen for new users
     if (!isAuthenticated) return "Welcome";
-    // Check if user has accepted terms
-    if (!settings.hasAcceptedTerms) return "TermsAndConditions";
+    // Check if user has accepted terms AND privacy policy
+    if (!settings.hasAcceptedTerms || !settings.hasAcceptedPrivacy) return "TermsAndConditions";
     // Go directly to the main register screen for authenticated users  
     return "Register";
   };

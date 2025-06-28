@@ -34,6 +34,8 @@ export interface UserSettings {
   activeAccountId: string;
   hasAcceptedTerms: boolean;
   termsAcceptedDate?: string;
+  hasAcceptedPrivacy: boolean;
+  privacyAcceptedDate?: string;
 }
 
 export type FilterType = 'all' | 'manual' | 'bank' | 'reconciled' | 'unreconciled';

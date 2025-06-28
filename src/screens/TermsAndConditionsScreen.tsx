@@ -17,15 +17,14 @@ interface Props {
 
 const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
   const isFirstTime = route.params?.isFirstTime || false;
-  const [hasReadTerms, setHasReadTerms] = useState(false);
-  const [hasReadPrivacy, setHasReadPrivacy] = useState(false);
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const { updateSettings } = useTransactionStore();
 
   const handleAccept = () => {
-    if (!hasReadTerms || !hasReadPrivacy) {
+    if (!hasScrolledToBottom) {
       Alert.alert(
-        'Agreement Required',
-        'Please confirm that you have read both the Terms & Conditions and Privacy Policy before proceeding.',
+        'Please Read Complete Terms',
+        'Please scroll to the bottom and read the complete Terms & Conditions before proceeding.',
         [{ text: 'OK' }]
       );
       return;
@@ -38,8 +37,8 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
     });
 
     if (isFirstTime) {
-      // Navigate to the main app after first-time setup
-      navigation.replace('Register');
+      // Navigate to Privacy Policy next
+      navigation.navigate('PrivacyPolicy', { isFirstTime: true });
     } else {
       // Just go back to settings
       navigation.goBack();
@@ -50,7 +49,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
     if (isFirstTime) {
       Alert.alert(
         'Terms Required',
-        'You must accept the Terms & Conditions and Privacy Policy to use CheckMate.',
+        'You must accept the Terms & Conditions to use CheckMate.',
         [
           {
             text: 'Review Again',
@@ -63,194 +62,46 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
     }
   };
 
-  const CheckBox = ({ 
-    value, 
-    onValueChange, 
-    label 
-  }: { 
-    value: boolean; 
-    onValueChange: (value: boolean) => void;
-    label: string;
-  }) => (
-    <Pressable
-      onPress={() => onValueChange(!value)}
-      className="flex-row items-start p-4 bg-gray-50 rounded-lg mb-4"
-    >
-      <View className="mr-3 mt-1">
-        <Ionicons
-          name={value ? "checkbox" : "square-outline"}
-          size={20}
-          color={value ? "#10B981" : "#6B7280"}
-        />
-      </View>
-      <Text className="flex-1 text-sm text-gray-700 leading-5">
-        {label}
-      </Text>
-    </Pressable>
-  );
+  const handleScroll = (event: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const paddingToBottom = 20;
+    const isScrolledToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+    
+    if (isScrolledToBottom && !hasScrolledToBottom) {
+      setHasScrolledToBottom(true);
+    }
+  };
 
-  if (isFirstTime) {
-    // First-time agreement flow
-    return (
-      <SafeAreaView className="flex-1 bg-white">
-        {/* Header */}
-        <View className="px-6 py-4 border-b border-gray-200">
-          <View className="items-center">
-            <Ionicons name="shield-checkmark" size={32} color="#10B981" />
-            <Text className="text-xl font-bold text-gray-900 mt-2">
-              Welcome to CheckMate
-            </Text>
-            <Text className="text-sm text-gray-600 mt-1 text-center">
-              Please review and accept our terms to continue
-            </Text>
-          </View>
-        </View>
-
-        <ScrollView className="flex-1 px-6 py-4">
-          {/* Terms & Conditions Section */}
-          <View className="mb-6">
-            <Text className="text-lg font-semibold text-gray-900 mb-3">
-              Terms & Conditions
-            </Text>
-            
-            <View className="bg-gray-50 rounded-lg p-4 mb-4">
-              <ScrollView className="max-h-40">
-                <Text className="text-sm text-gray-700 leading-5">
-                  <Text className="font-semibold">1. Acceptance of Terms{'\n'}</Text>
-                  By using CheckMate, you agree to be bound by these Terms & Conditions.{'\n\n'}
-                  
-                  <Text className="font-semibold">2. Service Description{'\n'}</Text>
-                  CheckMate is a digital checkbook register app that helps you track your financial transactions and connect with your bank accounts.{'\n\n'}
-                  
-                  <Text className="font-semibold">3. User Responsibilities{'\n'}</Text>
-                  You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account.{'\n\n'}
-                  
-                  <Text className="font-semibold">4. Privacy & Data Security{'\n'}</Text>
-                  We take your privacy seriously. Your financial data is encrypted and stored securely. We do not sell or share your personal information with third parties.{'\n\n'}
-                  
-                  <Text className="font-semibold">5. Bank Account Integration{'\n'}</Text>
-                  When you connect your bank account, we use secure, read-only access through Plaid to retrieve transaction data. We cannot make transactions on your behalf.{'\n\n'}
-                  
-                  <Text className="font-semibold">6. Limitation of Liability{'\n'}</Text>
-                  CheckMate is provided "as is" without warranties. We are not liable for any damages arising from your use of the app.{'\n\n'}
-                  
-                  <Text className="font-semibold">7. Modifications{'\n'}</Text>
-                  We reserve the right to modify these terms at any time. Continued use constitutes acceptance of modified terms.{'\n\n'}
-                  
-                  <Text className="font-semibold">8. Termination{'\n'}</Text>
-                  You may terminate your account at any time. We may terminate accounts that violate these terms.
-                </Text>
-              </ScrollView>
-            </View>
-          </View>
-
-          {/* Privacy Policy Section */}
-          <View className="mb-6">
-            <Text className="text-lg font-semibold text-gray-900 mb-3">
-              Privacy Policy
-            </Text>
-            
-            <View className="bg-gray-50 rounded-lg p-4 mb-4">
-              <ScrollView className="max-h-40">
-                <Text className="text-sm text-gray-700 leading-5">
-                  <Text className="font-semibold">Information We Collect{'\n'}</Text>
-                  • Account information (name, email){'\n'}
-                  • Transaction data from connected bank accounts{'\n'}
-                  • Usage analytics to improve our service{'\n\n'}
-                  
-                  <Text className="font-semibold">How We Use Your Information{'\n'}</Text>
-                  • To provide and improve our services{'\n'}
-                  • To sync your transaction data{'\n'}
-                  • To send important account notifications{'\n\n'}
-                  
-                  <Text className="font-semibold">Data Security{'\n'}</Text>
-                  • All data is encrypted in transit and at rest{'\n'}
-                  • We use industry-standard security measures{'\n'}
-                  • Bank connections use read-only access through Plaid{'\n\n'}
-                  
-                  <Text className="font-semibold">Data Sharing{'\n'}</Text>
-                  • We do not sell your personal information{'\n'}
-                  • We may share anonymized usage data for analytics{'\n'}
-                  • We may disclose information if required by law{'\n\n'}
-                  
-                  <Text className="font-semibold">Your Rights{'\n'}</Text>
-                  • You can request deletion of your data{'\n'}
-                  • You can export your transaction history{'\n'}
-                  • You can disconnect bank accounts at any time{'\n\n'}
-                  
-                  <Text className="font-semibold">Contact Us{'\n'}</Text>
-                  For privacy questions, contact us at privacy@checkmate-app.com
-                </Text>
-              </ScrollView>
-            </View>
-          </View>
-
-          {/* Agreement Checkboxes */}
-          <View className="mb-6">
-            <CheckBox
-              value={hasReadTerms}
-              onValueChange={setHasReadTerms}
-              label="I have read and agree to the Terms & Conditions"
-            />
-            
-            <CheckBox
-              value={hasReadPrivacy}
-              onValueChange={setHasReadPrivacy}
-              label="I have read and agree to the Privacy Policy"
-            />
-          </View>
-
-          {/* Buttons */}
-          <View className="flex-row space-x-3 mb-8">
-            <Pressable
-              onPress={handleDecline}
-              className="flex-1 bg-gray-200 py-4 rounded-lg items-center"
-            >
-              <Text className="text-gray-700 font-semibold">
-                Decline
-              </Text>
-            </Pressable>
-            
-            <Pressable
-              onPress={handleAccept}
-              className={`flex-1 py-4 rounded-lg items-center ${
-                hasReadTerms && hasReadPrivacy 
-                  ? 'bg-green-500' 
-                  : 'bg-gray-300'
-              }`}
-            >
-              <Text className={`font-semibold ${
-                hasReadTerms && hasReadPrivacy 
-                  ? 'text-white' 
-                  : 'text-gray-500'
-              }`}>
-                Accept & Continue
-              </Text>
-            </Pressable>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
-
-  // Regular terms view (for settings)
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-4 border-b border-gray-200">
-        <Pressable
-          onPress={() => navigation.goBack()}
-          className="p-2"
-        >
-          <Ionicons name="arrow-back" size={24} color="#374151" />
-        </Pressable>
-        
-        <Text className="text-lg font-semibold text-gray-900 ml-2">
-          Terms and Conditions
-        </Text>
+      <View className="px-6 py-4 border-b border-gray-200">
+        <View className="items-center">
+          <Ionicons name="document-text" size={32} color="#3B82F6" />
+          <Text className="text-xl font-bold text-gray-900 mt-2">
+            Terms & Conditions
+          </Text>
+          {isFirstTime && (
+            <Text className="text-sm text-gray-600 mt-1 text-center">
+              Please read the complete document before proceeding
+            </Text>
+          )}
+        </View>
+        {!isFirstTime && (
+          <Pressable
+            onPress={() => navigation.goBack()}
+            className="absolute left-4 top-4 p-2"
+          >
+            <Ionicons name="arrow-back" size={24} color="#374151" />
+          </Pressable>
+        )}
       </View>
 
-      <ScrollView className="flex-1 px-4 py-6">
+      <ScrollView 
+        className="flex-1 px-6 py-4"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+      >
         <Text className="text-sm text-gray-500 mb-6">
           Last updated: {new Date().toLocaleDateString()}
         </Text>
@@ -436,6 +287,44 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
           </View>
         </View>
       </ScrollView>
+
+      {/* Bottom Action Buttons */}
+      {isFirstTime && (
+        <View className="p-6 border-t border-gray-200 bg-white">
+          {hasScrolledToBottom && (
+            <View className="flex-row items-center justify-center mb-4">
+              <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+              <Text className="text-sm text-green-600 ml-2">
+                Document read completely
+              </Text>
+            </View>
+          )}
+          
+          <View className="flex-row space-x-3">
+            <Pressable
+              onPress={handleDecline}
+              className="flex-1 bg-gray-200 py-4 rounded-lg items-center"
+            >
+              <Text className="text-gray-700 font-semibold">
+                Decline
+              </Text>
+            </Pressable>
+            
+            <Pressable
+              onPress={handleAccept}
+              className={`flex-1 py-4 rounded-lg items-center ${
+                hasScrolledToBottom ? 'bg-blue-500' : 'bg-gray-300'
+              }`}
+            >
+              <Text className={`font-semibold ${
+                hasScrolledToBottom ? 'text-white' : 'text-gray-500'
+              }`}>
+                Accept & Continue
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };

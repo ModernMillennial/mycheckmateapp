@@ -1,35 +1,106 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   ScrollView,
   Pressable,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTransactionStore } from '../state/transactionStore';
 
 interface Props {
   navigation: any;
+  route: any;
 }
 
-const PrivacyPolicyScreen: React.FC<Props> = ({ navigation }) => {
+const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
+  const isFirstTime = route.params?.isFirstTime || false;
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const { updateSettings } = useTransactionStore();
+
+  const handleAccept = () => {
+    if (!hasScrolledToBottom) {
+      Alert.alert(
+        'Please Read Complete Privacy Policy',
+        'Please scroll to the bottom and read the complete Privacy Policy before proceeding.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Mark that user has accepted privacy policy
+    updateSettings({ 
+      hasAcceptedPrivacy: true,
+      privacyAcceptedDate: new Date().toISOString()
+    });
+
+    if (isFirstTime) {
+      // Navigate to main app after accepting both terms and privacy
+      navigation.replace('Register');
+    } else {
+      // Just go back to settings
+      navigation.goBack();
+    }
+  };
+
+  const handleDecline = () => {
+    if (isFirstTime) {
+      Alert.alert(
+        'Privacy Policy Required',
+        'You must accept the Privacy Policy to use CheckMate.',
+        [
+          {
+            text: 'Review Again',
+            style: 'default'
+          }
+        ]
+      );
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  const handleScroll = (event: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const paddingToBottom = 20;
+    const isScrolledToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+    
+    if (isScrolledToBottom && !hasScrolledToBottom) {
+      setHasScrolledToBottom(true);
+    }
+  };
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-4 border-b border-gray-200">
-        <Pressable
-          onPress={() => navigation.goBack()}
-          className="p-2"
-        >
-          <Ionicons name="arrow-back" size={24} color="#374151" />
-        </Pressable>
-        
-        <Text className="text-lg font-semibold text-gray-900 ml-2">
-          Privacy Policy
-        </Text>
+      <View className="px-6 py-4 border-b border-gray-200">
+        <View className="items-center">
+          <Ionicons name="shield-checkmark" size={32} color="#10B981" />
+          <Text className="text-xl font-bold text-gray-900 mt-2">
+            Privacy Policy
+          </Text>
+          {isFirstTime && (
+            <Text className="text-sm text-gray-600 mt-1 text-center">
+              Please read the complete document before proceeding
+            </Text>
+          )}
+        </View>
+        {!isFirstTime && (
+          <Pressable
+            onPress={() => navigation.goBack()}
+            className="absolute left-4 top-4 p-2"
+          >
+            <Ionicons name="arrow-back" size={24} color="#374151" />
+          </Pressable>
+        )}
       </View>
 
-      <ScrollView className="flex-1 px-4 py-6">
+      <ScrollView 
+        className="flex-1 px-6 py-4"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+      >
         <Text className="text-sm text-gray-500 mb-6">
           Last updated: {new Date().toLocaleDateString()}
         </Text>
@@ -274,6 +345,44 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
       </ScrollView>
+
+      {/* Bottom Action Buttons - Only for first time flow */}
+      {isFirstTime && (
+        <View className="p-6 border-t border-gray-200 bg-white">
+          {hasScrolledToBottom && (
+            <View className="flex-row items-center justify-center mb-4">
+              <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+              <Text className="text-sm text-green-600 ml-2">
+                Document read completely
+              </Text>
+            </View>
+          )}
+          
+          <View className="flex-row space-x-3">
+            <Pressable
+              onPress={handleDecline}
+              className="flex-1 bg-gray-200 py-4 rounded-lg items-center"
+            >
+              <Text className="text-gray-700 font-semibold">
+                Decline
+              </Text>
+            </Pressable>
+            
+            <Pressable
+              onPress={handleAccept}
+              className={`flex-1 py-4 rounded-lg items-center ${
+                hasScrolledToBottom ? 'bg-green-500' : 'bg-gray-300'
+              }`}
+            >
+              <Text className={`font-semibold ${
+                hasScrolledToBottom ? 'text-white' : 'text-gray-500'
+              }`}>
+                Accept & Start Using CheckMate
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };

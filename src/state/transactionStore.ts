@@ -67,6 +67,8 @@ const initialSettings: UserSettings = {
   activeAccountId: '',
   hasAcceptedTerms: false,
   termsAcceptedDate: undefined,
+  hasAcceptedPrivacy: false,
+  privacyAcceptedDate: undefined,
 };
 
 export const useTransactionStore = create<TransactionState>()(
