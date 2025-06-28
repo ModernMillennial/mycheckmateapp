@@ -320,7 +320,7 @@ ACTUAL BEHAVIOR:
     
     return (
       <Pressable
-        className="mx-4 mb-1 px-4 py-3 bg-white rounded-lg shadow-sm border border-gray-100"
+        className="mx-2 mb-1 px-3 py-3 bg-white rounded-lg shadow-sm border border-gray-100"
         onPress={() => {
           if (!isStartingBalance) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -849,9 +849,9 @@ ACTUAL BEHAVIOR:
             {transactions.length > 0 ? (
               <>
                 {/* Column Headers */}
-                <View className="mx-4 mb-2 px-4 py-2 bg-gray-50 rounded-lg">
+                <View className="mx-2 mb-2 px-2 py-2 bg-gray-50 rounded-lg">
                   <View className="flex-row items-center">
-                    <View className="flex-1 pr-2">
+                    <View className="flex-1">
                       <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
                     </View>
                     <View className="flex-1 items-center">
@@ -884,7 +884,7 @@ ACTUAL BEHAVIOR:
                   ))}
               </>
             ) : (
-              <View className="mx-4 p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+              <View className="mx-2 p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                 <View className="items-center">
                   <Ionicons name="receipt-outline" size={48} color="#9CA3AF" />
                   <Text className="text-lg font-semibold text-gray-600 mt-3">
