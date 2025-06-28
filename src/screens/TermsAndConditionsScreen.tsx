@@ -41,7 +41,11 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
       navigation.navigate('PrivacyPolicy', { isFirstTime: true });
     } else {
       // Just go back to settings
-      navigation.goBack();
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      } else {
+        navigation.navigate('Settings');
+      }
     }
   };
 
@@ -58,7 +62,11 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
         ]
       );
     } else {
-      navigation.goBack();
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      } else {
+        navigation.navigate('Settings');
+      }
     }
   };
 
@@ -89,7 +97,13 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
         </View>
         {!isFirstTime && (
           <Pressable
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              if (navigation.canGoBack()) {
+                navigation.goBack();
+              } else {
+                navigation.navigate('Settings');
+              }
+            }}
             className="absolute left-4 top-4 p-2"
           >
             <Ionicons name="arrow-back" size={24} color="#374151" />

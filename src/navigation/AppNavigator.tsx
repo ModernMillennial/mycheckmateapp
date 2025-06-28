@@ -102,10 +102,10 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen 
             name="TermsAndConditions" 
             component={TermsAndConditionsScreen}
-            options={{
+            options={({ route }) => ({
               headerShown: false,
-              gestureEnabled: false, // Prevent swipe back for first-time flow
-            }}
+              gestureEnabled: !route.params?.isFirstTime, // Allow gesture when not first time
+            })}
             initialParams={{ isFirstTime: !settings.hasAcceptedTerms }}
           />
           <Stack.Screen 

@@ -388,7 +388,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
             <SettingRow
               title="Privacy Policy"
               subtitle="View our privacy policy"
-              onPress={() => navigation.navigate('PrivacyPolicy')}
+              onPress={() => navigation.navigate('PrivacyPolicy', { isFirstTime: false })}
               rightComponent={<Ionicons name="shield-outline" size={20} color="#9CA3AF" />}
             />
             
@@ -396,20 +396,6 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
               title="Help & Support"
               subtitle="Get help with using the app"
               rightComponent={<Ionicons name="help-circle-outline" size={20} color="#9CA3AF" />}
-            />
-            
-            <SettingRow
-              title="Terms and Conditions"
-              subtitle="Read our terms of service"
-              onPress={() => navigation.navigate('TermsAndConditions')}
-              rightComponent={<Ionicons name="document-text-outline" size={20} color="#9CA3AF" />}
-            />
-            
-            <SettingRow
-              title="Privacy Policy"
-              subtitle="Learn how we protect your data"
-              onPress={() => navigation.navigate('PrivacyPolicy')}
-              rightComponent={<Ionicons name="shield-checkmark-outline" size={20} color="#9CA3AF" />}
             />
             
             <SettingRow
