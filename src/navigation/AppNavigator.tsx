@@ -1,6 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '../state/authStore';
+import { useTransactionStore } from '../state/transactionStore';
 import SimpleRegisterScreen from '../screens/SimpleRegisterScreen';
 import AddTransactionScreen from '../screens/AddTransactionScreen';
 import EditTransactionScreen from '../screens/EditTransactionScreen';
@@ -22,6 +23,8 @@ export type RootStackParamList = {
   Login: undefined;
   Signup: undefined;
   Welcome: undefined;
+  // Terms screen
+  TermsAndConditions: { isFirstTime?: boolean };
   // App screens
   Register: undefined;
   AddTransaction: undefined;
@@ -36,7 +39,6 @@ export type RootStackParamList = {
     accountData: any;
     institutionName: string;
   };
-  TermsAndConditions: undefined;
   PrivacyPolicy: undefined;
 };
 
@@ -44,16 +46,19 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
+  const { settings } = useTransactionStore();
   
-  // Determine initial route based on auth state
+  // Determine initial route based on auth state and terms acceptance
   const getInitialRoute = () => {
     // Always start with Welcome screen for new users
     if (!isAuthenticated) return "Welcome";
+    // Check if user has accepted terms
+    if (!settings.hasAcceptedTerms) return "TermsAndConditions";
     // Go directly to the main register screen for authenticated users  
     return "Register";
   };
   
-  console.log('AppNavigator rendering... isAuthenticated:', isAuthenticated);
+  console.log('AppNavigator rendering... isAuthenticated:', isAuthenticated, 'hasAcceptedTerms:', settings.hasAcceptedTerms);
   
   return (
     <Stack.Navigator
@@ -91,8 +96,18 @@ const AppNavigator: React.FC = () => {
           />
         </>
       ) : (
-        // App Stack
+        // App Stack - include terms screen for authenticated users too
         <>
+          {/* Terms Screen - shown for first-time users or when accessed from settings */}
+          <Stack.Screen 
+            name="TermsAndConditions" 
+            component={TermsAndConditionsScreen}
+            options={{
+              headerShown: false,
+              gestureEnabled: false, // Prevent swipe back for first-time flow
+            }}
+            initialParams={{ isFirstTime: !settings.hasAcceptedTerms }}
+          />
           <Stack.Screen 
             name="Register" 
             component={SimpleRegisterScreen}
@@ -135,10 +150,6 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen 
             name="StartingBalanceSelection" 
             component={StartingBalanceSelectionScreen}
-          />
-          <Stack.Screen 
-            name="TermsAndConditions" 
-            component={TermsAndConditionsScreen}
           />
           <Stack.Screen 
             name="PrivacyPolicy" 

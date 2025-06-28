@@ -32,6 +32,8 @@ export interface UserSettings {
   lastBalance: number;
   bankLinked: boolean;
   activeAccountId: string;
+  hasAcceptedTerms: boolean;
+  termsAcceptedDate?: string;
 }
 
 export type FilterType = 'all' | 'manual' | 'bank' | 'reconciled' | 'unreconciled';

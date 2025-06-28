@@ -65,6 +65,8 @@ const initialSettings: UserSettings = {
   lastBalance: 0,
   bankLinked: false,
   activeAccountId: '',
+  hasAcceptedTerms: false,
+  termsAcceptedDate: undefined,
 };
 
 export const useTransactionStore = create<TransactionState>()(
