@@ -867,8 +867,8 @@ ACTUAL BEHAVIOR:
                   .slice()
                   .sort((a, b) => {
                     // Starting balance transactions should always be at the bottom
-                    const aIsStarting = a.payee === 'Starting Balance' || a.id.startsWith('starting-balance-');
-                    const bIsStarting = b.payee === 'Starting Balance' || b.id.startsWith('starting-balance-');
+                    const aIsStarting = a.payee === 'Starting Point' || a.payee === 'Starting Balance' || a.id.startsWith('starting-balance-');
+                    const bIsStarting = b.payee === 'Starting Point' || b.payee === 'Starting Balance' || b.id.startsWith('starting-balance-');
                     
                     if (aIsStarting && !bIsStarting) return 1; // a goes to bottom
                     if (bIsStarting && !aIsStarting) return -1; // b goes to bottom
