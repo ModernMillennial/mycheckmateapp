@@ -13,6 +13,8 @@ import StartingBalanceSelectionScreen from '../screens/StartingBalanceSelectionS
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
+import TermsAndConditionsScreen from '../screens/TermsAndConditionsScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 import { Transaction } from '../types';
 
 export type RootStackParamList = {
@@ -34,6 +36,8 @@ export type RootStackParamList = {
     accountData: any;
     institutionName: string;
   };
+  TermsAndConditions: undefined;
+  PrivacyPolicy: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -131,6 +135,14 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen 
             name="StartingBalanceSelection" 
             component={StartingBalanceSelectionScreen}
+          />
+          <Stack.Screen 
+            name="TermsAndConditions" 
+            component={TermsAndConditionsScreen}
+          />
+          <Stack.Screen 
+            name="PrivacyPolicy" 
+            component={PrivacyPolicyScreen}
           />
         </>
       )}

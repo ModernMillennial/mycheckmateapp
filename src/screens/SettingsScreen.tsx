@@ -385,6 +385,20 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
             />
             
             <SettingRow
+              title="Terms and Conditions"
+              subtitle="Read our terms of service"
+              onPress={() => navigation.navigate('TermsAndConditions')}
+              rightComponent={<Ionicons name="document-text-outline" size={20} color="#9CA3AF" />}
+            />
+            
+            <SettingRow
+              title="Privacy Policy"
+              subtitle="Learn how we protect your data"
+              onPress={() => navigation.navigate('PrivacyPolicy')}
+              rightComponent={<Ionicons name="shield-checkmark-outline" size={20} color="#9CA3AF" />}
+            />
+            
+            <SettingRow
               title="Sign Out"
               subtitle="Sign out of your account"
               onPress={() => {
