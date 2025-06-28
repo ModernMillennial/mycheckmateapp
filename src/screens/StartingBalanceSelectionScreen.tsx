@@ -253,7 +253,7 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
                   // Start with current balance and work backwards
                   let runningBalance = accountData.balances?.current || 0;
                   for (let i = 0; i < index; i++) {
-                    runningBalance += transactions[i].amount; // Add back previous transactions
+                    runningBalance -= transactions[i].amount; // Subtract previous transactions to go backwards
                   }
                   
                   return (
