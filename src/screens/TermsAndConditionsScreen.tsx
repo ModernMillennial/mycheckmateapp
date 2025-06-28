@@ -210,7 +210,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation }) => {
               If you have any questions about these Terms and Conditions, please contact us at:
             </Text>
             <View className="mt-3 p-4 bg-gray-50 rounded-lg">
-              <Text className="text-base text-gray-700">Email: support@checkmateapp.com</Text>
+              <Text className="text-base text-gray-700">Email: support@mycheckmateapp.com</Text>
             </View>
           </View>
         </View>
