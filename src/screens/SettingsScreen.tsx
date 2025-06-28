@@ -13,8 +13,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
 import InitialBankSyncScreen from './InitialBankSyncScreen';
 import Calculator from '../components/Calculator';
-import { useAuth } from '../context/AuthContext';
-import AuthService from '../services/authService';
 
 interface Props {
   navigation: any;
@@ -22,12 +20,11 @@ interface Props {
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount } = useTransactionStore();
-  const { authState, signOut } = useAuth();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showInitialSync, setShowInitialSync] = useState(false);
   const [showCalculator, setShowCalculator] = useState(false);
-  const [biometricEnabled, setBiometricEnabled] = useState(authState.biometricEnabled);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
 
   const handleSignOut = () => {
     Alert.alert(
@@ -39,7 +36,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           text: 'Sign Out',
           style: 'destructive',
           onPress: () => {
-            signOut();
+            Alert.alert('Sign Out', 'This feature is temporarily disabled during development.');
           }
         }
       ]
@@ -47,17 +44,13 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleToggleBiometric = async (enabled: boolean) => {
-    const result = await AuthService.toggleBiometric(enabled);
-    if (result.success) {
-      setBiometricEnabled(enabled);
-      Alert.alert(
-        'Setting Updated',
-        `Biometric authentication has been ${enabled ? 'enabled' : 'disabled'}.`,
-        [{ text: 'OK' }]
-      );
-    } else {
-      Alert.alert('Error', result.error?.message || 'Failed to update biometric setting.');
-    }
+    // AuthService temporarily disabled for development
+    setBiometricEnabled(enabled);
+    Alert.alert(
+      'Setting Updated',
+      `Biometric authentication has been ${enabled ? 'enabled' : 'disabled'}.`,
+      [{ text: 'OK' }]
+    );
   };
 
   const handleChangePasscode = () => {
@@ -79,12 +72,8 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
                     text: 'Change',
                     onPress: async (newPasscode) => {
                       if (newPasscode && newPasscode.length >= 6) {
-                        const result = await AuthService.changePasscode(currentPasscode, newPasscode);
-                        if (result.success) {
-                          Alert.alert('Success', 'Your passcode has been changed successfully.');
-                        } else {
-                          Alert.alert('Error', result.error?.message || 'Failed to change passcode.');
-                        }
+                        // AuthService temporarily disabled for development
+                        Alert.alert('Success', 'Passcode would be changed in production version.');
                       } else {
                         Alert.alert('Error', 'New passcode must be at least 6 characters long.');
                       }
@@ -377,7 +366,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
             
             <SettingRow
               title="Account Security"
-              subtitle={`Last login: ${authState.user?.lastLogin ? new Date(authState.user.lastLogin).toLocaleDateString() : 'Never'}`}
+              subtitle="Authentication disabled during development"
               rightComponent={<Ionicons name="shield-checkmark-outline" size={20} color="#10B981" />}
             />
             
