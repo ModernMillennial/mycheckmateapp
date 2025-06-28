@@ -404,6 +404,21 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
         </View>
       )}
       
+      {/* Column Headers */}
+      <View className="bg-gray-50 px-4 py-2 rounded-lg mb-3">
+        <View className="flex-row items-center">
+          <View className="flex-1">
+            <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
+          </View>
+          <View className="flex-1 items-center">
+            <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
+          </View>
+          <View className="flex-1 items-center">
+            <Text className="text-xs font-bold text-gray-700 uppercase">Account Balance</Text>
+          </View>
+        </View>
+      </View>
+      
       {fetchedTransactions.length === 0 ? (
         <View className="items-center py-8">
           <Text className="text-gray-500">Loading transactions...</Text>
@@ -463,10 +478,13 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
               </Text>
             </View>
             
-            {/* Right: Balance */}
+            {/* Right: Account Balance */}
             <View className="flex-1 items-center">
-              <Text className="text-base font-bold text-gray-900">
-                ${(transaction.balance || 0).toFixed(2)}
+              <Text className="text-xs text-gray-500 uppercase font-medium">Balance</Text>
+              <Text className={`text-base font-bold ${
+                (transaction.balance || 0) >= 0 ? 'text-gray-900' : 'text-red-600'
+              }`}>
+                ${Math.abs(transaction.balance || 0).toFixed(2)}
               </Text>
             </View>
           </View>
