@@ -25,33 +25,23 @@ const BankConnectionScreen: React.FC<Props> = ({ navigation }) => {
     try {
       setConnecting(true);
       
-      // Connect each account from Plaid
-      for (const account of result.metadata.accounts) {
-        connectPlaidAccount(result.publicToken, account);
-        
-        // Sync recent transactions (last 30 days)
-        const endDate = new Date().toISOString().split('T')[0];
-        const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        
-        try {
-          await syncPlaidTransactions(result.publicToken, account.account_id, startDate, endDate);
-        } catch (syncError) {
-          console.warn('Transaction sync failed for account:', account.account_id, syncError);
-        }
+      // If multiple accounts, let user choose which one first
+      // For now, just take the first account
+      const primaryAccount = result.metadata.accounts[0];
+      
+      if (!primaryAccount) {
+        Alert.alert('No Accounts Found', 'No accounts were found in your bank connection.');
+        return;
       }
 
-      Alert.alert(
-        'Bank Connected Successfully! 🎉',
-        `Connected to ${result.metadata.institution.name} with ${result.metadata.accounts.length} account(s). Recent transactions have been imported.`,
-        [
-          {
-            text: 'View Accounts',
-            onPress: () => navigation.navigate('Register'),
-          },
-        ]
-      );
+      // Navigate to starting balance selection
+      navigation.navigate('StartingBalanceSelection', {
+        accessToken: result.publicToken,
+        accountData: primaryAccount,
+        institutionName: result.metadata.institution.name,
+      });
     } catch (error) {
-      console.error('Error connecting Plaid account:', error);
+      console.error('Error processing Plaid success:', error);
       Alert.alert(
         'Connection Error',
         'There was an issue connecting your bank account. Please try again.',

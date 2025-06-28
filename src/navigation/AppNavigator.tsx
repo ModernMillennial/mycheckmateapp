@@ -8,6 +8,7 @@ import ReportsScreen from '../screens/ReportsScreen';
 import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
 import AccountsScreen from '../screens/AccountsScreen';
 import BankConnectionScreen from '../screens/BankConnectionScreen';
+import StartingBalanceSelectionScreen from '../screens/StartingBalanceSelectionScreen';
 import { Transaction } from '../types';
 
 export type RootStackParamList = {
@@ -19,6 +20,11 @@ export type RootStackParamList = {
   NotificationSettings: undefined;
   Accounts: undefined;
   BankConnection: undefined;
+  StartingBalanceSelection: {
+    accessToken: string;
+    accountData: any;
+    institutionName: string;
+  };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -72,6 +78,10 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen 
         name="BankConnection" 
         component={BankConnectionScreen}
+      />
+      <Stack.Screen 
+        name="StartingBalanceSelection" 
+        component={StartingBalanceSelectionScreen}
       />
     </Stack.Navigator>
   );
