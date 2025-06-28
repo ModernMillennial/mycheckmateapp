@@ -24,71 +24,10 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showInitialSync, setShowInitialSync] = useState(false);
   const [showCalculator, setShowCalculator] = useState(false);
-  const [biometricEnabled, setBiometricEnabled] = useState(false);
 
-  const handleSignOut = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out? You will need to authenticate again to access the app.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: () => {
-            Alert.alert('Sign Out', 'This feature is temporarily disabled during development.');
-          }
-        }
-      ]
-    );
-  };
 
-  const handleToggleBiometric = async (enabled: boolean) => {
-    // AuthService temporarily disabled for development
-    setBiometricEnabled(enabled);
-    Alert.alert(
-      'Setting Updated',
-      `Biometric authentication has been ${enabled ? 'enabled' : 'disabled'}.`,
-      [{ text: 'OK' }]
-    );
-  };
 
-  const handleChangePasscode = () => {
-    Alert.prompt(
-      'Change Passcode',
-      'Enter your current passcode:',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Next',
-          onPress: (currentPasscode) => {
-            if (currentPasscode) {
-              Alert.prompt(
-                'New Passcode',
-                'Enter your new passcode (6+ characters):',
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  {
-                    text: 'Change',
-                    onPress: async (newPasscode) => {
-                      if (newPasscode && newPasscode.length >= 6) {
-                        // AuthService temporarily disabled for development
-                        Alert.alert('Success', 'Passcode would be changed in production version.');
-                      } else {
-                        Alert.alert('Error', 'New passcode must be at least 6 characters long.');
-                      }
-                    }
-                  }
-                ],
-                'secure-text'
-              );
-            }
-          }
-        }
-      ],
-      'secure-text'
-    );
-  };
+
   
   const activeAccount = getActiveAccount();
   
@@ -333,51 +272,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Security Section */}
-        <View className="mt-8">
-          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
-            Security & Privacy
-          </Text>
-          
-          <View className="bg-white">
-            <View className="flex-row items-center justify-between p-4 border-b border-gray-100">
-              <View className="flex-1">
-                <Text className="text-base font-medium text-gray-900">
-                  Biometric Authentication
-                </Text>
-                <Text className="text-sm text-gray-500 mt-1">
-                  Use Touch ID, Face ID, or fingerprint to unlock
-                </Text>
-              </View>
-              <Switch
-                value={biometricEnabled}
-                onValueChange={handleToggleBiometric}
-                trackColor={{ false: '#D1D5DB', true: '#3B82F6' }}
-                thumbColor="#FFFFFF"
-              />
-            </View>
-            
-            <SettingRow
-              title="Change Passcode"
-              subtitle="Update your security passcode"
-              onPress={handleChangePasscode}
-              rightComponent={<Ionicons name="key-outline" size={20} color="#9CA3AF" />}
-            />
-            
-            <SettingRow
-              title="Account Security"
-              subtitle="Authentication disabled during development"
-              rightComponent={<Ionicons name="shield-checkmark-outline" size={20} color="#10B981" />}
-            />
-            
-            <SettingRow
-              title="Sign Out"
-              subtitle="Sign out of your account"
-              onPress={handleSignOut}
-              rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
-            />
-          </View>
-        </View>
+
 
         {/* Register Settings Section */}
         <View className="mt-8">
@@ -437,27 +332,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Account Section */}
-        <View className="mt-8">
-          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
-            Account
-          </Text>
-          
-          <View className="bg-white">
-            <SettingRow
-              title="Profile"
-              subtitle={user ? `${user.firstName} ${user.lastName} (${user.email})` : 'Not signed in'}
-              rightComponent={<Ionicons name="person-outline" size={20} color="#9CA3AF" />}
-            />
-            
-            <SettingRow
-              title="Sign Out"
-              subtitle="Sign out of your CheckMate account"
-              onPress={handleLogout}
-              rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
-            />
-          </View>
-        </View>
+
 
         {/* App Information Section */}
         <View className="mt-8">
