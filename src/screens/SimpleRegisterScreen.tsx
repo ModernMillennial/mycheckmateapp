@@ -358,10 +358,10 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           </Pressable>
         </View>
 
-        {/* Main Row - Date, Type, Debit, Credit, Balance */}
+        {/* Main Row - Date, Type, Amount, Balance */}
         <View className="flex-row items-center">
           {/* Left: Date and Transaction Type */}
-          <View className="w-20 pr-2">
+          <View className="flex-1 pr-2">
             <Text className="text-sm text-gray-600" numberOfLines={1}>
               {new Date(item.date).toLocaleDateString('en-US', { 
                 month: 'numeric', 
@@ -382,27 +382,17 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
             </View>
           </View>
 
-          {/* Middle-Left: Debit Amount */}
-          <View className="w-24 items-center px-1">
-            {item.amount < 0 && (
-              <Text className="text-base font-semibold text-red-600" numberOfLines={1}>
-                -${Math.abs(item.amount).toFixed(2)}
-              </Text>
-            )}
-          </View>
-
-          {/* Middle-Right: Credit Amount */}
-          <View className="w-24 items-center px-1">
-            {item.amount >= 0 && (
-              <Text className="text-base font-semibold text-green-600" numberOfLines={1}>
-                +${item.amount.toFixed(2)}
-              </Text>
-            )}
+          {/* Center: Amount */}
+          <View className="flex-1 items-center">
+            <Text className={`text-base font-semibold ${
+              item.amount < 0 ? "text-red-600" : "text-green-600"
+            }`} numberOfLines={1}>
+              {item.amount < 0 ? "-" : "+"}${Math.abs(item.amount).toFixed(2)}
+            </Text>
           </View>
 
           {/* Right: Running Balance */}
-          <View className="w-24 items-end pl-1">
-            <Text className="text-xs text-gray-500 font-medium">BALANCE</Text>
+          <View className="flex-1 items-center">
             <Text className={`text-base font-bold ${
               runningBalance >= 0 ? "text-gray-900" : "text-red-600"
             }`} numberOfLines={1}>
@@ -835,16 +825,13 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                 {/* Column Headers */}
                 <View className="mx-4 mb-2 px-4 py-2 bg-gray-50 rounded-lg">
                   <View className="flex-row items-center">
-                    <View className="w-20 pr-2">
+                    <View className="flex-1 pr-2">
                       <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
                     </View>
-                    <View className="w-24 items-center px-1">
+                    <View className="flex-1 items-center">
                       <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
                     </View>
-                    <View className="w-24 items-center px-1">
-                      <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
-                    </View>
-                    <View className="w-24 items-center pl-1">
+                    <View className="flex-1 items-center">
                       <Text className="text-xs font-bold text-gray-700 uppercase">Balance</Text>
                     </View>
                   </View>
