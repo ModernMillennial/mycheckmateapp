@@ -6,7 +6,6 @@ import {
   ScrollView,
   Switch,
   Alert,
-  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -21,18 +20,12 @@ interface Props {
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount } = useTransactionStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showBalanceDatePicker, setShowBalanceDatePicker] = useState(false);
-  const [startBalance, setStartBalance] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showInitialSync, setShowInitialSync] = useState(false);
   
   const activeAccount = getActiveAccount();
   
-  React.useEffect(() => {
-    if (activeAccount) {
-      setStartBalance(activeAccount.startingBalance.toString());
-    }
-  }, [activeAccount]);
+
 
   const handleSyncBank = async () => {
     setIsLoading(true);
@@ -147,21 +140,9 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
-  const handleSaveStartBalance = () => {
-    if (!activeAccount) return;
-    
-    const balance = parseFloat(startBalance) || 0;
-    updateAccount(activeAccount.id, { startingBalance: balance });
-    Alert.alert('Saved', 'Starting balance updated successfully.');
-  };
 
-  const handleSaveStartBalanceDate = (selectedDate: Date) => {
-    if (!activeAccount) return;
-    
-    updateAccount(activeAccount.id, { 
-      startingBalanceDate: selectedDate.toISOString().split('T')[0] 
-    });
-  };
+
+
 
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
@@ -170,12 +151,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
-  const onBalanceDateChange = (event: any, selectedDate?: Date) => {
-    setShowBalanceDatePicker(false);
-    if (selectedDate) {
-      handleSaveStartBalanceDate(selectedDate);
-    }
-  };
+
 
   const SettingRow = ({ 
     title, 
@@ -297,52 +273,6 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           </Text>
           
           <View className="bg-white">
-            <View className="p-4 border-b border-gray-100">
-              <Text className="text-base font-medium text-gray-900 mb-3">
-                Starting Balance for {activeAccount?.name || 'Active Account'}
-              </Text>
-              
-              {/* Starting Balance Amount */}
-              <View className="flex-row items-center mb-4">
-                <Text className="text-xl font-medium text-gray-600 mr-2">$</Text>
-                <TextInput
-                  className="flex-1 p-3 border border-gray-300 rounded-lg text-base mr-3"
-                  placeholder="0.00"
-                  value={startBalance}
-                  onChangeText={setStartBalance}
-                  keyboardType="decimal-pad"
-                />
-                <Pressable
-                  onPress={handleSaveStartBalance}
-                  className="px-4 py-3 bg-blue-500 rounded-lg"
-                >
-                  <Text className="text-white font-medium">Save</Text>
-                </Pressable>
-              </View>
-
-              {/* Starting Balance Date */}
-              <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">
-                  Starting Balance Date
-                </Text>
-                <Pressable
-                  onPress={() => setShowBalanceDatePicker(true)}
-                  className="flex-row items-center justify-between p-3 border border-gray-300 rounded-lg"
-                >
-                  <Text className="text-base text-gray-900">
-                    {activeAccount 
-                      ? new Date(activeAccount.startingBalanceDate).toLocaleDateString()
-                      : 'Select Date'
-                    }
-                  </Text>
-                  <Ionicons name="calendar-outline" size={20} color="#6B7280" />
-                </Pressable>
-                <Text className="text-xs text-gray-500 mt-2">
-                  This date determines when your starting balance is shown in the transaction list
-                </Text>
-              </View>
-            </View>
-            
             <View className="flex-row items-center justify-between p-4">
               <View className="flex-1">
                 <Text className="text-base font-medium text-gray-900">
@@ -426,14 +356,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         />
       )}
       
-      {showBalanceDatePicker && activeAccount && (
-        <DateTimePicker
-          value={new Date(activeAccount.startingBalanceDate)}
-          mode="date"
-          display="default"
-          onChange={onBalanceDateChange}
-        />
-      )}
+
 
       {/* Initial Bank Sync Modal */}
       <InitialBankSyncScreen

@@ -1,28 +1,6 @@
 import { Transaction } from '../types';
 
 export const generateSeedTransactions = (): Omit<Transaction, 'id' | 'runningBalance'>[] => [
-  // Starting balance for checking account
-  {
-    userId: 'user-1',
-    accountId: 'checking-1',
-    date: new Date(Date.now() - 86400000 * 30).toISOString().split('T')[0], // 30 days ago
-    payee: 'Starting Balance',
-    amount: 1000.00,
-    source: 'bank',
-    notes: 'Account starting balance',
-    reconciled: true,
-  },
-  // Starting balance for savings account
-  {
-    userId: 'user-1',
-    accountId: 'savings-1',
-    date: new Date(Date.now() - 86400000 * 60).toISOString().split('T')[0], // 60 days ago
-    payee: 'Starting Balance',
-    amount: 9500.00,
-    source: 'bank',
-    notes: 'Account starting balance',
-    reconciled: true,
-  },
   // Manual transaction that will be matched by bank sync
   {
     userId: 'user-1',
