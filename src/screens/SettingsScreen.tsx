@@ -11,9 +11,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
-import { useAuthStore } from '../state/authStore';
 import InitialBankSyncScreen from './InitialBankSyncScreen';
 import Calculator from '../components/Calculator';
+import { useAuth } from '../context/AuthContext';
+import AuthService from '../services/authService';
 
 interface Props {
   navigation: any;
@@ -21,27 +22,82 @@ interface Props {
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount } = useTransactionStore();
-  const { user, logout } = useAuthStore();
+  const { authState, signOut } = useAuth();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showInitialSync, setShowInitialSync] = useState(false);
   const [showCalculator, setShowCalculator] = useState(false);
+  const [biometricEnabled, setBiometricEnabled] = useState(authState.biometricEnabled);
 
-  const handleLogout = () => {
+  const handleSignOut = () => {
     Alert.alert(
       'Sign Out',
-      'Are you sure you want to sign out of your account?',
+      'Are you sure you want to sign out? You will need to authenticate again to access the app.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Sign Out',
           style: 'destructive',
           onPress: () => {
-            logout();
-            // Navigation will automatically redirect to login due to auth state change
+            signOut();
           }
         }
       ]
+    );
+  };
+
+  const handleToggleBiometric = async (enabled: boolean) => {
+    const result = await AuthService.toggleBiometric(enabled);
+    if (result.success) {
+      setBiometricEnabled(enabled);
+      Alert.alert(
+        'Setting Updated',
+        `Biometric authentication has been ${enabled ? 'enabled' : 'disabled'}.`,
+        [{ text: 'OK' }]
+      );
+    } else {
+      Alert.alert('Error', result.error?.message || 'Failed to update biometric setting.');
+    }
+  };
+
+  const handleChangePasscode = () => {
+    Alert.prompt(
+      'Change Passcode',
+      'Enter your current passcode:',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Next',
+          onPress: (currentPasscode) => {
+            if (currentPasscode) {
+              Alert.prompt(
+                'New Passcode',
+                'Enter your new passcode (6+ characters):',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Change',
+                    onPress: async (newPasscode) => {
+                      if (newPasscode && newPasscode.length >= 6) {
+                        const result = await AuthService.changePasscode(currentPasscode, newPasscode);
+                        if (result.success) {
+                          Alert.alert('Success', 'Your passcode has been changed successfully.');
+                        } else {
+                          Alert.alert('Error', result.error?.message || 'Failed to change passcode.');
+                        }
+                      } else {
+                        Alert.alert('Error', 'New passcode must be at least 6 characters long.');
+                      }
+                    }
+                  }
+                ],
+                'secure-text'
+              );
+            }
+          }
+        }
+      ],
+      'secure-text'
     );
   };
   
@@ -284,6 +340,52 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
               subtitle="Add, edit, or switch between your bank accounts"
               onPress={() => navigation.navigate('Accounts')}
               rightComponent={<Ionicons name="card-outline" size={20} color="#9CA3AF" />}
+            />
+          </View>
+        </View>
+
+        {/* Security Section */}
+        <View className="mt-8">
+          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
+            Security & Privacy
+          </Text>
+          
+          <View className="bg-white">
+            <View className="flex-row items-center justify-between p-4 border-b border-gray-100">
+              <View className="flex-1">
+                <Text className="text-base font-medium text-gray-900">
+                  Biometric Authentication
+                </Text>
+                <Text className="text-sm text-gray-500 mt-1">
+                  Use Touch ID, Face ID, or fingerprint to unlock
+                </Text>
+              </View>
+              <Switch
+                value={biometricEnabled}
+                onValueChange={handleToggleBiometric}
+                trackColor={{ false: '#D1D5DB', true: '#3B82F6' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+            
+            <SettingRow
+              title="Change Passcode"
+              subtitle="Update your security passcode"
+              onPress={handleChangePasscode}
+              rightComponent={<Ionicons name="key-outline" size={20} color="#9CA3AF" />}
+            />
+            
+            <SettingRow
+              title="Account Security"
+              subtitle={`Last login: ${authState.user?.lastLogin ? new Date(authState.user.lastLogin).toLocaleDateString() : 'Never'}`}
+              rightComponent={<Ionicons name="shield-checkmark-outline" size={20} color="#10B981" />}
+            />
+            
+            <SettingRow
+              title="Sign Out"
+              subtitle="Sign out of your account"
+              onPress={handleSignOut}
+              rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
             />
           </View>
         </View>

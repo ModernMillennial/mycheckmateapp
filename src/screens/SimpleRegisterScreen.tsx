@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTransactionStore } from '../state/transactionStore';
 import { Transaction } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 
 interface Props {
@@ -17,6 +18,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [showLegend, setShowLegend] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const { updateActivity } = useAuth();
   
   const {
     settings,
@@ -58,6 +60,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
 
   const onRefresh = async () => {
     setRefreshing(true);
+    updateActivity(); // Track user activity
     
     try {
       // Get the active account
@@ -458,7 +461,10 @@ ACTUAL BEHAVIOR:
             </Text>
           </View>
           <Pressable
-            onPress={() => setShowMenu(!showMenu)}
+            onPress={() => {
+              updateActivity();
+              setShowMenu(!showMenu);
+            }}
             className="p-2"
           >
             <Ionicons name="menu" size={24} color="#374151" />
