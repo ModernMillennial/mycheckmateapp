@@ -374,7 +374,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                 size={12}
                 color="#000000"
               />
-              <Text className={`text-xs ml-1 capitalize text-black`}>
+              <Text className={`text-sm ml-1 capitalize text-black font-medium`}>
                 {item.source === 'bank' && item.notes?.includes('Converted')
                   ? 'manual'
                   : item.source}
@@ -383,7 +383,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           </View>
 
           {/* Middle-Left: Debit Amount */}
-          <View className="w-24 items-end px-1">
+          <View className="w-24 items-center px-1">
             {item.amount < 0 && (
               <Text className="text-base font-semibold text-red-600" numberOfLines={1}>
                 -${Math.abs(item.amount).toFixed(2)}
@@ -392,7 +392,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           </View>
 
           {/* Middle-Right: Credit Amount */}
-          <View className="w-24 items-end px-1">
+          <View className="w-24 items-center px-1">
             {item.amount >= 0 && (
               <Text className="text-base font-semibold text-green-600" numberOfLines={1}>
                 +${item.amount.toFixed(2)}
