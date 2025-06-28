@@ -284,20 +284,36 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
   };
 
   const renderTransaction = ({ item, index }: { item: Transaction; index: number }) => {
-    const isStartingBalance = item.payee === 'Starting Balance' || item.id.startsWith('starting-balance-');
+    const isStartingBalance = item.payee === 'Starting Point' || item.payee === 'Starting Balance' || item.id.startsWith('starting-balance-');
     
     // Calculate running balance safely
-    let runningBalance = activeAccount?.currentBalance || 0;
+    let runningBalance = 0;
     try {
-      const sortedTransactions = transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      for (let i = 0; i < index && i < sortedTransactions.length; i++) {
+      // Sort transactions by date (oldest first for balance calculation)
+      const sortedTransactions = transactions
+        .slice()
+        .sort((a, b) => {
+          // Starting balance always first
+          const aIsStarting = a.payee === 'Starting Point' || a.payee === 'Starting Balance' || a.id.startsWith('starting-balance-');
+          const bIsStarting = b.payee === 'Starting Point' || b.payee === 'Starting Balance' || b.id.startsWith('starting-balance-');
+          
+          if (aIsStarting && !bIsStarting) return -1;
+          if (bIsStarting && !aIsStarting) return 1;
+          if (aIsStarting && bIsStarting) return new Date(a.date).getTime() - new Date(b.date).getTime();
+          
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        });
+      
+      // Calculate running balance from start
+      runningBalance = 0;
+      for (let i = 0; i <= sortedTransactions.findIndex(t => t.id === item.id); i++) {
         if (sortedTransactions[i] && typeof sortedTransactions[i].amount === 'number') {
-          runningBalance -= sortedTransactions[i].amount;
+          runningBalance += sortedTransactions[i].amount;
         }
       }
     } catch (error) {
       console.log('Error calculating running balance:', error);
-      runningBalance = activeAccount?.currentBalance || 0;
+      runningBalance = item.amount || 0;
     }
     
     return (
