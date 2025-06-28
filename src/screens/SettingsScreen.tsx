@@ -12,6 +12,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
 import InitialBankSyncScreen from './InitialBankSyncScreen';
+import Calculator from '../components/Calculator';
 
 interface Props {
   navigation: any;
@@ -22,6 +23,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showInitialSync, setShowInitialSync] = useState(false);
+  const [showCalculator, setShowCalculator] = useState(false);
   
   const activeAccount = getActiveAccount();
   
@@ -308,6 +310,22 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
 
+        {/* Tools Section */}
+        <View className="mt-8">
+          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
+            Tools
+          </Text>
+          
+          <View className="bg-white">
+            <SettingRow
+              title="Calculator"
+              subtitle="Built-in calculator for quick calculations"
+              onPress={() => setShowCalculator(true)}
+              rightComponent={<Ionicons name="calculator-outline" size={20} color="#9CA3AF" />}
+            />
+          </View>
+        </View>
+
         {/* App Information Section */}
         <View className="mt-8">
           <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
@@ -370,6 +388,12 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           );
         }}
         onCancel={() => setShowInitialSync(false)}
+      />
+
+      {/* Calculator Modal */}
+      <Calculator
+        visible={showCalculator}
+        onClose={() => setShowCalculator(false)}
       />
     </SafeAreaView>
   );
