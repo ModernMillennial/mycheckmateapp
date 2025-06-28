@@ -339,11 +339,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           )}
           
           {/* Posting Status */}
-          <Pressable
-            onPress={() => !isStartingBalance && item.source === 'bank' && togglePosted(item.id)}
-            disabled={isStartingBalance || item.source === 'manual'}
-            className="ml-2"
-          >
+          <View className="ml-2">
             <View className="bg-gray-100 px-2 py-1 rounded">
               <Text className={`text-xs font-medium ${
                 item.source === 'manual' && !item.reconciled 
@@ -355,7 +351,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                   : 'POSTED'}
               </Text>
             </View>
-          </Pressable>
+          </View>
         </View>
 
         {/* Main Row - Date, Type, Amount, Balance */}
@@ -683,7 +679,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                 <View className="bg-gray-100 px-2 py-1 rounded mr-3 mt-0.5">
                   <Text className="text-xs font-medium text-blue-600">POSTED</Text>
                 </View>
-                <Text className="text-blue-800 text-sm flex-1">Bank transactions (tap to toggle posted status)</Text>
+                <Text className="text-blue-800 text-sm flex-1">Bank transactions (automatically posted)</Text>
               </View>
               <View className="flex-row items-start">
                 <View className="bg-gray-100 px-2 py-1 rounded mr-3 mt-0.5">

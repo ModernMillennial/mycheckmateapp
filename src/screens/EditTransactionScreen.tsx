@@ -73,7 +73,7 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
       payee: formData.payee.trim(),
       checkNumber: formData.checkNumber.trim() || undefined,
       notes: formData.notes.trim() || undefined,
-      reconciled: formData.reconciled,
+      // reconciled status is automatic based on source and matching
     };
 
     // Only update amount for manual transactions
@@ -249,12 +249,9 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
                     <Text className="text-xs font-medium text-blue-600">POSTED</Text>
                   </View>
                 </View>
-                <Pressable
-                  onPress={() => setFormData({ ...formData, reconciled: !formData.reconciled })}
-                  className="flex-row items-center justify-between p-3 bg-white rounded border"
-                >
+                <View className="flex-row items-center justify-between p-3 bg-white rounded border">
                   <Text className="text-sm text-gray-700">
-                    Toggle posting status
+                    Posting status (automatic)
                   </Text>
                   <View className="bg-gray-100 px-2 py-1 rounded">
                     <Text className={`text-xs font-medium ${
@@ -263,17 +260,14 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
                       {formData.reconciled ? 'POSTED' : 'NOT POSTED'}
                     </Text>
                   </View>
-                </Pressable>
+                </View>
                 <Text className="text-xs text-purple-700 mt-2">
                   This transaction was originally manual and converted to bank confirmed.
                 </Text>
               </View>
             ) : (
-              <Pressable
-                onPress={() => setFormData({ ...formData, reconciled: !formData.reconciled })}
-                className="flex-row items-center justify-between p-4 border border-gray-300 rounded-lg"
-              >
-                <Text className="text-base text-gray-900">Bank Transaction</Text>
+              <View className="flex-row items-center justify-between p-4 border border-gray-300 rounded-lg">
+                <Text className="text-base text-gray-900">Bank Transaction (automatic posting)</Text>
                 <View className="bg-gray-100 px-3 py-1 rounded">
                   <Text className={`text-xs font-medium ${
                     formData.reconciled ? 'text-blue-600' : 'text-red-600'
@@ -281,7 +275,7 @@ const EditTransactionScreen: React.FC<Props> = ({ navigation, route }) => {
                     {formData.reconciled ? 'POSTED' : 'NOT POSTED'}
                   </Text>
                 </View>
-              </Pressable>
+              </View>
             )}
           </View>
 
