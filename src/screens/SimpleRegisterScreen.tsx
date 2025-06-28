@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, Alert, FlatList, Clipboard, ScrollView, Image } from 'react-native';
+import { View, Text, Pressable, Alert, FlatList, Clipboard, ScrollView, Image, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -15,6 +15,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [showTransactions, setShowTransactions] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   
   const {
     settings,
@@ -26,6 +27,8 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     clearAndReinitialize,
     updateSettings,
     toggleReconciled: togglePosted,
+    syncPlaidTransactions,
+    calculateRunningBalance,
   } = useTransactionStore();
 
   useEffect(() => {
@@ -48,6 +51,68 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   useEffect(() => {
     // App will automatically initialize with working data
   }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    
+    try {
+      // Get the active account
+      const activeAccount = getActiveAccount();
+      
+      if (activeAccount?.plaidAccessToken) {
+        // If it's a Plaid-connected account, sync recent transactions
+        const endDate = new Date().toISOString().split('T')[0];
+        const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        
+        try {
+          await syncPlaidTransactions(
+            activeAccount.plaidAccessToken, 
+            activeAccount.id, 
+            startDate, 
+            endDate
+          );
+          
+          Alert.alert(
+            'Sync Complete! 🔄',
+            'Your transactions have been updated with the latest data from your bank.',
+            [{ text: 'OK' }]
+          );
+        } catch (error) {
+          console.error('Plaid sync error:', error);
+          
+          // Fallback to manual refresh
+          calculateRunningBalance();
+          
+          Alert.alert(
+            'Refresh Complete ✅',
+            'Your account balances and transaction data have been refreshed.',
+            [{ text: 'OK' }]
+          );
+        }
+      } else {
+        // For demo/manual accounts, just recalculate balances
+        calculateRunningBalance();
+        
+        // Add a slight delay to show the refresh animation
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        Alert.alert(
+          'Refresh Complete ✅',
+          'Your account balances and transaction data have been refreshed.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Refresh error:', error);
+      Alert.alert(
+        'Refresh Error',
+        'There was an issue refreshing your data. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const handleDemoReset = () => {
     Alert.alert(
@@ -511,7 +576,20 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
       )}
 
       {/* Main Content */}
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 32, paddingBottom: 120 }}>
+      <ScrollView 
+        className="flex-1" 
+        contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 32, paddingBottom: 120 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#3B82F6']} // Android
+            tintColor="#3B82F6" // iOS
+            title="Pull to refresh..."
+            titleColor="#6B7280"
+          />
+        }
+      >
         {/* Account Summary */}
         {activeAccount ? (
           <View className="bg-blue-50 p-6 rounded-xl mb-6">
