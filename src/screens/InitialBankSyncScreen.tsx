@@ -427,30 +427,49 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
               console.error('Error selecting transaction:', error);
             }
           }}
-          className={`flex-row items-center p-4 rounded-lg border-2 mb-3 ${
+          className={`p-4 rounded-lg border-2 mb-3 ${
             selectedStartingTransaction === transaction.id
               ? 'border-blue-500 bg-blue-50'
               : 'border-gray-200 bg-white'
           }`}
         >
-          <View className="flex-1">
-            <Text className="text-gray-900 font-medium">{transaction.payee}</Text>
-            <Text className="text-gray-500 text-sm">
-              {new Date(transaction.date).toLocaleDateString()} • Balance: ${(transaction.balance || 0).toFixed(2)}
-            </Text>
-          </View>
-          <View className="items-end">
-            <Text className={`font-semibold ${
-              (transaction.amount || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {(transaction.amount || 0) >= 0 ? '+' : ''}${Math.abs(transaction.amount || 0).toFixed(2)}
-            </Text>
-          </View>
-          {selectedStartingTransaction === transaction.id && (
-            <View className="ml-3">
+          {/* Header Row - Payee and Selection Check */}
+          <View className="flex-row items-center justify-between mb-2">
+            <Text className="text-gray-900 font-medium flex-1">{transaction.payee}</Text>
+            {selectedStartingTransaction === transaction.id && (
               <Ionicons name="checkmark-circle" size={24} color="#3B82F6" />
+            )}
+          </View>
+          
+          {/* Transaction Details Row - Date/Type, Amount, Balance */}
+          <View className="flex-row items-center">
+            {/* Left: Date and Type */}
+            <View className="flex-1">
+              <Text className="text-sm text-gray-600">
+                {new Date(transaction.date).toLocaleDateString('en-US', { 
+                  month: 'numeric', 
+                  day: 'numeric' 
+                })}
+              </Text>
+              <Text className="text-xs text-gray-500 capitalize">bank</Text>
             </View>
-          )}
+            
+            {/* Center: Transaction Amount */}
+            <View className="flex-1 items-center">
+              <Text className={`text-base font-semibold ${
+                (transaction.amount || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {(transaction.amount || 0) >= 0 ? '+' : '-'}${Math.abs(transaction.amount || 0).toFixed(2)}
+              </Text>
+            </View>
+            
+            {/* Right: Balance */}
+            <View className="flex-1 items-center">
+              <Text className="text-base font-bold text-gray-900">
+                ${(transaction.balance || 0).toFixed(2)}
+              </Text>
+            </View>
+          </View>
         </Pressable>
         );
       }).filter(Boolean)

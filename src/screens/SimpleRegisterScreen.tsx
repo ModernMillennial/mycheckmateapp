@@ -329,7 +329,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
             <Text className={`text-base font-semibold flex-1 ${
               isStartingBalance ? "text-blue-900" : "text-gray-900"
             }`}>
-              {item.payee}
+              {isStartingBalance ? "Starting Point" : item.payee}
             </Text>
           </View>
           {item.checkNumber && (
@@ -357,16 +357,24 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
         </View>
 
         {/* Main Row - Date, Type, Amount, Balance */}
-        <View className="flex-row items-center">
-          {/* Left: Date and Transaction Type */}
-          <View className="flex-1 pr-2">
-            <Text className="text-sm text-gray-600" numberOfLines={1}>
-              {new Date(item.date).toLocaleDateString('en-US', { 
-                month: 'numeric', 
-                day: 'numeric' 
-              })}
+        {isStartingBalance ? (
+          // Starting balance row - only show balance on the right
+          <View className="flex-row items-center justify-end">
+            <Text className="text-base font-bold text-black">
+              ${Math.abs(item.amount).toFixed(2)}
             </Text>
-            {!isStartingBalance && (
+          </View>
+        ) : (
+          // Regular transaction row - show all columns
+          <View className="flex-row items-center">
+            {/* Left: Date and Transaction Type */}
+            <View className="flex-1 pr-2">
+              <Text className="text-sm text-gray-600" numberOfLines={1}>
+                {new Date(item.date).toLocaleDateString('en-US', { 
+                  month: 'numeric', 
+                  day: 'numeric' 
+                })}
+              </Text>
               <View className="flex-row items-center">
                 <Ionicons
                   name={item.source === 'manual' ? 'receipt-outline' : 'card-outline'}
@@ -379,29 +387,27 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                     : item.source}
                 </Text>
               </View>
-            )}
-          </View>
+            </View>
 
-          {/* Center: Amount */}
-          <View className="flex-1 items-center">
-            {!isStartingBalance && (
+            {/* Center: Amount */}
+            <View className="flex-1 items-center">
               <Text className={`text-base font-semibold ${
                 item.amount < 0 ? "text-red-600" : "text-green-600"
               }`} numberOfLines={1}>
                 {item.amount < 0 ? "-" : "+"}${Math.abs(item.amount).toFixed(2)}
               </Text>
-            )}
-          </View>
+            </View>
 
-          {/* Right: Running Balance */}
-          <View className="flex-1 items-center">
-            <Text className={`text-base font-bold ${
-              isStartingBalance ? "text-black" : (runningBalance >= 0 ? "text-gray-900" : "text-red-600")
-            }`} numberOfLines={1}>
-              ${Math.abs(isStartingBalance ? item.amount : runningBalance).toFixed(2)}
-            </Text>
+            {/* Right: Running Balance */}
+            <View className="flex-1 items-center">
+              <Text className={`text-base font-bold ${
+                runningBalance >= 0 ? "text-gray-900" : "text-red-600"
+              }`} numberOfLines={1}>
+                ${Math.abs(runningBalance).toFixed(2)}
+              </Text>
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Notes Row (if exists) */}
         {item.notes && (
