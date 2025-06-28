@@ -265,9 +265,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation }) => {
             </Text>
             <View className="p-4 bg-gray-50 rounded-lg">
               <Text className="text-base font-medium text-gray-900">CheckMate Inc.</Text>
-              <Text className="text-base text-gray-700">Email: privacy@checkmate-app.com</Text>
-              <Text className="text-base text-gray-700">Address: 123 Financial Street, San Francisco, CA 94105</Text>
-              <Text className="text-base text-gray-700">Phone: (555) 123-4567</Text>
+              <Text className="text-base text-gray-700">Email: support@mycheckmateapp.com</Text>
             </View>
             
             <Text className="text-sm text-gray-600 mt-4 italic">
