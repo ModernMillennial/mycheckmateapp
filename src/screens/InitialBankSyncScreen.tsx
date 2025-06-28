@@ -505,11 +505,15 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
             </View>
             
             {/* Right: Account Balance */}
-            <View className="flex-1 items-center">
+            <View className="flex-1 items-center" style={{ backgroundColor: '#f0f0f0', padding: 4 }}>
+              <Text className="text-xs text-gray-500 mb-1">Balance</Text>
               <Text className={`text-base font-bold ${
                 (transaction.balance || 0) >= 0 ? 'text-gray-900' : 'text-red-600'
               }`}>
                 ${Math.abs(transaction.balance || 0).toFixed(2)}
+              </Text>
+              <Text className="text-xs text-blue-500">
+                (Debug: {transaction.balance})
               </Text>
             </View>
           </View>

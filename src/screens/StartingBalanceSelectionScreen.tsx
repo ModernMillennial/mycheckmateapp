@@ -231,36 +231,86 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
           </Text>
           
           {transactions.length > 0 ? (
-            <View className="space-y-2">
-              {transactions.map((transaction) => (
-                <Pressable
-                  key={transaction.transaction_id}
-                  onPress={() => handleTransactionSelection(transaction)}
-                  className={`p-3 rounded-lg border ${
-                    selectedTransaction?.transaction_id === transaction.transaction_id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 bg-white'
-                  }`}
-                >
-                  <View className="flex-row items-center justify-between">
-                    <View className="flex-1">
-                      <Text className="text-sm font-medium text-gray-900">
-                        {transaction.merchant_name || transaction.name}
-                      </Text>
-                      <Text className="text-xs text-gray-500">
-                        {new Date(transaction.date).toLocaleDateString()}
-                      </Text>
-                    </View>
-                    <View className="items-end">
-                      <Text className={`text-sm font-semibold ${
-                        transaction.amount < 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {transaction.amount < 0 ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
-                      </Text>
-                    </View>
+            <View>
+              {/* Column Headers */}
+              <View className="bg-gray-50 px-4 py-2 rounded-lg mb-3">
+                <View className="flex-row items-center">
+                  <View className="flex-1">
+                    <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
                   </View>
-                </Pressable>
-              ))}
+                  <View className="flex-1 items-center">
+                    <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
+                  </View>
+                  <View className="flex-1 items-center">
+                    <Text className="text-xs font-bold text-gray-700 uppercase">Account Balance</Text>
+                  </View>
+                </View>
+              </View>
+              
+              <View className="space-y-2">
+                {transactions.map((transaction, index) => {
+                  // Calculate running balance for this transaction
+                  // Start with current balance and work backwards
+                  let runningBalance = accountData.balances?.current || 0;
+                  for (let i = 0; i < index; i++) {
+                    runningBalance += transactions[i].amount; // Add back previous transactions
+                  }
+                  
+                  return (
+                    <Pressable
+                      key={transaction.transaction_id}
+                      onPress={() => handleTransactionSelection(transaction)}
+                      className={`p-4 rounded-lg border ${
+                        selectedTransaction?.transaction_id === transaction.transaction_id
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 bg-white'
+                      }`}
+                    >
+                      {/* Header Row - Payee and Selection Check */}
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-gray-900 font-medium flex-1">
+                          {transaction.merchant_name || transaction.name}
+                        </Text>
+                        {selectedTransaction?.transaction_id === transaction.transaction_id && (
+                          <Ionicons name="checkmark-circle" size={24} color="#3B82F6" />
+                        )}
+                      </View>
+                      
+                      {/* Transaction Details Row - Date/Type, Amount, Balance */}
+                      <View className="flex-row items-center">
+                        {/* Left: Date and Type */}
+                        <View className="flex-1">
+                          <Text className="text-sm text-gray-600">
+                            {new Date(transaction.date).toLocaleDateString('en-US', { 
+                              month: 'numeric', 
+                              day: 'numeric' 
+                            })}
+                          </Text>
+                          <Text className="text-xs text-gray-500 capitalize">bank</Text>
+                        </View>
+                        
+                        {/* Center: Transaction Amount */}
+                        <View className="flex-1 items-center">
+                          <Text className={`text-base font-semibold ${
+                            transaction.amount < 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {transaction.amount < 0 ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
+                          </Text>
+                        </View>
+                        
+                        {/* Right: Account Balance */}
+                        <View className="flex-1 items-center">
+                          <Text className={`text-base font-bold ${
+                            runningBalance >= 0 ? 'text-gray-900' : 'text-red-600'
+                          }`}>
+                            ${Math.abs(runningBalance).toFixed(2)}
+                          </Text>
+                        </View>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
             </View>
           ) : (
             <View className="p-4 bg-gray-50 rounded-lg">
