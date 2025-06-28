@@ -249,7 +249,7 @@ ACTUAL BEHAVIOR:
 
     Alert.alert(
       'Bug Report 🐛',
-      'Choose how to share your bug report with diagnostic information:',
+      'Send a bug report with diagnostic information to our support team.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -267,7 +267,7 @@ ACTUAL BEHAVIOR:
               } else {
                 Alert.alert(
                   'Email Not Available',
-                  'Email is not set up on this device. Please use "Copy to Clipboard" instead.',
+                  'Email is not set up on this device. Please set up an email account in your device settings and try again.',
                   [{ text: 'OK' }]
                 );
               }
@@ -275,38 +275,10 @@ ACTUAL BEHAVIOR:
               console.error('Error opening email composer:', error);
               Alert.alert(
                 'Email Error',
-                'Unable to open email. Please use "Copy to Clipboard" instead.',
+                'Unable to open email composer. Please check your email settings and try again.',
                 [{ text: 'OK' }]
               );
             }
-          },
-        },
-        {
-          text: 'Copy to Clipboard',
-          onPress: () => {
-            Clipboard.setString(debugText);
-            Alert.alert(
-              'Copied! 📋',
-              'Bug report template with diagnostic info copied to clipboard. You can now paste it in an email or support form.',
-              [{ text: 'OK' }]
-            );
-          },
-        },
-        {
-          text: 'View Details',
-          onPress: () => {
-            Alert.alert(
-              'Debug Information',
-              `Current Status:
-• Account: ${activeAccount?.name || 'None'}
-• Bank Linked: ${settings.bankLinked ? 'Yes' : 'No'}
-• Transactions: ${transactions.length}
-• Navigation: Working
-• Store: Loaded
-
-Choose "Send Email" or "Copy to Clipboard" to share the full bug report.`,
-              [{ text: 'OK' }]
-            );
           },
         },
       ]
