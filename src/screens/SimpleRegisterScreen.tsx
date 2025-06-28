@@ -384,19 +384,21 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
 
           {/* Center: Amount */}
           <View className="flex-1 items-center">
-            <Text className={`text-base font-semibold ${
-              item.amount < 0 ? "text-red-600" : "text-green-600"
-            }`} numberOfLines={1}>
-              {item.amount < 0 ? "-" : "+"}${Math.abs(item.amount).toFixed(2)}
-            </Text>
+            {!isStartingBalance && (
+              <Text className={`text-base font-semibold ${
+                item.amount < 0 ? "text-red-600" : "text-green-600"
+              }`} numberOfLines={1}>
+                {item.amount < 0 ? "-" : "+"}${Math.abs(item.amount).toFixed(2)}
+              </Text>
+            )}
           </View>
 
           {/* Right: Running Balance */}
           <View className="flex-1 items-center">
             <Text className={`text-base font-bold ${
-              runningBalance >= 0 ? "text-gray-900" : "text-red-600"
+              isStartingBalance ? "text-black" : (runningBalance >= 0 ? "text-gray-900" : "text-red-600")
             }`} numberOfLines={1}>
-              ${Math.abs(runningBalance).toFixed(2)}
+              ${Math.abs(isStartingBalance ? item.amount : runningBalance).toFixed(2)}
             </Text>
           </View>
         </View>
