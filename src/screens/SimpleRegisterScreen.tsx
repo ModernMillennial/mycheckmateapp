@@ -213,6 +213,83 @@ ACTUAL BEHAVIOR:
     );
   };
 
+  const handleManualTransactionDemo = () => {
+    Alert.alert(
+      'Demo: Manual to Bank Conversion 🔄',
+      'This feature demonstrates how manual transactions are automatically converted to bank transactions when matching deposits or withdrawals are found during bank sync.\n\nTo see this in action:\n1. Add a manual transaction\n2. Go to Settings → Sync Bank Transactions\n3. Watch as matching transactions convert from "NOT POSTED" to "POSTED"',
+      [
+        { text: 'Got it!', style: 'default' },
+        { 
+          text: 'Try Settings', 
+          onPress: () => navigation?.navigate('Settings'),
+          style: 'default'
+        }
+      ]
+    );
+  };
+
+  const handleDemoReset = () => {
+    Alert.alert(
+      'Start Demo 🚀',
+      'This will add sample transactions to demonstrate the CheckMate features including manual entry, bank sync, and transaction conversion.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Add Demo Data',
+          style: 'default',
+          onPress: () => {
+            // Add some demo transactions
+            const activeAccount = getActiveAccount();
+            if (activeAccount) {
+              const demoTransactions = [
+                {
+                  userId: 'user-1',
+                  accountId: activeAccount.id,
+                  date: new Date(Date.now() - 86400000 * 3).toISOString().split('T')[0], // 3 days ago
+                  payee: 'Coffee Shop',
+                  amount: -4.50,
+                  source: 'manual' as const,
+                  notes: 'Morning coffee',
+                  reconciled: false,
+                },
+                {
+                  userId: 'user-1',
+                  accountId: activeAccount.id,
+                  date: new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0], // 2 days ago
+                  payee: 'Grocery Store',
+                  amount: -125.67,
+                  source: 'manual' as const,
+                  notes: 'Weekly shopping',
+                  reconciled: false,
+                },
+                {
+                  userId: 'user-1',
+                  accountId: activeAccount.id,
+                  date: new Date(Date.now() - 86400000 * 1).toISOString().split('T')[0], // 1 day ago
+                  payee: 'Gas Station',
+                  amount: -45.00,
+                  source: 'manual' as const,
+                  notes: 'Fill up tank',
+                  reconciled: false,
+                }
+              ];
+              
+              demoTransactions.forEach(transaction => {
+                addTransaction(transaction);
+              });
+              
+              Alert.alert(
+                'Demo Data Added! ✅',
+                'Sample transactions have been added to your register. Try syncing with your bank to see the conversion feature in action!',
+                [{ text: 'Great!' }]
+              );
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const renderTransaction = ({ item, index }: { item: Transaction; index: number }) => {
     const isStartingBalance = item.payee === 'Starting Point' || item.payee === 'Starting Balance' || item.id.startsWith('starting-balance-');
     
