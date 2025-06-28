@@ -81,7 +81,9 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
 
     // Filter out starting balance entries for reports
     const realTransactions = transactions.filter(t => 
-      !t.id.startsWith('starting-balance-') && t.payee !== 'Starting Balance'
+      !t.id.startsWith('starting-balance-') && 
+      t.payee !== 'Starting Balance' && 
+      t.payee !== 'Starting Point'
     );
 
     realTransactions.forEach((transaction) => {
@@ -122,11 +124,18 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
       .sort((a, b) => b.key.localeCompare(a.key));
   }, [transactions]);
 
-  const totalBalance = activeAccount?.currentBalance || 0;
-
-  // Filter out starting balance for totals
+  // Calculate current balance from starting point + all transactions
+  const startingPointTransaction = transactions.find(t => 
+    t.payee === 'Starting Point' || t.payee === 'Starting Balance' || t.id.startsWith('starting-balance-')
+  );
+  
+  const startingBalance = startingPointTransaction?.amount || 0;
+  
+  // Filter out starting balance for income/expense totals
   const realTransactions = transactions.filter(t => 
-    !t.id.startsWith('starting-balance-') && t.payee !== 'Starting Balance'
+    !t.id.startsWith('starting-balance-') && 
+    t.payee !== 'Starting Balance' && 
+    t.payee !== 'Starting Point'
   );
 
   const totalIncome = realTransactions
@@ -136,6 +145,10 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
   const totalExpenses = realTransactions
     .filter(t => t.amount < 0)
     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+  // Calculate actual current balance: starting balance + net transactions
+  const netTransactions = totalIncome - totalExpenses;
+  const totalBalance = startingBalance + netTransactions;
 
   const renderMonthlyReport = ({ item }: { item: MonthlyReport & { key: string } }) => (
     <View className="bg-white mx-4 mb-3 p-4 rounded-lg shadow-sm border border-gray-100">
