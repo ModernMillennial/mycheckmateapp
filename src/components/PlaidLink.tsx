@@ -46,50 +46,6 @@ const PlaidLink: React.FC<Props> = ({
 
   const handleSuccess = async (success: LinkSuccess) => {
     try {
-      // Mock successful link result when using demo mode
-      if (linkToken === 'link-sandbox-mock-token') {
-        const mockResult: PlaidLinkResult = {
-          publicToken: 'public-sandbox-mock-token',
-          metadata: {
-            institution: {
-              name: 'Demo Bank',
-              institution_id: 'demo_bank_001',
-            },
-            accounts: [
-              {
-                account_id: 'demo_checking_001',
-                name: 'Demo Checking',
-                official_name: 'Demo Bank Checking Account',
-                type: 'depository',
-                subtype: 'checking',
-                balances: {
-                  available: 1250.75,
-                  current: 1250.75,
-                  limit: null,
-                },
-                mask: '1234',
-              },
-              {
-                account_id: 'demo_savings_001',
-                name: 'Demo Savings',
-                official_name: 'Demo Bank Savings Account',
-                type: 'depository',
-                subtype: 'savings',
-                balances: {
-                  available: 8750.25,
-                  current: 8750.25,
-                  limit: null,
-                },
-                mask: '5678',
-              },
-            ],
-          },
-        };
-        onSuccess(mockResult);
-        return;
-      }
-
-      // Real Plaid flow
       const result: PlaidLinkResult = {
         publicToken: success.publicToken,
         metadata: {
@@ -160,48 +116,6 @@ const PlaidLink: React.FC<Props> = ({
           paddingHorizontal: 24,
           borderRadius: 8,
           opacity: loading ? 0.7 : 1,
-        }}
-      >
-        {renderContent()}
-      </Pressable>
-    );
-  }
-
-  // For demo mode (when using mock token), show a simple button
-  if (linkToken === 'link-sandbox-mock-token') {
-    return (
-      <Pressable
-        onPress={() => {
-          // Simulate Plaid Link flow
-          setTimeout(() => {
-            handleSuccess({
-              publicToken: 'public-sandbox-mock-token',
-              metadata: {
-                institution: {
-                  name: 'Demo Bank',
-                  institution_id: 'demo_bank_001',
-                },
-                accounts: [
-                  {
-                    id: 'demo_checking_001',
-                    name: 'Demo Checking',
-                    official_name: 'Demo Bank Checking Account',
-                    type: 'depository',
-                    subtype: 'checking',
-                    mask: '1234',
-                  },
-                ],
-              },
-            } as LinkSuccess);
-          }, 1000);
-        }}
-        style={{
-          backgroundColor: buttonStyle === 'primary' ? '#3B82F6' : 'white',
-          borderWidth: buttonStyle === 'secondary' ? 2 : 0,
-          borderColor: buttonStyle === 'secondary' ? '#3B82F6' : 'transparent',
-          paddingVertical: 12,
-          paddingHorizontal: 24,
-          borderRadius: 8,
         }}
       >
         {renderContent()}

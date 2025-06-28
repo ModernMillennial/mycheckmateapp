@@ -24,6 +24,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     getActiveAccount,
     getActiveTransactions,
     addTransaction,
+    addAccount,
     syncBankTransactions,
     clearAndReinitialize,
     updateSettings,
@@ -39,28 +40,16 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     const isBankLinked = settings.bankLinked;
     
     if (!hasTransactions && !isBankLinked) {
-      // First-time user - don't auto-setup, let them go through onboarding
-      console.log('First-time user detected');
+      // First-time user - show onboarding
       setShowTransactions(false);
     } else {
       // Returning user or has data
-      console.log('Returning user or has data');
       setShowTransactions(true);
-      if (hasTransactions === false) {
-        // Has bank linked but no transactions, initialize seed data
-        initializeWithSeedData();
-      }
     }
   }, [transactions?.length, settings.bankLinked]);
 
   const activeAccount = getActiveAccount();
   const transactions = getActiveTransactions() || [];
-  
-  // Debug logging
-  console.log('Register - Active Account:', activeAccount?.name);
-  console.log('Register - Transactions Count:', transactions.length);
-  console.log('Register - Show Transactions:', showTransactions);
-  console.log('Register - Bank Linked:', settings.bankLinked);
 
   // Auto-setup for working app (no first-time setup needed)
   useEffect(() => {
@@ -105,7 +94,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
           );
         }
       } else {
-        // For demo/manual accounts, just recalculate balances
+        // For manual accounts, just recalculate balances
         calculateRunningBalance();
         
         // Add a slight delay to show the refresh animation
@@ -129,68 +118,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
-  const handleDemoReset = () => {
-    Alert.alert(
-      'Reset Demo',
-      'This will reset the app and show the complete Initial Bank Sync demo from the beginning.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Start Demo',
-          style: 'destructive',
-          onPress: () => {
-            setShowTransactions(false);
-            updateSettings({ bankLinked: false });
-            clearAndReinitialize();
-          },
-        },
-      ]
-    );
-  };
 
-  const handleManualTransactionDemo = () => {
-    if (!activeAccount) return;
-    
-    // Add a demo manual transaction
-    addTransaction({
-      userId: 'user-1',
-      accountId: activeAccount.id,
-      date: new Date().toISOString().split('T')[0],
-      payee: 'Demo Coffee Shop',
-      amount: -4.50,
-      source: 'manual',
-      notes: 'Demo transaction to show conversion',
-      reconciled: false,
-    });
-    
-    Alert.alert(
-      'Manual Transaction Added!',
-      'Added manual transaction with "NOT POSTED" status. In 3 seconds, it will convert to show "POSTED" when "bank sync" finds the matching transaction.',
-      [{ text: 'OK' }]
-    );
-    
-    // After a short delay, sync with matching bank transaction
-    setTimeout(() => {
-      syncBankTransactions([{
-        userId: 'user-1',
-        accountId: activeAccount.id,
-        date: new Date().toISOString().split('T')[0],
-        payee: 'COFFEE SHOP DOWNTOWN #123',
-        amount: -4.50,
-        source: 'bank' as const,
-        notes: 'Card payment',
-        reconciled: false,
-      }]);
-      
-      setTimeout(() => {
-        Alert.alert(
-          'Conversion Complete! 🎉',
-          'The manual "Demo Coffee Shop" entry has been converted to a bank transaction. Notice the change:\n\n• Before: "NOT POSTED" (manual entry)\n• After: "POSTED" (converted transaction)\n\nThis transaction was originally manual but is now bank-confirmed.',
-          [{ text: 'Perfect!' }]
-        );
-      }, 500);
-    }, 3000);
-  };
 
   const handleBugReport = () => {
     // Collect diagnostic information
@@ -546,27 +474,7 @@ ACTUAL BEHAVIOR:
                 <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Help Guide</Text>
               </Pressable>
               
-              <Pressable
-                onPress={() => {
-                  setShowMenu(false);
-                  if (activeAccount) {
-                    setTimeout(() => handleManualTransactionDemo(), 100);
-                  }
-                }}
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
-                disabled={!activeAccount}
-              >
-                <Ionicons 
-                  name="flask-outline" 
-                  size={22} 
-                  color={activeAccount ? "#3B82F6" : "#9CA3AF"} 
-                />
-                <Text style={{ 
-                  marginLeft: 12, 
-                  fontSize: 16,
-                  color: activeAccount ? '#111827' : '#9CA3AF'
-                }}>Demo Conversion</Text>
-              </Pressable>
+
               
               <Pressable
                 onPress={() => {
@@ -579,16 +487,7 @@ ACTUAL BEHAVIOR:
                 <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Report Bug</Text>
               </Pressable>
               
-              <Pressable
-                onPress={() => {
-                  setShowMenu(false);
-                  setTimeout(() => handleDemoReset(), 100);
-                }}
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
-              >
-                <Ionicons name="refresh-outline" size={22} color="#EF4444" />
-                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Reset Demo</Text>
-              </Pressable>
+
               
               <Pressable
                 onPress={() => {
@@ -761,7 +660,21 @@ ACTUAL BEHAVIOR:
               {/* Manual Entry Option */}
               <Pressable
                 onPress={() => {
-                  updateSettings({ bankLinked: true });
+                  // Create a basic manual account first
+                  const newAccount = {
+                    name: 'My Account',
+                    type: 'checking' as const,
+                    bankName: 'Manual Entry',
+                    accountNumber: '****',
+                    isActive: true,
+                    startingBalance: 0,
+                    startingBalanceDate: new Date().toISOString().split('T')[0],
+                    currentBalance: 0,
+                    color: '#3B82F6',
+                  };
+                  addAccount(newAccount);
+                  
+                  updateSettings({ bankLinked: true, activeAccountId: newAccount.name });
                   setShowTransactions(true);
                   navigation?.navigate('AddTransaction');
                 }}
@@ -781,33 +694,7 @@ ACTUAL BEHAVIOR:
                 </View>
               </Pressable>
 
-              {/* Demo Option */}
-              <Pressable
-                onPress={() => {
-                  updateSettings({ bankLinked: true });
-                  initializeWithSeedData();
-                  setShowTransactions(true);
-                  Alert.alert(
-                    'Demo Mode Activated! 🎉',
-                    'Demo transactions loaded. You can explore all features and connect a real bank account later.',
-                    [{ text: 'Start Exploring!' }]
-                  );
-                }}
-                className="bg-gray-50 border border-gray-200 p-6 rounded-xl"
-              >
-                <View className="flex-row items-center">
-                  <Ionicons name="play-circle" size={32} color="#8B5CF6" />
-                  <View className="ml-4 flex-1">
-                    <Text className="text-xl font-bold text-gray-900">
-                      Try Demo Mode
-                    </Text>
-                    <Text className="text-gray-600 mt-1">
-                      Explore with sample transactions
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={24} color="#6B7280" />
-                </View>
-              </Pressable>
+
             </View>
 
             {/* Features Preview */}

@@ -33,12 +33,19 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   render() {
     if (this.state.hasError) {
       return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'red' }}>Error Caught</Text>
-          <Text style={{ marginTop: 10, textAlign: 'center', paddingHorizontal: 20 }}>
-            Something went wrong in the app. Check console for details.
-          </Text>
-        </View>
+        <SafeAreaProvider>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', padding: 20 }}>
+            <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#EF4444', marginBottom: 16 }}>
+              Oops! Something went wrong
+            </Text>
+            <Text style={{ fontSize: 16, textAlign: 'center', color: '#6B7280', marginBottom: 24, lineHeight: 24 }}>
+              We apologize for the inconvenience. The app encountered an unexpected error and needs to restart.
+            </Text>
+            <Text style={{ fontSize: 14, textAlign: 'center', color: '#9CA3AF', marginBottom: 8 }}>
+              If this problem persists, please contact support.
+            </Text>
+          </View>
+        </SafeAreaProvider>
       );
     }
 

@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Transaction, UserSettings, FilterType, Account } from '../types';
-import { generateSeedTransactions } from '../utils/seedData';
 import { plaidService } from '../services/plaidService';
 import {
   NotificationSettings,
@@ -59,46 +58,19 @@ interface TransactionState {
   resetToFirstTimeUser: () => void;
 }
 
-const defaultAccounts: Account[] = [
-  {
-    id: 'checking-1',
-    name: 'Primary Checking',
-    type: 'checking',
-    bankName: 'First National Bank',
-    accountNumber: '1234',
-    isActive: true,
-    startingBalance: 0.00,
-    startingBalanceDate: new Date(Date.now() - 86400000 * 30).toISOString().split('T')[0], // 30 days ago
-    currentBalance: 0.00,
-    color: '#3B82F6',
-  },
-  {
-    id: 'savings-1',
-    name: 'Emergency Savings',
-    type: 'savings',
-    bankName: 'First National Bank',
-    accountNumber: '5678',
-    isActive: true,
-    startingBalance: 0.00,
-    startingBalanceDate: new Date(Date.now() - 86400000 * 60).toISOString().split('T')[0], // 60 days ago
-    currentBalance: 0.00,
-    color: '#10B981',
-  },
-];
-
 const initialSettings: UserSettings = {
   startDate: new Date().toISOString().split('T')[0],
   monthlyResetEnabled: false,
   lastBalance: 0,
   bankLinked: false,
-  activeAccountId: 'checking-1',
+  activeAccountId: '',
 };
 
 export const useTransactionStore = create<TransactionState>()(
   persist(
     (set, get) => ({
       transactions: [],
-      accounts: defaultAccounts,
+      accounts: [],
       settings: initialSettings,
       notificationSettings: defaultNotificationSettings,
       searchQuery: '',
@@ -360,58 +332,10 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       initializeWithSeedData: () => {
-        const { isInitialized, transactions } = get();
-        
-        // Ensure transactions is always an array
-        const currentTransactions = transactions || [];
-        
-        // Force reinitialize if no transactions exist or not initialized
-        if (!isInitialized || currentTransactions.length === 0) {
-          console.log('Initializing seed data...');
-          const seedTransactions = generateSeedTransactions();
-          
-          // Add starting balance transactions for demo accounts
-          const { accounts } = get();
-          const startingBalanceTransactions = accounts.map(account => ({
-            userId: 'user-1',
-            accountId: account.id,
-            date: account.startingBalanceDate,
-            payee: 'Starting Balance',
-            amount: 1250.50, // Demo starting balance
-            source: 'bank' as const,
-            notes: '', // No additional notes for clean display
-            reconciled: true,
-          }));
-          
-          const allSeedTransactions = [...startingBalanceTransactions, ...seedTransactions];
-          
-          const transactionsWithIds = allSeedTransactions.map((t, index) => {
-            // Create special ID for starting balance transactions
-            const isStartingBalance = t.payee === 'Starting Balance';
-            const id = isStartingBalance 
-              ? `starting-balance-${t.accountId}-${Date.now()}`
-              : Date.now().toString() + index + Math.random().toString(36).substr(2, 9);
-            
-            return {
-              ...t,
-              id,
-              accountId: t.accountId || 'checking-1', // Default to checking account
-              runningBalance: 0,
-            };
-          });
-
-          console.log('Created transactions:', transactionsWithIds.length);
-
-          set({
-            transactions: transactionsWithIds,
-            isInitialized: true,
-          });
-          
-          // Calculate running balance for all accounts
-          get().calculateAllAccountBalances();
-        } else {
-          console.log('Already initialized with', transactions.length, 'transactions');
-        }
+        // Production app starts with empty state - no seed data
+        set({
+          isInitialized: true,
+        });
       },
 
       // Account management functions
@@ -474,11 +398,8 @@ export const useTransactionStore = create<TransactionState>()(
         
         // Ensure transactions is always an array
         const allTransactions = transactions || [];
-        console.log('All transactions:', allTransactions.length);
-        console.log('Active account ID:', settings.activeAccountId);
         
         const filtered = allTransactions.filter(t => t.accountId === settings.activeAccountId);
-        console.log('Filtered transactions:', filtered.length);
         return filtered;
       },
 
@@ -529,22 +450,18 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       clearAndReinitialize: () => {
-        console.log('Clearing and reinitializing...');
         set({
           transactions: [],
-          accounts: defaultAccounts,
+          accounts: [],
           settings: { ...initialSettings, bankLinked: false },
           isInitialized: false,
         });
-        
-        // Don't auto-initialize seed data - let first-time setup handle it
       },
 
       resetToFirstTimeUser: () => {
-        console.log('Resetting to first-time user state...');
         set({
           transactions: [],
-          accounts: defaultAccounts,
+          accounts: [],
           settings: { ...initialSettings, bankLinked: false },
           isInitialized: false,
         });

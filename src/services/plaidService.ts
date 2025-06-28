@@ -37,19 +37,19 @@ export interface PlaidLinkResult {
 }
 
 class PlaidService {
-  private baseUrl = 'https://production.plaid.com'; // Change to sandbox for testing
+  private baseUrl = 'https://production.plaid.com';
   private clientId = process.env.EXPO_PUBLIC_PLAID_CLIENT_ID;
   private secret = process.env.EXPO_PUBLIC_PLAID_SECRET;
 
   constructor() {
     if (!this.clientId || !this.secret) {
-      console.log('Plaid credentials not configured. Using demo mode with mock data.');
+      throw new Error('Plaid credentials not configured. Please set EXPO_PUBLIC_PLAID_CLIENT_ID and EXPO_PUBLIC_PLAID_SECRET environment variables.');
     }
   }
 
   async createLinkToken(userId: string): Promise<string> {
     if (!this.clientId || !this.secret) {
-      return this.mockLinkToken();
+      throw new Error('Plaid credentials not configured');
     }
 
     try {
@@ -71,17 +71,26 @@ class PlaidService {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      
+      if (data.error_code) {
+        throw new Error(`Plaid API error: ${data.error_code} - ${data.error_message}`);
+      }
+
       return data.link_token;
     } catch (error) {
       console.error('Error creating link token:', error);
-      return this.mockLinkToken();
+      throw error;
     }
   }
 
-  async exchangePublicToken(publicToken: string): Promise<string | null> {
+  async exchangePublicToken(publicToken: string): Promise<string> {
     if (!this.clientId || !this.secret) {
-      return this.mockAccessToken();
+      throw new Error('Plaid credentials not configured');
     }
 
     try {
@@ -97,17 +106,26 @@ class PlaidService {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      
+      if (data.error_code) {
+        throw new Error(`Plaid API error: ${data.error_code} - ${data.error_message}`);
+      }
+
       return data.access_token;
     } catch (error) {
       console.error('Error exchanging public token:', error);
-      return this.mockAccessToken();
+      throw error;
     }
   }
 
   async getAccounts(accessToken: string): Promise<PlaidAccount[]> {
     if (!this.clientId || !this.secret) {
-      return this.mockAccounts();
+      throw new Error('Plaid credentials not configured');
     }
 
     try {
@@ -123,11 +141,20 @@ class PlaidService {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      
+      if (data.error_code) {
+        throw new Error(`Plaid API error: ${data.error_code} - ${data.error_message}`);
+      }
+
       return data.accounts;
     } catch (error) {
       console.error('Error fetching accounts:', error);
-      return this.mockAccounts();
+      throw error;
     }
   }
 
@@ -138,7 +165,7 @@ class PlaidService {
     endDate: string
   ): Promise<PlaidTransaction[]> {
     if (!this.clientId || !this.secret) {
-      return this.mockTransactions(accountIds[0]);
+      throw new Error('Plaid credentials not configured');
     }
 
     try {
@@ -157,11 +184,20 @@ class PlaidService {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      
+      if (data.error_code) {
+        throw new Error(`Plaid API error: ${data.error_code} - ${data.error_message}`);
+      }
+
       return data.transactions;
     } catch (error) {
       console.error('Error fetching transactions:', error);
-      return this.mockTransactions(accountIds[0]);
+      throw error;
     }
   }
 
@@ -178,90 +214,7 @@ class PlaidService {
     };
   }
 
-  // Mock methods for when Plaid credentials are not available
-  private mockLinkToken(): string {
-    return 'link-sandbox-mock-token';
-  }
 
-  private mockAccessToken(): string {
-    return 'access-sandbox-mock-token';
-  }
-
-  private mockAccounts(): PlaidAccount[] {
-    return [
-      {
-        account_id: 'plaid_checking_001',
-        name: 'Plaid Checking',
-        official_name: 'Plaid Gold Standard 0% Interest Checking',
-        type: 'depository',
-        subtype: 'checking',
-        balances: {
-          available: 1200.50,
-          current: 1200.50,
-          limit: null,
-        },
-        mask: '0000',
-      },
-      {
-        account_id: 'plaid_savings_001',
-        name: 'Plaid Savings',
-        official_name: 'Plaid Silver Standard 0.1% Interest Savings',
-        type: 'depository',
-        subtype: 'savings',
-        balances: {
-          available: 5432.10,
-          current: 5432.10,
-          limit: null,
-        },
-        mask: '1111',
-      },
-    ];
-  }
-
-  private mockTransactions(accountId: string): PlaidTransaction[] {
-    const baseDate = new Date();
-    return [
-      {
-        transaction_id: 'plaid_tx_001',
-        account_id: accountId,
-        amount: 4.33,
-        date: new Date(baseDate.getTime() - 86400000 * 1).toISOString().split('T')[0],
-        name: 'Starbucks',
-        merchant_name: 'Starbucks',
-        category: ['Food and Drink', 'Restaurants', 'Coffee Shop'],
-        account_owner: null,
-      },
-      {
-        transaction_id: 'plaid_tx_002',
-        account_id: accountId,
-        amount: 89.40,
-        date: new Date(baseDate.getTime() - 86400000 * 2).toISOString().split('T')[0],
-        name: 'Shell Oil',
-        merchant_name: 'Shell',
-        category: ['Transportation', 'Gas Stations'],
-        account_owner: null,
-      },
-      {
-        transaction_id: 'plaid_tx_003',
-        account_id: accountId,
-        amount: -2500.00, // Negative for deposits in Plaid
-        date: new Date(baseDate.getTime() - 86400000 * 3).toISOString().split('T')[0],
-        name: 'PAYROLL DEPOSIT',
-        category: ['Deposit', 'Payroll'],
-        account_owner: null,
-      },
-      {
-        transaction_id: 'plaid_tx_004',
-        account_id: accountId,
-        amount: 156.78,
-        date: new Date(baseDate.getTime() - 86400000 * 4).toISOString().split('T')[0],
-        name: 'Grocery Store Purchase',
-        merchant_name: 'Whole Foods Market',
-        category: ['Shops', 'Food and Beverage Store', 'Supermarkets and Groceries'],
-        account_owner: null,
-      },
-    ];
-  }
 }
 
 export const plaidService = new PlaidService();
