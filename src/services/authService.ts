@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as LocalAuthentication from 'expo-local-authentication';
 import * as Crypto from 'expo-crypto';
 
 export interface AuthState {
@@ -43,13 +42,8 @@ class AuthService {
         this.authState = { ...this.authState, ...parsedAuth, isAuthenticated: false };
       }
       
-      // Check biometric availability
-      const biometricAvailable = await LocalAuthentication.hasHardwareAsync();
-      const biometricEnrolled = await LocalAuthentication.isEnrolledAsync();
-      
-      if (biometricAvailable && biometricEnrolled && this.authState.biometricEnabled) {
-        // Biometric is available and user has it enabled
-      }
+      // Biometric authentication is not available in this build
+      // For production apps, you would install expo-local-authentication package
       
       return this.authState;
     } catch (error) {
@@ -72,13 +66,9 @@ class AuthService {
         email + Date.now().toString()
       );
 
-      // Check biometric availability
+      // Biometric authentication is not available in this build
       let biometricEnabled = false;
-      if (enableBiometric) {
-        const biometricAvailable = await LocalAuthentication.hasHardwareAsync();
-        const biometricEnrolled = await LocalAuthentication.isEnrolledAsync();
-        biometricEnabled = biometricAvailable && biometricEnrolled;
-      }
+      // For production apps, you would install expo-local-authentication package
 
       this.authState = {
         isAuthenticated: true,
@@ -126,32 +116,14 @@ class AuthService {
         };
       }
 
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Authenticate to access CheckMate',
-        subtitle: 'Use your biometric to securely access your financial data',
-        cancelLabel: 'Use Passcode',
-        fallbackLabel: 'Use Passcode',
-        disableDeviceFallback: false,
-      });
-
-      if (result.success) {
-        this.authState.isAuthenticated = true;
-        this.authState.user = {
-          ...this.authState.user!,
-          lastLogin: new Date().toISOString(),
-        };
-        
-        await this.updateStoredAuthState();
-        return { success: true };
-      } else {
-        return {
-          success: false,
-          error: {
-            code: 'BIOMETRIC_FAILED',
-            message: result.error || 'Biometric authentication failed',
-          },
-        };
-      }
+      // Biometric authentication is not available in this build
+      return {
+        success: false,
+        error: {
+          code: 'BIOMETRIC_NOT_AVAILABLE',
+          message: 'Biometric authentication is not available in this version.',
+        },
+      };
     } catch (error) {
       console.error('Biometric authentication error:', error);
       return {
@@ -264,14 +236,14 @@ class AuthService {
 
   // Check if biometric is available
   async isBiometricAvailable(): Promise<boolean> {
-    const hasHardware = await LocalAuthentication.hasHardwareAsync();
-    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-    return hasHardware && isEnrolled;
+    // Biometric authentication is not available in this build
+    return false;
   }
 
   // Get supported biometric types
-  async getSupportedBiometricTypes(): Promise<LocalAuthentication.AuthenticationType[]> {
-    return await LocalAuthentication.supportedAuthenticationTypesAsync();
+  async getSupportedBiometricTypes(): Promise<string[]> {
+    // Biometric authentication is not available in this build
+    return [];
   }
 
   // Toggle biometric authentication
