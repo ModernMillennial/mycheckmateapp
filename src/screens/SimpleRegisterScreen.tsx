@@ -835,7 +835,18 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                 
                 {transactions
                   .slice()
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .sort((a, b) => {
+                    // Starting balance transactions should always be at the bottom
+                    const aIsStarting = a.payee === 'Starting Balance' || a.id.startsWith('starting-balance-');
+                    const bIsStarting = b.payee === 'Starting Balance' || b.id.startsWith('starting-balance-');
+                    
+                    if (aIsStarting && !bIsStarting) return 1; // a goes to bottom
+                    if (bIsStarting && !aIsStarting) return -1; // b goes to bottom
+                    if (aIsStarting && bIsStarting) return new Date(a.date).getTime() - new Date(b.date).getTime(); // oldest starting balance first
+                    
+                    // For all other transactions, sort by date (newest first)
+                    return new Date(b.date).getTime() - new Date(a.date).getTime();
+                  })
                   .map((item, index) => (
                     <View key={item.id}>
                       {renderTransaction({ item, index })}

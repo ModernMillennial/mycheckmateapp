@@ -369,7 +369,23 @@ export const useTransactionStore = create<TransactionState>()(
         if (!isInitialized || currentTransactions.length === 0) {
           console.log('Initializing seed data...');
           const seedTransactions = generateSeedTransactions();
-          const transactionsWithIds = seedTransactions.map((t, index) => {
+          
+          // Add starting balance transactions for demo accounts
+          const { accounts } = get();
+          const startingBalanceTransactions = accounts.map(account => ({
+            userId: 'user-1',
+            accountId: account.id,
+            date: account.startingBalanceDate,
+            payee: 'Starting Balance',
+            amount: 1250.50, // Demo starting balance
+            source: 'bank' as const,
+            notes: `Account starting balance for ${account.name}`,
+            reconciled: true,
+          }));
+          
+          const allSeedTransactions = [...startingBalanceTransactions, ...seedTransactions];
+          
+          const transactionsWithIds = allSeedTransactions.map((t, index) => {
             // Create special ID for starting balance transactions
             const isStartingBalance = t.payee === 'Starting Balance';
             const id = isStartingBalance 
@@ -535,7 +551,7 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       connectPlaidAccount: (accessToken, accountData) => {
-        const { accounts } = get();
+        const { accounts, transactions } = get();
         
         // Convert Plaid account to our Account type
         const newAccount = {
@@ -545,15 +561,30 @@ export const useTransactionStore = create<TransactionState>()(
           bankName: 'Connected via Plaid',
           accountNumber: accountData.mask || '****',
           isActive: true,
-          startingBalance: accountData.balances?.current || 0,
+          startingBalance: 0, // Starting balance is now a transaction
           startingBalanceDate: new Date().toISOString().split('T')[0],
           currentBalance: accountData.balances?.current || 0,
           color: accountData.subtype === 'savings' ? '#10B981' : '#3B82F6',
           plaidAccessToken: accessToken, // Store access token for future syncs
         };
 
+        // Create starting balance transaction
+        const startingBalanceTransaction = {
+          id: `starting-balance-${newAccount.id}-${Date.now()}`,
+          userId: 'user-1',
+          accountId: newAccount.id,
+          date: new Date().toISOString().split('T')[0], // Today's date
+          payee: 'Starting Balance',
+          amount: accountData.balances?.current || 0,
+          source: 'bank' as const,
+          notes: `Account starting balance from ${newAccount.bankName}`,
+          reconciled: true,
+          runningBalance: accountData.balances?.current || 0,
+        };
+
         set((state) => ({
           accounts: [...state.accounts, newAccount],
+          transactions: [...state.transactions, startingBalanceTransaction],
           settings: { ...state.settings, bankLinked: true, activeAccountId: newAccount.id },
         }));
       },
