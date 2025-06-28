@@ -68,10 +68,12 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
       setImportProgress(step.progress);
     }
     
-    // Create demo transaction history (90 days)
+    // Create demo transaction history (90 days)  
     const demoTransactions = [];
-    let balance = 2847.23;
-    setCurrentBalance(balance);
+    let currentBalance = 2847.23; // This is today's balance
+    setCurrentBalance(currentBalance);
+    
+    console.log('Starting balance generation with current balance:', currentBalance);
     
     // Add realistic transaction history
     const transactionTemplates = [
@@ -102,7 +104,9 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
       const randomAmount = template.amount + (Math.random() - 0.5) * Math.abs(template.amount) * 0.1;
       const amount = Math.round(randomAmount * 100) / 100;
       
-      balance -= amount; // Calculate running balance backwards
+      // Since we're going backwards in time, this transaction's balance is the current running balance
+      const transactionBalance = Math.round(currentBalance * 100) / 100;
+      currentBalance -= amount; // Subtract this transaction to get the previous balance
       
       demoTransactions.push({
         id: `fetched_${i}`,
@@ -110,12 +114,18 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
         payee: template.payee,
         amount: amount,
         type: template.type,
-        balance: Math.round(balance * 100) / 100,
+        balance: transactionBalance, // Balance at the time of this transaction
         category: template.payee.includes('Payroll') ? 'Income' : 
                  template.payee.includes('Rent') ? 'Housing' :
                  template.payee.includes('Grocery') ? 'Food' : 'Other'
       });
     }
+    
+    console.log('Generated transactions with balances:', demoTransactions.slice(0, 5).map(t => ({
+      payee: t.payee,
+      amount: t.amount,
+      balance: t.balance
+    })));
     
     // Sort by date (newest first)
     demoTransactions.sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -430,6 +440,14 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
           return null;
         }
         
+        // Debug: Log transaction data
+        console.log('Rendering transaction:', {
+          payee: transaction.payee,
+          amount: transaction.amount,
+          balance: transaction.balance,
+          hasBalance: transaction.balance !== undefined
+        });
+        
         return (
         <Pressable
           key={transaction.id}
@@ -484,7 +502,11 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
               <Text className={`text-base font-bold ${
                 (transaction.balance || 0) >= 0 ? 'text-gray-900' : 'text-red-600'
               }`}>
-                ${Math.abs(transaction.balance || 0).toFixed(2)}
+                ${transaction.balance !== undefined ? Math.abs(transaction.balance).toFixed(2) : '0.00'}
+              </Text>
+              {/* Debug: Show raw balance value */}
+              <Text className="text-xs text-gray-400">
+                {transaction.balance !== undefined ? `(${transaction.balance})` : '(undefined)'}
               </Text>
             </View>
           </View>
