@@ -33,9 +33,13 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     if (!settings.bankLinked) {
       updateSettings({ bankLinked: true });
     }
-    initializeWithSeedData();
-    setShowTransactions(true);
-  }, [initializeWithSeedData, settings.bankLinked]);
+    // Force reinitialize to ensure starting balance shows
+    clearAndReinitialize();
+    setTimeout(() => {
+      initializeWithSeedData();
+      setShowTransactions(true);
+    }, 100);
+  }, []);
 
   const activeAccount = getActiveAccount();
   const transactions = getActiveTransactions();
@@ -201,7 +205,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
   };
 
   const renderTransaction = ({ item, index }: { item: Transaction; index: number }) => {
-    const isStartingBalance = item.id.startsWith('starting-balance-');
+    const isStartingBalance = item.payee === 'Starting Balance' || item.id.startsWith('starting-balance-');
     
     // Calculate running balance safely
     let runningBalance = activeAccount?.currentBalance || 0;
@@ -237,7 +241,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           <View className="flex-row items-center flex-1">
             {isStartingBalance && (
               <Ionicons 
-                name="flag-outline" 
+                name="flag" 
                 size={16} 
                 color="#3B82F6" 
                 style={{ marginRight: 8 }}

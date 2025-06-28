@@ -93,7 +93,7 @@ const BankConnectionScreen: React.FC<Props> = ({ navigation }) => {
         {/* Hero Section */}
         <View className="items-center mb-8">
           <View className="bg-blue-100 p-6 rounded-full mb-4">
-            <Ionicons name="bank" size={48} color="#3B82F6" />
+            <Ionicons name="business" size={48} color="#3B82F6" />
           </View>
           <Text className="text-2xl font-bold text-gray-900 text-center mb-2">
             Connect Your Bank
