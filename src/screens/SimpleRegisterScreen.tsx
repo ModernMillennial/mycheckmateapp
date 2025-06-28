@@ -36,16 +36,28 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     if (!settings.bankLinked) {
       updateSettings({ bankLinked: true });
     }
-    // Force reinitialize to ensure starting balance shows
-    clearAndReinitialize();
+    
+    // Force initialize seed data
+    console.log('Force initializing seed data...');
+    initializeWithSeedData();
+    setShowTransactions(true);
+    
+    // Add a small delay to ensure data is loaded
     setTimeout(() => {
-      initializeWithSeedData();
-      setShowTransactions(true);
-    }, 100);
+      console.log('Checking transactions after initialization...');
+      const currentTransactions = getActiveTransactions();
+      console.log('Transactions after init:', currentTransactions.length);
+    }, 500);
   }, []);
 
   const activeAccount = getActiveAccount();
   const transactions = getActiveTransactions();
+  
+  // Debug logging
+  console.log('Register - Active Account:', activeAccount?.name);
+  console.log('Register - Transactions Count:', transactions.length);
+  console.log('Register - Show Transactions:', showTransactions);
+  console.log('Register - Bank Linked:', settings.bankLinked);
 
   // Auto-setup for working app (no first-time setup needed)
   useEffect(() => {
@@ -665,7 +677,7 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
         )}
 
         {/* Transactions */}
-        {showTransactions && transactions.length > 0 && (
+        {showTransactions && (
           <View className="mb-6">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-xl font-bold text-gray-900">
@@ -673,32 +685,69 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
               </Text>
             </View>
             
-            {/* Column Headers */}
-            <View className="mx-4 mb-2 px-4 py-2 bg-gray-50 rounded-lg">
-              <View className="flex-row items-center">
-                <View className="w-20 pr-2">
-                  <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
+            {transactions.length > 0 ? (
+              <>
+                {/* Column Headers */}
+                <View className="mx-4 mb-2 px-4 py-2 bg-gray-50 rounded-lg">
+                  <View className="flex-row items-center">
+                    <View className="w-20 pr-2">
+                      <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
+                    </View>
+                    <View className="w-24 items-center px-1">
+                      <Text className="text-xs font-bold text-gray-700 uppercase">Debit</Text>
+                    </View>
+                    <View className="w-24 items-center px-1">
+                      <Text className="text-xs font-bold text-gray-700 uppercase">Credit</Text>
+                    </View>
+                    <View className="w-24 items-center pl-1">
+                      <Text className="text-xs font-bold text-gray-700 uppercase">Balance</Text>
+                    </View>
+                  </View>
                 </View>
-                <View className="w-24 items-center px-1">
-                  <Text className="text-xs font-bold text-gray-700 uppercase">Debit</Text>
-                </View>
-                <View className="w-24 items-center px-1">
-                  <Text className="text-xs font-bold text-gray-700 uppercase">Credit</Text>
-                </View>
-                <View className="w-24 items-center pl-1">
-                  <Text className="text-xs font-bold text-gray-700 uppercase">Balance</Text>
+                
+                {transactions
+                  .slice()
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .map((item, index) => (
+                    <View key={item.id}>
+                      {renderTransaction({ item, index })}
+                    </View>
+                  ))}
+              </>
+            ) : (
+              <View className="mx-4 p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <View className="items-center">
+                  <Ionicons name="receipt-outline" size={48} color="#9CA3AF" />
+                  <Text className="text-lg font-semibold text-gray-600 mt-3">
+                    No Transactions Yet
+                  </Text>
+                  <Text className="text-gray-500 text-center mt-1">
+                    Add your first transaction or connect your bank account to get started
+                  </Text>
+                  <View className="flex-row space-x-3 mt-4">
+                    <Pressable
+                      onPress={() => navigation?.navigate('AddTransaction')}
+                      className="bg-blue-500 px-4 py-2 rounded-lg"
+                    >
+                      <Text className="text-white font-medium">Add Transaction</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => {
+                        console.log('Force initializing seed data...');
+                        initializeWithSeedData();
+                        setTimeout(() => {
+                          const newTransactions = getActiveTransactions();
+                          console.log('Transactions after force init:', newTransactions.length);
+                        }, 100);
+                      }}
+                      className="bg-green-500 px-4 py-2 rounded-lg"
+                    >
+                      <Text className="text-white font-medium">Load Demo Data</Text>
+                    </Pressable>
+                  </View>
                 </View>
               </View>
-            </View>
-            
-            {transactions
-              .slice()
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-              .map((item, index) => (
-                <View key={item.id}>
-                  {renderTransaction({ item, index })}
-                </View>
-              ))}
+            )}
           </View>
         )}
 
