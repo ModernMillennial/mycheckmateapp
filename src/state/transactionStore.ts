@@ -56,6 +56,7 @@ interface TransactionState {
   };
   calculatePayeeSimilarity: (payee1: string, payee2: string) => number;
   clearAndReinitialize: () => void;
+  resetToFirstTimeUser: () => void;
 }
 
 const defaultAccounts: Account[] = [
@@ -511,6 +512,16 @@ export const useTransactionStore = create<TransactionState>()(
         });
         
         // Don't auto-initialize seed data - let first-time setup handle it
+      },
+
+      resetToFirstTimeUser: () => {
+        console.log('Resetting to first-time user state...');
+        set({
+          transactions: [],
+          accounts: defaultAccounts,
+          settings: { ...initialSettings, bankLinked: false },
+          isInitialized: false,
+        });
       },
 
       connectPlaidAccount: (accessToken, accountData) => {

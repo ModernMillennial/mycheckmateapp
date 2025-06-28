@@ -29,26 +29,28 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     toggleReconciled: togglePosted,
     syncPlaidTransactions,
     calculateRunningBalance,
+    resetToFirstTimeUser,
   } = useTransactionStore();
 
   useEffect(() => {
-    // Auto-setup for working app (bypassing demo mode)
-    if (!settings.bankLinked) {
-      updateSettings({ bankLinked: true });
+    // Check if this is a first-time user
+    const hasTransactions = transactions.length > 0;
+    const isBankLinked = settings.bankLinked;
+    
+    if (!hasTransactions && !isBankLinked) {
+      // First-time user - don't auto-setup, let them go through onboarding
+      console.log('First-time user detected');
+      setShowTransactions(false);
+    } else {
+      // Returning user or has data
+      console.log('Returning user or has data');
+      setShowTransactions(true);
+      if (hasTransactions === false) {
+        // Has bank linked but no transactions, initialize seed data
+        initializeWithSeedData();
+      }
     }
-    
-    // Force initialize seed data
-    console.log('Force initializing seed data...');
-    initializeWithSeedData();
-    setShowTransactions(true);
-    
-    // Add a small delay to ensure data is loaded
-    setTimeout(() => {
-      console.log('Checking transactions after initialization...');
-      const currentTransactions = getActiveTransactions();
-      console.log('Transactions after init:', currentTransactions.length);
-    }, 500);
-  }, []);
+  }, [transactions.length, settings.bankLinked]);
 
   const activeAccount = getActiveAccount();
   const transactions = getActiveTransactions();
@@ -575,6 +577,33 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
+                  setTimeout(() => {
+                    Alert.alert(
+                      'Reset to First-Time User',
+                      'This will clear all data and show the onboarding experience.',
+                      [
+                        { text: 'Cancel', style: 'cancel' },
+                        {
+                          text: 'Reset',
+                          style: 'destructive',
+                          onPress: () => {
+                            resetToFirstTimeUser();
+                            setShowTransactions(false);
+                          },
+                        },
+                      ]
+                    );
+                  }, 100);
+                }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
+              >
+                <Ionicons name="person-add-outline" size={22} color="#8B5CF6" />
+                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>First-Time User</Text>
+              </Pressable>
+              
+              <Pressable
+                onPress={() => {
+                  setShowMenu(false);
                   setTimeout(() => navigation?.navigate('Settings'), 100);
                 }}
                 style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16 }}
@@ -676,6 +705,122 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           </View>
         )}
 
+        {/* First-Time User Onboarding */}
+        {!showTransactions && transactions.length === 0 && !settings.bankLinked && (
+          <View className="flex-1 items-center justify-center px-6">
+            {/* Welcome Hero */}
+            <View className="items-center mb-8">
+              <View className="bg-blue-100 p-8 rounded-full mb-6">
+                <Ionicons name="wallet" size={64} color="#3B82F6" />
+              </View>
+              <Text className="text-3xl font-bold text-gray-900 text-center mb-3">
+                Welcome to Checkmate!
+              </Text>
+              <Text className="text-lg text-gray-600 text-center leading-6">
+                Your digital checkbook register that automatically syncs with your bank account.
+              </Text>
+            </View>
+
+            {/* Getting Started Options */}
+            <View className="w-full space-y-4">
+              {/* Connect Bank - Primary Option */}
+              <Pressable
+                onPress={() => navigation?.navigate('BankConnection')}
+                className="bg-blue-500 p-6 rounded-xl shadow-lg"
+              >
+                <View className="flex-row items-center">
+                  <Ionicons name="link" size={32} color="white" />
+                  <View className="ml-4 flex-1">
+                    <Text className="text-xl font-bold text-white">
+                      Connect Your Bank
+                    </Text>
+                    <Text className="text-blue-100 mt-1">
+                      Automatically import transactions and balances
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color="white" />
+                </View>
+              </Pressable>
+
+              {/* Manual Entry Option */}
+              <Pressable
+                onPress={() => {
+                  updateSettings({ bankLinked: true });
+                  setShowTransactions(true);
+                  navigation?.navigate('AddTransaction');
+                }}
+                className="bg-white border-2 border-gray-200 p-6 rounded-xl"
+              >
+                <View className="flex-row items-center">
+                  <Ionicons name="pencil" size={32} color="#6B7280" />
+                  <View className="ml-4 flex-1">
+                    <Text className="text-xl font-bold text-gray-900">
+                      Enter Manually
+                    </Text>
+                    <Text className="text-gray-600 mt-1">
+                      Track transactions by hand (you can connect later)
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color="#6B7280" />
+                </View>
+              </Pressable>
+
+              {/* Demo Option */}
+              <Pressable
+                onPress={() => {
+                  updateSettings({ bankLinked: true });
+                  initializeWithSeedData();
+                  setShowTransactions(true);
+                  Alert.alert(
+                    'Demo Mode Activated! 🎉',
+                    'Demo transactions loaded. You can explore all features and connect a real bank account later.',
+                    [{ text: 'Start Exploring!' }]
+                  );
+                }}
+                className="bg-gray-50 border border-gray-200 p-6 rounded-xl"
+              >
+                <View className="flex-row items-center">
+                  <Ionicons name="play-circle" size={32} color="#8B5CF6" />
+                  <View className="ml-4 flex-1">
+                    <Text className="text-xl font-bold text-gray-900">
+                      Try Demo Mode
+                    </Text>
+                    <Text className="text-gray-600 mt-1">
+                      Explore with sample transactions
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color="#6B7280" />
+                </View>
+              </Pressable>
+            </View>
+
+            {/* Features Preview */}
+            <View className="mt-8 w-full">
+              <Text className="text-lg font-semibold text-gray-900 mb-4 text-center">
+                What you'll get:
+              </Text>
+              <View className="space-y-3">
+                <View className="flex-row items-center">
+                  <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+                  <Text className="ml-3 text-gray-700">Automatic transaction import</Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+                  <Text className="ml-3 text-gray-700">Real-time balance updates</Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+                  <Text className="ml-3 text-gray-700">Smart transaction matching</Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+                  <Text className="ml-3 text-gray-700">Bank-level security</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+
         {/* Transactions */}
         {showTransactions && (
           <View className="mb-6">
@@ -722,36 +867,22 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                     No Transactions Yet
                   </Text>
                   <Text className="text-gray-500 text-center mt-1">
-                    Add your first transaction or connect your bank account to get started
+                    Add your first transaction or connect your bank account
                   </Text>
-                  <View className="flex-row space-x-3 mt-4">
-                    <Pressable
-                      onPress={() => navigation?.navigate('AddTransaction')}
-                      className="bg-blue-500 px-4 py-2 rounded-lg"
-                    >
-                      <Text className="text-white font-medium">Add Transaction</Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => {
-                        console.log('Force initializing seed data...');
-                        initializeWithSeedData();
-                        setTimeout(() => {
-                          const newTransactions = getActiveTransactions();
-                          console.log('Transactions after force init:', newTransactions.length);
-                        }, 100);
-                      }}
-                      className="bg-green-500 px-4 py-2 rounded-lg"
-                    >
-                      <Text className="text-white font-medium">Load Demo Data</Text>
-                    </Pressable>
-                  </View>
+                  <Pressable
+                    onPress={() => navigation?.navigate('AddTransaction')}
+                    className="mt-4 bg-blue-500 px-4 py-2 rounded-lg"
+                  >
+                    <Text className="text-white font-medium">Add Transaction</Text>
+                  </Pressable>
                 </View>
               </View>
             )}
           </View>
         )}
 
-        {/* Quick Actions */}
+        {/* Quick Actions - Only show for existing users */}
+        {showTransactions && (
         <View className="bg-gray-50 p-4 rounded-lg border border-gray-200">
           <Text className="text-lg font-semibold text-gray-900 mb-3">Quick Actions</Text>
           <View className="flex-row space-x-3">
@@ -828,9 +959,11 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
             )}
           </View>
         </View>
+        )}
       </ScrollView>
 
-      {/* Footer Status */}
+      {/* Footer Status - Only show for existing users */}
+      {showTransactions && (
       <View className="px-6 py-4 border-t border-gray-200">
         <View className="flex-row items-center justify-center">
           <Ionicons name="checkmark-circle" size={20} color="#10B981" />
@@ -842,9 +975,10 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
           Navigation and all features working properly
         </Text>
       </View>
+      )}
 
-      {/* Floating Action Button */}
-      {activeAccount && (
+      {/* Floating Action Button - Only show for existing users */}
+      {activeAccount && showTransactions && (
         <Pressable
           onPress={() => navigation?.navigate('AddTransaction')}
           className="absolute bottom-6 right-6 bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
