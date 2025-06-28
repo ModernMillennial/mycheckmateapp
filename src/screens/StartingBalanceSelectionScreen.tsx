@@ -90,9 +90,10 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
         const transactionIndex = transactions.findIndex(t => t.transaction_id === selectedTransaction.transaction_id);
         let balanceAtTransaction = accountData.balances?.current || 0;
         
-        // Add back all transactions that happened after the selected transaction
+        // Subtract all transactions that happened after the selected transaction
+        // (working backwards from current balance to the selected transaction)
         for (let i = 0; i < transactionIndex; i++) {
-          balanceAtTransaction += transactions[i].amount;
+          balanceAtTransaction -= transactions[i].amount;
         }
         
         startingBalance = balanceAtTransaction;
@@ -109,7 +110,7 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
         },
       };
 
-      connectPlaidAccount(accessToken, accountWithBalance);
+      connectPlaidAccount(accessToken, accountWithBalance, startingDate, startingBalance);
 
       // Sync transactions from selected date
       await syncPlaidTransactions(accessToken, accountData.account_id, syncFromDate, new Date().toISOString().split('T')[0]);

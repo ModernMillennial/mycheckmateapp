@@ -36,7 +36,7 @@ interface TransactionState {
   initializeWithSeedData: () => void;
   
   // Plaid integration
-  connectPlaidAccount: (accessToken: string, accountData: any) => void;
+  connectPlaidAccount: (accessToken: string, accountData: any, startingDate?: string, startingBalance?: number) => void;
   syncPlaidTransactions: (accessToken: string, accountId: string, startDate: string, endDate: string) => Promise<void>;
   
   // Account management
@@ -550,7 +550,7 @@ export const useTransactionStore = create<TransactionState>()(
         });
       },
 
-      connectPlaidAccount: (accessToken, accountData) => {
+      connectPlaidAccount: (accessToken, accountData, startingDate, startingBalance) => {
         const { accounts, transactions } = get();
         
         // Convert Plaid account to our Account type
@@ -563,23 +563,23 @@ export const useTransactionStore = create<TransactionState>()(
           isActive: true,
           startingBalance: 0, // Starting balance is now a transaction
           startingBalanceDate: new Date().toISOString().split('T')[0],
-          currentBalance: accountData.balances?.current || 0,
+          currentBalance: startingBalance || accountData.balances?.current || 0,
           color: accountData.subtype === 'savings' ? '#10B981' : '#3B82F6',
           plaidAccessToken: accessToken, // Store access token for future syncs
         };
 
-        // Create starting balance transaction
+        // Create starting point transaction
         const startingBalanceTransaction = {
           id: `starting-balance-${newAccount.id}-${Date.now()}`,
           userId: 'user-1',
           accountId: newAccount.id,
-          date: new Date().toISOString().split('T')[0], // Today's date
-          payee: 'Starting Balance',
-          amount: accountData.balances?.current || 0,
+          date: startingDate || new Date().toISOString().split('T')[0],
+          payee: 'Starting Point',
+          amount: startingBalance || accountData.balances?.current || 0,
           source: 'bank' as const,
-          notes: '', // No additional notes for clean display
+          notes: `Account starting point from ${newAccount.bankName}`,
           reconciled: true,
-          runningBalance: accountData.balances?.current || 0,
+          runningBalance: startingBalance || accountData.balances?.current || 0,
         };
 
         set((state) => ({
