@@ -338,20 +338,22 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
             </Text>
           )}
           
-          {/* Posting Status */}
-          <View className="ml-2">
-            <View className="bg-gray-100 px-2 py-1 rounded">
-              <Text className={`text-xs font-medium ${
-                item.source === 'manual' && !item.reconciled 
-                  ? 'text-red-600' 
-                  : 'text-blue-600'
-              }`}>
-                {item.source === 'manual' && !item.reconciled 
-                  ? 'NOT POSTED'
-                  : 'POSTED'}
-              </Text>
+          {/* Posting Status - Only for non-starting balance transactions */}
+          {!isStartingBalance && (
+            <View className="ml-2">
+              <View className="bg-gray-100 px-2 py-1 rounded">
+                <Text className={`text-xs font-medium ${
+                  item.source === 'manual' && !item.reconciled 
+                    ? 'text-red-600' 
+                    : 'text-blue-600'
+                }`}>
+                  {item.source === 'manual' && !item.reconciled 
+                    ? 'NOT POSTED'
+                    : 'POSTED'}
+                </Text>
+              </View>
             </View>
-          </View>
+          )}
         </View>
 
         {/* Main Row - Date, Type, Amount, Balance */}
@@ -364,18 +366,20 @@ Tap "Copy to Clipboard" to get the full bug report template.`,
                 day: 'numeric' 
               })}
             </Text>
-            <View className="flex-row items-center">
-              <Ionicons
-                name={item.source === 'manual' ? 'receipt-outline' : 'card-outline'}
-                size={12}
-                color="#000000"
-              />
-              <Text className={`text-sm ml-1 capitalize text-black font-medium`}>
-                {item.source === 'bank' && item.notes?.includes('Converted')
-                  ? 'manual'
-                  : item.source}
-              </Text>
-            </View>
+            {!isStartingBalance && (
+              <View className="flex-row items-center">
+                <Ionicons
+                  name={item.source === 'manual' ? 'receipt-outline' : 'card-outline'}
+                  size={12}
+                  color="#000000"
+                />
+                <Text className={`text-sm ml-1 capitalize text-black font-medium`}>
+                  {item.source === 'bank' && item.notes?.includes('Converted')
+                    ? 'manual'
+                    : item.source}
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Center: Amount */}

@@ -379,7 +379,7 @@ export const useTransactionStore = create<TransactionState>()(
             payee: 'Starting Balance',
             amount: 1250.50, // Demo starting balance
             source: 'bank' as const,
-            notes: `Account starting balance for ${account.name}`,
+            notes: '', // No additional notes for clean display
             reconciled: true,
           }));
           
@@ -577,7 +577,7 @@ export const useTransactionStore = create<TransactionState>()(
           payee: 'Starting Balance',
           amount: accountData.balances?.current || 0,
           source: 'bank' as const,
-          notes: `Account starting balance from ${newAccount.bankName}`,
+          notes: '', // No additional notes for clean display
           reconciled: true,
           runningBalance: accountData.balances?.current || 0,
         };
