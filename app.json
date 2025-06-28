@@ -7,11 +7,31 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "platforms": ["ios", "android"],
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.checkmate",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to scan receipts and documents for transaction entry.",
+        "NSMicrophoneUsageDescription": "This app uses the microphone for voice memos and transaction notes."
+      }
     },
     "android": {
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.yourcompany.checkmate",
+      "versionCode": 1
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id-will-be-generated"
+      }
     }
   }
 }
