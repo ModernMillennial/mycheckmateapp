@@ -46,6 +46,7 @@ interface TransactionState {
   getActiveAccount: () => Account | null;
   getActiveTransactions: () => Transaction[];
   calculateAllAccountBalances: () => void;
+  clearUserData: () => void;
   processManualToBankConversion: (
     currentTransactions: Transaction[], 
     newBankTransactions: Transaction[]
@@ -463,6 +464,18 @@ export const useTransactionStore = create<TransactionState>()(
           transactions: [],
           accounts: [],
           settings: { ...initialSettings, bankLinked: false },
+          isInitialized: false,
+        });
+      },
+
+      clearUserData: () => {
+        set({
+          transactions: [],
+          accounts: [],
+          settings: { ...initialSettings, bankLinked: false },
+          notificationSettings: defaultNotificationSettings,
+          searchQuery: '',
+          filterType: 'all',
           isInitialized: false,
         });
       },

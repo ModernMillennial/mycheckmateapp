@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
+import { useAuthStore } from '../state/authStore';
 import InitialBankSyncScreen from './InitialBankSyncScreen';
 import Calculator from '../components/Calculator';
 
@@ -20,10 +21,29 @@ interface Props {
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount } = useTransactionStore();
+  const { user, logout } = useAuthStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showInitialSync, setShowInitialSync] = useState(false);
   const [showCalculator, setShowCalculator] = useState(false);
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out of your account?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: () => {
+            logout();
+            // Navigation will automatically redirect to login due to auth state change
+          }
+        }
+      ]
+    );
+  };
   
   const activeAccount = getActiveAccount();
   
@@ -322,6 +342,28 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
               subtitle="Built-in calculator for quick calculations"
               onPress={() => setShowCalculator(true)}
               rightComponent={<Ionicons name="calculator-outline" size={20} color="#9CA3AF" />}
+            />
+          </View>
+        </View>
+
+        {/* Account Section */}
+        <View className="mt-8">
+          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
+            Account
+          </Text>
+          
+          <View className="bg-white">
+            <SettingRow
+              title="Profile"
+              subtitle={user ? `${user.firstName} ${user.lastName} (${user.email})` : 'Not signed in'}
+              rightComponent={<Ionicons name="person-outline" size={20} color="#9CA3AF" />}
+            />
+            
+            <SettingRow
+              title="Sign Out"
+              subtitle="Sign out of your CheckMate account"
+              onPress={handleLogout}
+              rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
             />
           </View>
         </View>
