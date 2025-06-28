@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, Alert, FlatList, Clipboard, ScrollView, Image, RefreshControl } from 'react-native';
+import * as MailComposer from 'expo-mail-composer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -252,6 +253,35 @@ ACTUAL BEHAVIOR:
       [
         { text: 'Cancel', style: 'cancel' },
         {
+          text: 'Send Email',
+          onPress: async () => {
+            try {
+              const isAvailable = await MailComposer.isAvailableAsync();
+              if (isAvailable) {
+                await MailComposer.composeAsync({
+                  recipients: ['support@checkmate-app.com'], // Replace with your support email
+                  subject: 'Checkmate Bug Report',
+                  body: debugText,
+                  isHtml: false,
+                });
+              } else {
+                Alert.alert(
+                  'Email Not Available',
+                  'Email is not set up on this device. Please use "Copy to Clipboard" instead.',
+                  [{ text: 'OK' }]
+                );
+              }
+            } catch (error) {
+              console.error('Error opening email composer:', error);
+              Alert.alert(
+                'Email Error',
+                'Unable to open email. Please use "Copy to Clipboard" instead.',
+                [{ text: 'OK' }]
+              );
+            }
+          },
+        },
+        {
           text: 'Copy to Clipboard',
           onPress: () => {
             Clipboard.setString(debugText);
@@ -274,7 +304,7 @@ ACTUAL BEHAVIOR:
 • Navigation: Working
 • Store: Loaded
 
-Tap "Copy to Clipboard" to get the full bug report template.`,
+Choose "Send Email" or "Copy to Clipboard" to share the full bug report.`,
               [{ text: 'OK' }]
             );
           },
