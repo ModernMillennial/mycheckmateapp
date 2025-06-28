@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTransactionStore } from '../state/transactionStore';
+import { useAuthStore } from '../state/authStore';
 import { Transaction } from '../types';
 
 
@@ -18,6 +19,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   
+  const { user } = useAuthStore();
   const {
     settings,
     initializeWithSeedData,
@@ -34,6 +36,9 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     resetToFirstTimeUser,
   } = useTransactionStore();
 
+  const activeAccount = getActiveAccount();
+  const transactions = getActiveTransactions() || [];
+
   useEffect(() => {
     // Check if this is a first-time user
     const hasTransactions = transactions.length > 0;
@@ -47,9 +52,6 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       setShowTransactions(true);
     }
   }, [transactions?.length, settings.bankLinked]);
-
-  const activeAccount = getActiveAccount();
-  const transactions = getActiveTransactions() || [];
 
   // Auto-setup for working app (no first-time setup needed)
   useEffect(() => {
@@ -467,7 +469,7 @@ ACTUAL BEHAVIOR:
           </Pressable>
         </View>
         <Text className="text-gray-600">
-          Your digital checkbook register
+          {user ? `Welcome back, ${user.firstName}!` : 'Your digital checkbook register'}
         </Text>
       </View>
 

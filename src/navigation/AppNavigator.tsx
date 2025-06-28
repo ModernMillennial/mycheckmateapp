@@ -44,7 +44,7 @@ const AppNavigator: React.FC = () => {
   // Determine initial route based on auth state
   const getInitialRoute = () => {
     if (!isAuthenticated) return "Login";
-    // For now, go straight to register - in future could check if user needs onboarding
+    // Go directly to the main register screen for authenticated users
     return "Register";
   };
   
@@ -81,15 +81,15 @@ const AppNavigator: React.FC = () => {
         // App Stack
         <>
           <Stack.Screen 
-            name="Welcome" 
-            component={WelcomeScreen}
+            name="Register" 
+            component={SimpleRegisterScreen}
             options={{
               headerShown: false,
             }}
           />
           <Stack.Screen 
-            name="Register" 
-            component={SimpleRegisterScreen}
+            name="Welcome" 
+            component={WelcomeScreen}
             options={{
               headerShown: false,
             }}

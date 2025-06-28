@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
+import { useAuthStore } from '../state/authStore';
 import InitialBankSyncScreen from './InitialBankSyncScreen';
 import Calculator from '../components/Calculator';
 
@@ -20,6 +21,7 @@ interface Props {
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount } = useTransactionStore();
+  const { user, logout } = useAuthStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showInitialSync, setShowInitialSync] = useState(false);
@@ -30,8 +32,24 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 
   
   const activeAccount = getActiveAccount();
-  
 
+  const handleLogout = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out? You will need to sign in again to access your account.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: () => {
+            logout();
+            // Navigation will automatically redirect to login due to auth state change
+          }
+        }
+      ]
+    );
+  };
 
   const handleSyncBank = async () => {
     setIsLoading(true);
@@ -268,6 +286,19 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
               subtitle="Add, edit, or switch between your bank accounts"
               onPress={() => navigation.navigate('Accounts')}
               rightComponent={<Ionicons name="card-outline" size={20} color="#9CA3AF" />}
+            />
+            
+            <SettingRow
+              title="User Profile"
+              subtitle={`Signed in as ${user?.firstName} ${user?.lastName}`}
+              rightComponent={<Ionicons name="person-outline" size={20} color="#9CA3AF" />}
+            />
+            
+            <SettingRow
+              title="Sign Out"
+              subtitle="Sign out of your CheckMate account"
+              onPress={handleLogout}
+              rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
             />
           </View>
         </View>
