@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
-import { useAuthStore } from '../state/authStore';
+
 import InitialBankSyncScreen from './InitialBankSyncScreen';
 import Calculator from '../components/Calculator';
 import * as MailComposer from 'expo-mail-composer';
@@ -22,7 +22,6 @@ interface Props {
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount, getActiveTransactions } = useTransactionStore();
-  const { user, logout, deleteAccount } = useAuthStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showInitialSync, setShowInitialSync] = useState(false);
@@ -35,59 +34,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   
   const activeAccount = getActiveAccount();
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out? You will need to sign in again to access your account.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: () => {
-            logout();
-            // Navigation will automatically redirect to login due to auth state change
-          }
-        }
-      ]
-    );
-  };
 
-  const handleDeleteAccount = () => {
-    Alert.alert(
-      '⚠️ Delete Account',
-      'This will permanently delete your account and all of your data including:\n\n• All transaction history\n• All connected bank accounts\n• All settings and preferences\n• Your user account\n\nThis action cannot be undone. Are you sure you want to continue?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete Account',
-          style: 'destructive',
-          onPress: () => {
-            // Second confirmation
-            Alert.alert(
-              '🚨 Final Warning',
-              'This is your final warning. Deleting your account will permanently erase ALL of your financial data and cannot be recovered.\n\nDo you want to continue?',
-              [
-                { text: 'No, Keep My Account', style: 'cancel' },
-                {
-                  text: 'Yes, Delete Everything',
-                  style: 'destructive',
-                  onPress: () => {
-                    deleteAccount();
-                    Alert.alert(
-                      'Account Deleted',
-                      'Your account and all data have been permanently deleted.',
-                      [{ text: 'OK' }]
-                    );
-                  }
-                }
-              ]
-            );
-          }
-        }
-      ]
-    );
-  };
 
   const handleSyncBank = async () => {
     setIsLoading(true);
@@ -213,41 +160,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
-  const handleLogOut = () => {
-    Alert.alert(
-      'Log Out',
-      'Are you sure you want to log out? This will clear all your data including transactions, accounts, and settings. This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Log Out',
-          style: 'destructive',
-          onPress: () => {
-            // Clear all data from the store
-            const { clearUserData } = useTransactionStore.getState();
-            clearUserData();
-            
-            Alert.alert(
-              'Logged Out Successfully',
-              'All data has been cleared. You will be returned to the setup screen.',
-              [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    // Navigate back to the initial setup
-                    navigation.reset({
-                      index: 0,
-                      routes: [{ name: 'SimpleRegister' }],
-                    });
-                  }
-                }
-              ]
-            );
-          }
-        }
-      ]
-    );
-  };
+
 
   const handleHelpAndSupport = () => {
     Alert.alert(
@@ -622,21 +535,7 @@ ADDITIONAL DETAILS:
           </View>
         </View>
 
-        {/* Account Actions Section */}
-        <View className="mt-8">
-          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
-            Account Actions
-          </Text>
-          
-          <View className="bg-white">
-            <SettingRow
-              title="Log Out"
-              subtitle="Clear all data and return to setup"
-              onPress={handleLogOut}
-              rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
-            />
-          </View>
-        </View>
+
 
         {/* Mock Bank Notice */}
         <View className="mx-4 mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
