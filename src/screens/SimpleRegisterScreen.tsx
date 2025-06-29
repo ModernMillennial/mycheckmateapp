@@ -1030,7 +1030,7 @@ ACTUAL BEHAVIOR:
 
       {/* Footer Status - Only show for existing users */}
       {showTransactions && (
-      <View className="px-6 py-4 border-t border-gray-200">
+        <View className="px-6 py-4 border-t border-gray-200">
         <View className="flex-row items-center justify-center">
           <Ionicons name="checkmark-circle" size={20} color="#10B981" />
           <Text className="text-green-600 font-medium ml-2">
@@ -1040,7 +1040,7 @@ ACTUAL BEHAVIOR:
         <Text className="text-center text-gray-500 text-sm mt-1">
           Navigation and all features working properly
         </Text>
-      </View>
+        </View>
       )}
 
       {/* Floating Action Button - Only show for existing users */}
