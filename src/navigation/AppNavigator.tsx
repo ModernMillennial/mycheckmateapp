@@ -4,6 +4,7 @@ import { useAuthStore } from '../state/authStore';
 import { useTransactionStore } from '../state/transactionStore';
 import SimpleRegisterScreen from '../screens/SimpleRegisterScreen';
 
+import DashboardScreen from '../screens/DashboardScreen';
 import BudgetScreen from '../screens/BudgetScreen';
 import AddTransactionScreen from '../screens/AddTransactionScreen';
 import EditTransactionScreen from '../screens/EditTransactionScreen';
@@ -38,7 +39,7 @@ export type RootStackParamList = {
   PrivacyPolicy: { isFirstTime?: boolean; isReadOnly?: boolean };
   // App screens
   Register: undefined;
-
+  Dashboard: undefined;
   Budget: undefined;
   AddTransaction: undefined;
   EditTransaction: { transaction: Transaction };
@@ -63,8 +64,8 @@ const AppNavigator: React.FC = () => {
   
   // Determine initial route based on auth state and terms acceptance
   const getInitialRoute = (): keyof RootStackParamList => {
-    // For budget tracker demo, go directly to Budget screen
-    return "Budget";
+    // For budget tracker demo, go directly to Dashboard screen
+    return "Dashboard";
   };
   
 
@@ -88,6 +89,13 @@ const AppNavigator: React.FC = () => {
       />
       
       {/* Budget Tracker App - Direct Access */}
+      <Stack.Screen 
+        name="Dashboard" 
+        component={DashboardScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen 
         name="Budget" 
         component={BudgetScreen}
