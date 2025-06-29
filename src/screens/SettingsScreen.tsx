@@ -268,10 +268,19 @@ A: Enable "Monthly Reset" in Settings to start fresh each month, or contact supp
 
   const contactSupport = async () => {
     try {
+      // Check if MailComposer is available before proceeding
+      if (!MailComposer || typeof MailComposer.isAvailableAsync !== 'function') {
+        Alert.alert(
+          'Email Not Available',
+          'Email functionality is not available on this device. Please contact us directly at support@mycheckmateapp.com',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
       const isAvailable = await MailComposer.isAvailableAsync();
       if (isAvailable) {
-        const supportInfo = `
-CHECKMATE SUPPORT REQUEST
+        const supportInfo = `CHECKMATE SUPPORT REQUEST
 =======================
 App Version: 1.0.0
 Device: React Native / Expo
@@ -423,7 +432,7 @@ ADDITIONAL DETAILS:
             
             <SettingRow
               title="User Profile"
-              subtitle={`Signed in as ${user?.firstName} ${user?.lastName}`}
+              subtitle={user ? `Signed in as ${user.firstName || 'User'} ${user.lastName || ''}`.trim() : 'Not signed in'}
               rightComponent={<Ionicons name="person-outline" size={20} color="#9CA3AF" />}
             />
             
@@ -530,29 +539,6 @@ ADDITIONAL DETAILS:
               subtitle="Get help with using the app"
               onPress={handleHelpAndSupport}
               rightComponent={<Ionicons name="help-circle-outline" size={20} color="#9CA3AF" />}
-            />
-            
-            <SettingRow
-              title="Sign Out"
-              subtitle="Sign out of your account"
-              onPress={() => {
-                Alert.alert(
-                  'Sign Out',
-                  'Are you sure you want to sign out? This will clear all your data.',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    { 
-                      text: 'Sign Out', 
-                      style: 'destructive',
-                      onPress: () => {
-                        logout();
-                        // Navigation will automatically redirect to login screen
-                      }
-                    }
-                  ]
-                );
-              }}
-              rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
             />
           </View>
         </View>
