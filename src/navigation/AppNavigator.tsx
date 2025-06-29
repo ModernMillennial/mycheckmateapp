@@ -14,11 +14,14 @@ import StartingBalanceSelectionScreen from '../screens/StartingBalanceSelectionS
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
+import SplashScreen from '../screens/SplashScreen';
 import TermsAndConditionsScreen from '../screens/TermsAndConditionsScreen';
 import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 import { Transaction } from '../types';
 
 export type RootStackParamList = {
+  // Splash screen
+  Splash: undefined;
   // Auth screens
   Login: undefined;
   Signup: undefined;
@@ -50,12 +53,8 @@ const AppNavigator: React.FC = () => {
   
   // Determine initial route based on auth state and terms acceptance
   const getInitialRoute = () => {
-    // Always start with Welcome screen for new users
-    if (!isAuthenticated) return "Welcome";
-    // Check if user has accepted terms AND privacy policy
-    if (!settings.hasAcceptedTerms || !settings.hasAcceptedPrivacy) return "TermsAndConditions";
-    // Go directly to the main register screen for authenticated users  
-    return "Register";
+    // Always start with Splash screen first
+    return "Splash";
   };
   
   console.log('AppNavigator rendering... isAuthenticated:', isAuthenticated, 'hasAcceptedTerms:', settings.hasAcceptedTerms);
@@ -68,6 +67,16 @@ const AppNavigator: React.FC = () => {
         animation: 'slide_from_right',
       }}
     >
+      {/* Splash Screen - always shown first */}
+      <Stack.Screen 
+        name="Splash" 
+        component={SplashScreen}
+        options={{
+          headerShown: false,
+          animationTypeForReplace: 'push',
+        }}
+      />
+      
       {!isAuthenticated ? (
         // Auth Stack
         <>
