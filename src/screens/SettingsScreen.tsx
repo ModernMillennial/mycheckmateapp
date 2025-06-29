@@ -177,6 +177,42 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const handleLogOut = () => {
+    Alert.alert(
+      'Log Out',
+      'Are you sure you want to log out? This will clear all your data including transactions, accounts, and settings. This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Log Out',
+          style: 'destructive',
+          onPress: () => {
+            // Clear all data from the store
+            const { clearUserData } = useTransactionStore.getState();
+            clearUserData();
+            
+            Alert.alert(
+              'Logged Out Successfully',
+              'All data has been cleared. You will be returned to the setup screen.',
+              [
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    // Navigate back to the initial setup
+                    navigation.reset({
+                      index: 0,
+                      routes: [{ name: 'SimpleRegister' }],
+                    });
+                  }
+                }
+              ]
+            );
+          }
+        }
+      ]
+    );
+  };
+
   const handleHelpAndSupport = () => {
     Alert.alert(
       'Help & Support 🤝',
@@ -539,6 +575,22 @@ ADDITIONAL DETAILS:
               subtitle="Get help with using the app"
               onPress={handleHelpAndSupport}
               rightComponent={<Ionicons name="help-circle-outline" size={20} color="#9CA3AF" />}
+            />
+          </View>
+        </View>
+
+        {/* Account Actions Section */}
+        <View className="mt-8">
+          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
+            Account Actions
+          </Text>
+          
+          <View className="bg-white">
+            <SettingRow
+              title="Log Out"
+              subtitle="Clear all data and return to setup"
+              onPress={handleLogOut}
+              rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
             />
           </View>
         </View>
