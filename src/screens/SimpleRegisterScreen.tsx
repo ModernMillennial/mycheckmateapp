@@ -521,6 +521,17 @@ ACTUAL BEHAVIOR:
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
+                  setTimeout(() => onRefresh(), 100);
+                }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
+              >
+                <Ionicons name="sync" size={22} color="#3B82F6" />
+                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Sync Accounts</Text>
+              </Pressable>
+              
+              <Pressable
+                onPress={() => {
+                  setShowMenu(false);
                   setTimeout(() => navigation?.navigate('Accounts'), 100);
                 }}
                 style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
