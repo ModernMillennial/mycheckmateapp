@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, Alert, FlatList, Clipboard, ScrollView, Image, RefreshControl } from 'react-native';
 import * as MailComposer from 'expo-mail-composer';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +13,7 @@ interface Props {
   navigation: any;
 }
 
+// Updated component with fixed imports and functions
 const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [showTransactions, setShowTransactions] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
