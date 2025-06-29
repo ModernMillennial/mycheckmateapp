@@ -36,6 +36,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     initializeWithSeedData,
     getActiveAccount,
     getActiveTransactions,
+    getFilteredTransactionsFromStartingPoint,
 
     addTransaction,
     syncBankTransactions,
@@ -51,7 +52,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   }, [initializeWithSeedData, settings.bankLinked]);
 
   const activeAccount = getActiveAccount();
-  const transactions = getActiveTransactions();
+  const transactions = getFilteredTransactionsFromStartingPoint();
 
   // Check for first-time user setup
   useEffect(() => {

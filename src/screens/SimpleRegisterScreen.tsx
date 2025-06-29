@@ -27,6 +27,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     initializeWithSeedData,
     getActiveAccount,
     getActiveTransactions,
+    getFilteredTransactionsFromStartingPoint,
     addTransaction,
     syncBankTransactions,
     clearAndReinitialize,
@@ -38,7 +39,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   } = useTransactionStore();
 
   const activeAccount = getActiveAccount();
-  const transactions = getActiveTransactions() || [];
+  const transactions = getFilteredTransactionsFromStartingPoint() || [];
 
   useEffect(() => {
     // Check if this is a first-time user
@@ -834,7 +835,24 @@ ACTUAL BEHAVIOR:
               <Text className="text-xl font-bold text-gray-900">
                 Transaction Register
               </Text>
+              {activeAccount?.startingBalanceDate && (
+                <Text className="text-sm text-blue-600 font-medium">
+                  From {new Date(activeAccount.startingBalanceDate).toLocaleDateString()}
+                </Text>
+              )}
             </View>
+            
+            {/* Starting Point Info */}
+            {activeAccount?.startingBalanceDate && (
+              <View className="bg-blue-50 p-3 rounded-lg border border-blue-200 mb-4">
+                <View className="flex-row items-center">
+                  <Ionicons name="information-circle" size={16} color="#3B82F6" />
+                  <Text className="text-sm text-blue-800 ml-2 flex-1">
+                    Showing transactions from your selected starting point on {new Date(activeAccount.startingBalanceDate).toLocaleDateString()}
+                  </Text>
+                </View>
+              </View>
+            )}
             
             {transactions.length > 0 ? (
               <>

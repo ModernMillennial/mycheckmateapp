@@ -27,8 +27,8 @@ interface MonthlyReport {
 }
 
 const ReportsScreen: React.FC<Props> = ({ navigation }) => {
-  const { getActiveTransactions, getActiveAccount } = useTransactionStore();
-  const transactions = getActiveTransactions();
+  const { getActiveTransactions, getActiveAccount, getFilteredTransactionsFromStartingPoint } = useTransactionStore();
+  const transactions = getFilteredTransactionsFromStartingPoint();
   const activeAccount = getActiveAccount();
 
   // Debug logging

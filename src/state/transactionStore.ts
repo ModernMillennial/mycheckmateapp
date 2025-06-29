@@ -41,6 +41,7 @@ interface TransactionState {
   // Single account management
   getActiveAccount: () => Account | null;
   getActiveTransactions: () => Transaction[];
+  getFilteredTransactionsFromStartingPoint: () => Transaction[];
   updateAccountInfo: (updates: Partial<Account>) => void;
   clearUserData: () => void;
   processManualToBankConversion: (
@@ -389,6 +390,32 @@ export const useTransactionStore = create<TransactionState>()(
         
         const filtered = allTransactions.filter(t => t.accountId === settings.activeAccountId);
         return filtered;
+      },
+
+      getFilteredTransactionsFromStartingPoint: () => {
+        const { transactions, settings, accounts } = get();
+        const activeAccount = accounts.find(a => a.id === settings.activeAccountId);
+        
+        // Ensure transactions is always an array
+        const allTransactions = transactions || [];
+        
+        // Get transactions for active account
+        const accountTransactions = allTransactions.filter(t => t.accountId === settings.activeAccountId);
+        
+        // If no starting date or account, return all transactions
+        if (!activeAccount?.startingBalanceDate) {
+          return accountTransactions;
+        }
+        
+        // Filter transactions to only show those after the starting point date
+        return accountTransactions.filter(transaction => {
+          const transactionDate = new Date(transaction.date);
+          const startingDate = new Date(activeAccount.startingBalanceDate);
+          
+          // Show transactions that are on or after the starting point date
+          // But exclude the starting balance transaction itself
+          return transactionDate >= startingDate && transaction.payee !== 'Starting Point';
+        });
       },
 
 

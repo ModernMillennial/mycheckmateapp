@@ -16,13 +16,14 @@ const DigitalRegisterMain: React.FC<Props> = ({ navigation }) => {
     settings,
     getActiveAccount,
     getActiveTransactions,
+    getFilteredTransactionsFromStartingPoint,
     clearAndReinitialize,
     updateSettings,
     initializeWithSeedData,
   } = useTransactionStore();
 
   const activeAccount = getActiveAccount();
-  const transactions = getActiveTransactions();
+  const transactions = getFilteredTransactionsFromStartingPoint();
 
   useEffect(() => {
     console.log('DigitalRegisterMain loading...');
@@ -101,9 +102,16 @@ const DigitalRegisterMain: React.FC<Props> = ({ navigation }) => {
 
       {/* Transactions Section */}
       <View className="flex-1 p-4">
-        <Text className="text-xl font-semibold mb-4">
-          Recent Transactions ({transactions.length})
-        </Text>
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-xl font-semibold">
+            Recent Transactions ({transactions.length})
+          </Text>
+          {activeAccount?.startingBalanceDate && (
+            <Text className="text-sm text-blue-600 font-medium">
+              From {new Date(activeAccount.startingBalanceDate).toLocaleDateString()}
+            </Text>
+          )}
+        </View>
         
         {transactions.length > 0 ? (
           <ScrollView className="flex-1">
