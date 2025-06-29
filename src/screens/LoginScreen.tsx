@@ -175,7 +175,11 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
               </Pressable>
 
               {/* Forgot Password */}
-              <Pressable className="items-center">
+              <Pressable 
+                className="items-center"
+                onPress={() => navigation.navigate('ForgotPassword')}
+                disabled={isLoading}
+              >
                 <Text className="text-blue-500 text-sm font-medium">
                   Forgot Password?
                 </Text>

@@ -312,6 +312,69 @@ class AuthService {
     }
   }
 
+  // Request password reset
+  async requestPasswordReset(email: string): Promise<{ success: boolean; error?: AuthError }> {
+    try {
+      // In a real app, this would make an API call to your backend
+      // For demo purposes, we'll simulate the request
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return {
+          success: false,
+          error: {
+            code: 'INVALID_EMAIL',
+            message: 'Please enter a valid email address.',
+          },
+        };
+      }
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // In a real app, you would:
+      // 1. Check if email exists in your database
+      // 2. Generate a secure reset token
+      // 3. Send reset email with token
+      // 4. Store token with expiration time
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Password reset request error:', error);
+      return {
+        success: false,
+        error: {
+          code: 'RESET_REQUEST_ERROR',
+          message: 'Failed to send password reset email. Please try again.',
+        },
+      };
+    }
+  }
+
+  // Reset password with token (for demo purposes)
+  async resetPasswordWithToken(token: string, newPassword: string): Promise<{ success: boolean; error?: AuthError }> {
+    try {
+      // In a real app, this would:
+      // 1. Validate the reset token
+      // 2. Check if token is not expired
+      // 3. Update user's password in database
+      // 4. Invalidate the reset token
+      
+      // For demo purposes, we'll just simulate success
+      return { success: true };
+    } catch (error) {
+      console.error('Password reset error:', error);
+      return {
+        success: false,
+        error: {
+          code: 'RESET_PASSWORD_ERROR',
+          message: 'Failed to reset password. Please try again.',
+        },
+      };
+    }
+  }
+
   private async updateStoredAuthState(): Promise<void> {
     await AsyncStorage.setItem('@auth_state', JSON.stringify({
       biometricEnabled: this.authState.biometricEnabled,
