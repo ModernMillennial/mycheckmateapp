@@ -4,9 +4,17 @@ import {
   Text,
   Pressable,
   ScrollView,
-  Alert,
   Dimensions,
 } from 'react-native';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withRepeat, 
+  withTiming,
+  cancelAnimation 
+} from 'react-native-reanimated';
+
+const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
@@ -19,6 +27,13 @@ interface Props {
 
 const DashboardScreen: React.FC<Props> = ({ navigation }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d'>('30d');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<{visible: boolean, title: string, message: string, isError: boolean}>({
+    visible: false,
+    title: '',
+    message: '',
+    isError: false
+  });
   
   const {
     getActiveAccount,
@@ -26,6 +41,15 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
     syncPlaidTransactions,
     calculateRunningBalance,
   } = useTransactionStore();
+
+  // Animation for sync button
+  const rotation = useSharedValue(0);
+  
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ rotate: `${rotation.value}deg` }],
+    };
+  });
 
   const activeAccount = getActiveAccount();
   const allTransactions = getActiveTransactions() || [];
@@ -134,6 +158,63 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
     y: value,
   }));
 
+  const handleSync = async () => {
+    const activeAccount = getActiveAccount();
+    if (!activeAccount) {
+      setSyncMessage({
+        visible: true,
+        title: "Sync Not Available",
+        message: "No account found. Please set up your account first.",
+        isError: true
+      });
+      return;
+    }
+
+    setIsSyncing(true);
+    
+    // Start rotation animation
+    rotation.value = withRepeat(
+      withTiming(360, { duration: 1000 }),
+      -1,
+      false
+    );
+
+    try {
+      // Sync transactions for the last 30 days
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      
+      // Use demo access token if no real plaid token exists
+      const accessToken = activeAccount.plaidAccessToken || `demo_access_token_ins_demo_chase_${Date.now()}`;
+      
+      await syncPlaidTransactions(
+        accessToken,
+        activeAccount.id,
+        startDate,
+        endDate
+      );
+
+      setSyncMessage({
+        visible: true,
+        title: "Sync Complete",
+        message: "Your account has been successfully synced with your bank.",
+        isError: false
+      });
+    } catch (error) {
+      console.error('Sync error:', error);
+      setSyncMessage({
+        visible: true,
+        title: "Sync Failed",
+        message: "Unable to sync with your bank at this time. Please try again later.",
+        isError: true
+      });
+    } finally {
+      setIsSyncing(false);
+      cancelAnimation(rotation);
+      rotation.value = withTiming(0, { duration: 200 });
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
@@ -163,9 +244,16 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
             <Ionicons name="list" size={24} color="#374151" />
           </Pressable>
           <Pressable
+            onPress={handleSync}
+            disabled={isSyncing}
             className="p-2"
           >
-            <Ionicons name="water" size={24} color="#374151" />
+            <AnimatedIonicons 
+              name="sync" 
+              size={24} 
+              color={isSyncing ? "#3B82F6" : "#374151"}
+              style={animatedStyle}
+            />
           </Pressable>
         </View>
       </View>
@@ -395,6 +483,40 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
           )}
         </View>
       </ScrollView>
+
+      {/* Sync Message Modal */}
+      {syncMessage.visible && (
+        <View className="absolute inset-0 bg-black/50 flex-1 justify-center items-center z-50">
+          <View className="mx-6 bg-white rounded-2xl p-6 shadow-xl">
+            <View className={`w-16 h-16 rounded-full mx-auto mb-4 items-center justify-center ${
+              syncMessage.isError ? 'bg-red-100' : 'bg-green-100'
+            }`}>
+              <Ionicons 
+                name={syncMessage.isError ? "alert-circle" : "checkmark-circle"} 
+                size={32} 
+                color={syncMessage.isError ? "#EF4444" : "#10B981"} 
+              />
+            </View>
+            
+            <Text className="text-xl font-bold text-gray-900 text-center mb-2">
+              {syncMessage.title}
+            </Text>
+            
+            <Text className="text-gray-600 text-center mb-6 leading-6">
+              {syncMessage.message}
+            </Text>
+            
+            <Pressable
+              onPress={() => setSyncMessage({...syncMessage, visible: false})}
+              className="bg-blue-600 py-3 px-6 rounded-lg"
+            >
+              <Text className="text-white font-semibold text-center">
+                OK
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };

@@ -480,7 +480,7 @@ export const useTransactionStore = create<TransactionState>()(
 
       syncPlaidTransactions: async (accessToken, accountId, startDate, endDate) => {
         try {
-          const plaidTransactions = await plaidService.getTransactions(
+          const plaidTransactions = await plaidService.getTransactionsOrDemo(
             accessToken, 
             [accountId], 
             startDate, 
