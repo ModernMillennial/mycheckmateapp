@@ -33,7 +33,7 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Create new account with demo data
-    const bankName = 'Demo Bank';
+    const bankName = 'Acme Bank';
     
     const newAccount = {
       name: `${bankName} Checking`,
@@ -133,7 +133,7 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
               >
                 <View className="flex-row items-center">
                   <Text className="text-2xl mr-4">🏦</Text>
-                  <Text className="text-gray-900 font-medium flex-1">Demo Bank</Text>
+                  <Text className="text-gray-900 font-medium flex-1">Acme Bank</Text>
                   {selectedBank === 'demo' && (
                     <Text className="text-blue-500">✓</Text>
                   )}
