@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
+import { useAuthStore } from '../state/authStore';
 
 import InitialBankSyncScreen from './InitialBankSyncScreen';
 import Calculator from '../components/Calculator';
@@ -22,6 +23,7 @@ interface Props {
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount, getActiveTransactions } = useTransactionStore();
+  const { logout, deleteAccount } = useAuthStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showInitialSync, setShowInitialSync] = useState(false);
@@ -522,17 +524,8 @@ ADDITIONAL DETAILS:
                       text: 'Sign Out',
                       style: 'destructive',
                       onPress: () => {
-                        // Clear user session but keep local data
-                        updateSettings({ 
-                          bankLinked: false,
-                          monthlyResetEnabled: false,
-                          startDate: new Date().toISOString().split('T')[0]
-                        });
-                        Alert.alert(
-                          'Signed Out',
-                          'You have been successfully signed out. Your local data remains safe.',
-                          [{ text: 'OK' }]
-                        );
+                        // Sign out user - this will trigger navigation back to auth screens
+                        logout();
                       }
                     }
                   ]
@@ -563,35 +556,8 @@ ADDITIONAL DETAILS:
                               text: 'Yes, Delete Everything',
                               style: 'destructive',
                               onPress: () => {
-                                // Clear all data from the store
-                                const { clearAllData } = useTransactionStore.getState();
-                                if (clearAllData) {
-                                  clearAllData();
-                                } else {
-                                  // Fallback: clear data manually
-                                  const { clearTransactions, clearAccounts, updateSettings } = useTransactionStore.getState();
-                                  clearTransactions();
-                                  clearAccounts();
-                                  updateSettings({
-                                    bankLinked: false,
-                                    monthlyResetEnabled: false,
-                                    startDate: new Date().toISOString().split('T')[0]
-                                  });
-                                }
-                                
-                                Alert.alert(
-                                  'Account Deleted',
-                                  'Your account and all data have been permanently deleted.',
-                                  [
-                                    {
-                                      text: 'OK',
-                                      onPress: () => {
-                                        // Navigate back to the beginning
-                                        navigation.navigate('SimpleRegister');
-                                      }
-                                    }
-                                  ]
-                                );
+                                // Delete account and all associated data
+                                deleteAccount();
                               }
                             }
                           ]
