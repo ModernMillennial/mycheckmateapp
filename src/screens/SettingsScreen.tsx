@@ -22,6 +22,16 @@ interface Props {
 }
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
+  // Safety check for navigation
+  if (!navigation) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-red-500">Navigation error - please restart the app</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
   const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount, getActiveTransactions } = useTransactionStore();
   const { logout, deleteAccount } = useAuthStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -336,7 +346,13 @@ ADDITIONAL DETAILS:
       {/* Header */}
       <View className="flex-row items-center px-4 py-4 border-b border-gray-200">
         <Pressable
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            try {
+              navigation.goBack();
+            } catch (error) {
+              console.error('Navigation error:', error);
+            }
+          }}
           className="p-2"
         >
           <Ionicons name="arrow-back" size={24} color="#374151" />
@@ -443,7 +459,13 @@ ADDITIONAL DETAILS:
             <SettingRow
               title="Push Notifications"
               subtitle="Configure alerts for deposits, debits, and overdrafts"
-              onPress={() => navigation.navigate('NotificationSettings')}
+              onPress={() => {
+                try {
+                  navigation.navigate('NotificationSettings');
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                }
+              }}
               rightComponent={<Ionicons name="notifications-outline" size={20} color="#9CA3AF" />}
             />
           </View>
@@ -477,21 +499,39 @@ ADDITIONAL DETAILS:
             <SettingRow
               title="About Checkmate"
               subtitle="Version 1.0.0"
-              onPress={() => navigation.navigate('About')}
+              onPress={() => {
+                try {
+                  navigation.navigate('About');
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                }
+              }}
               rightComponent={<Ionicons name="information-circle-outline" size={20} color="#9CA3AF" />}
             />
             
             <SettingRow
               title="Terms & Conditions"
               subtitle="View our terms and conditions"
-              onPress={() => navigation.navigate('TermsAndConditions', { isFirstTime: false })}
+              onPress={() => {
+                try {
+                  navigation.navigate('TermsAndConditions', { isFirstTime: false });
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                }
+              }}
               rightComponent={<Ionicons name="document-text-outline" size={20} color="#9CA3AF" />}
             />
             
             <SettingRow
               title="Privacy Policy"
               subtitle="View our privacy policy"
-              onPress={() => navigation.navigate('PrivacyPolicy', { isFirstTime: false })}
+              onPress={() => {
+                try {
+                  navigation.navigate('PrivacyPolicy', { isFirstTime: false });
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                }
+              }}
               rightComponent={<Ionicons name="shield-outline" size={20} color="#9CA3AF" />}
             />
             

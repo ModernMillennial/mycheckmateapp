@@ -13,10 +13,10 @@ import Animated, {
   withTiming,
   cancelAnimation 
 } from 'react-native-reanimated';
-
-const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+
+const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
 import { useTransactionStore } from '../state/transactionStore';
 import { Transaction } from '../types';
 import { VictoryLine, VictoryChart, VictoryArea, VictoryPie, VictoryLabel, VictoryTheme } from 'victory-native';
@@ -26,6 +26,16 @@ interface Props {
 }
 
 const DashboardScreen: React.FC<Props> = ({ navigation }) => {
+  // Safety check for navigation
+  if (!navigation) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-red-500">Navigation error - please restart the app</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d'>('30d');
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<{visible: boolean, title: string, message: string, isError: boolean}>({
@@ -220,7 +230,13 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-4 border-b border-gray-200">
         <Pressable
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            try {
+              navigation.goBack();
+            } catch (error) {
+              console.error('Navigation error:', error);
+            }
+          }}
           className="p-2"
         >
           <Ionicons name="arrow-back" size={24} color="#374151" />
@@ -232,13 +248,25 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
         
         <View className="flex-row items-center space-x-2">
           <Pressable
-            onPress={() => navigation.navigate('Budget')}
+            onPress={() => {
+              try {
+                navigation.navigate('Budget');
+              } catch (error) {
+                console.error('Navigation error:', error);
+              }
+            }}
             className="p-2"
           >
             <Ionicons name="wallet-outline" size={24} color="#374151" />
           </Pressable>
           <Pressable
-            onPress={() => navigation.navigate('Register')}
+            onPress={() => {
+              try {
+                navigation.navigate('Register');
+              } catch (error) {
+                console.error('Navigation error:', error);
+              }
+            }}
             className="p-2"
           >
             <Ionicons name="list" size={24} color="#374151" />
@@ -438,7 +466,13 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
               Recent Transactions
             </Text>
             <Pressable
-              onPress={() => navigation.navigate('Register')}
+              onPress={() => {
+              try {
+                navigation.navigate('Register');
+              } catch (error) {
+                console.error('Navigation error:', error);
+              }
+            }}
               className="flex-row items-center"
             >
               <Text className="text-blue-600 font-medium mr-1">View All</Text>
