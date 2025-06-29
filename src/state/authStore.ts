@@ -19,6 +19,7 @@ export interface AuthState {
   login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<boolean>;
   logout: () => void;
+  deleteAccount: () => void;
   setLoading: (loading: boolean) => void;
 }
 
@@ -126,7 +127,16 @@ export const useAuthStore = create<AuthState>()(
       },
       
       logout: () => {
-        // Clear transaction data when user logs out
+        // Sign out user but keep their data
+        set({ 
+          user: null, 
+          isAuthenticated: false, 
+          isLoading: false 
+        });
+      },
+      
+      deleteAccount: () => {
+        // Delete user account and clear all data
         import('../state/transactionStore').then(({ useTransactionStore }) => {
           useTransactionStore.getState().clearUserData();
         });

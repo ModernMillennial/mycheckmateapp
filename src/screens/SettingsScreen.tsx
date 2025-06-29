@@ -22,7 +22,7 @@ interface Props {
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount, getActiveTransactions } = useTransactionStore();
-  const { user, logout } = useAuthStore();
+  const { user, logout, deleteAccount } = useAuthStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showInitialSync, setShowInitialSync] = useState(false);
@@ -47,6 +47,42 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
           onPress: () => {
             logout();
             // Navigation will automatically redirect to login due to auth state change
+          }
+        }
+      ]
+    );
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      '⚠️ Delete Account',
+      'This will permanently delete your account and all of your data including:\n\n• All transaction history\n• All connected bank accounts\n• All settings and preferences\n• Your user account\n\nThis action cannot be undone. Are you sure you want to continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete Account',
+          style: 'destructive',
+          onPress: () => {
+            // Second confirmation
+            Alert.alert(
+              '🚨 Final Warning',
+              'This is your final warning. Deleting your account will permanently erase ALL of your financial data and cannot be recovered.\n\nDo you want to continue?',
+              [
+                { text: 'No, Keep My Account', style: 'cancel' },
+                {
+                  text: 'Yes, Delete Everything',
+                  style: 'destructive',
+                  onPress: () => {
+                    deleteAccount();
+                    Alert.alert(
+                      'Account Deleted',
+                      'Your account and all data have been permanently deleted.',
+                      [{ text: 'OK' }]
+                    );
+                  }
+                }
+              ]
+            );
           }
         }
       ]
@@ -477,6 +513,13 @@ ADDITIONAL DETAILS:
               subtitle="Sign out of your CheckMate account"
               onPress={handleLogout}
               rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
+            />
+            
+            <SettingRow
+              title="Delete Account"
+              subtitle="Permanently delete your account and all data"
+              onPress={handleDeleteAccount}
+              rightComponent={<Ionicons name="trash-outline" size={20} color="#EF4444" />}
             />
           </View>
         </View>
