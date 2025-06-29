@@ -475,6 +475,7 @@ ADDITIONAL DETAILS:
             <SettingRow
               title="About CheckMate"
               subtitle="Version 1.0.0"
+              onPress={() => navigation.navigate('About')}
               rightComponent={<Ionicons name="information-circle-outline" size={20} color="#9CA3AF" />}
             />
             

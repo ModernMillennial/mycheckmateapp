@@ -17,6 +17,7 @@ import WelcomeScreen from '../screens/WelcomeScreen';
 import SplashScreen from '../screens/SplashScreen';
 import TermsAndConditionsScreen from '../screens/TermsAndConditionsScreen';
 import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
+import AboutScreen from '../screens/AboutScreen';
 import { Transaction } from '../types';
 
 export type RootStackParamList = {
@@ -36,6 +37,7 @@ export type RootStackParamList = {
   Settings: undefined;
   Reports: undefined;
   NotificationSettings: undefined;
+  About: undefined;
 
   BankConnection: undefined;
   StartingBalanceSelection: {
@@ -160,6 +162,10 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen 
             name="PrivacyPolicy" 
             component={PrivacyPolicyScreen}
+          />
+          <Stack.Screen 
+            name="About" 
+            component={AboutScreen}
           />
         </>
       )}
