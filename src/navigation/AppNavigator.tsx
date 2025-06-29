@@ -8,7 +8,7 @@ import EditTransactionScreen from '../screens/EditTransactionScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
-import AccountsScreen from '../screens/AccountsScreen';
+
 import BankConnectionScreen from '../screens/BankConnectionScreen';
 import StartingBalanceSelectionScreen from '../screens/StartingBalanceSelectionScreen';
 import LoginScreen from '../screens/LoginScreen';
@@ -36,7 +36,7 @@ export type RootStackParamList = {
   Settings: undefined;
   Reports: undefined;
   NotificationSettings: undefined;
-  Accounts: undefined;
+
   BankConnection: undefined;
   StartingBalanceSelection: {
     accessToken: string;
@@ -148,10 +148,7 @@ const AppNavigator: React.FC = () => {
             name="NotificationSettings" 
             component={NotificationSettingsScreen}
           />
-          <Stack.Screen 
-            name="Accounts" 
-            component={AccountsScreen}
-          />
+
           <Stack.Screen 
             name="BankConnection" 
             component={BankConnectionScreen}

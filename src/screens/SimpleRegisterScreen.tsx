@@ -28,7 +28,6 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     getActiveAccount,
     getActiveTransactions,
     addTransaction,
-    addAccount,
     syncBankTransactions,
     clearAndReinitialize,
     updateSettings,
@@ -765,21 +764,9 @@ ACTUAL BEHAVIOR:
               {/* Manual Entry Option */}
               <Pressable
                 onPress={() => {
-                  // Create a basic manual account first
-                  const newAccount = {
-                    name: 'My Account',
-                    type: 'checking' as const,
-                    bankName: 'Manual Entry',
-                    accountNumber: '****',
-                    isActive: true,
-                    startingBalance: 0,
-                    startingBalanceDate: new Date().toISOString().split('T')[0],
-                    currentBalance: 0,
-                    color: '#3B82F6',
-                  };
-                  addAccount(newAccount);
-                  
-                  updateSettings({ bankLinked: true, activeAccountId: newAccount.name });
+                  // Initialize with default account for manual entry
+                  initializeWithSeedData();
+                  updateSettings({ bankLinked: false }); // Keep as manual, not bank-linked
                   setShowTransactions(true);
                   navigation?.navigate('AddTransaction');
                 }}

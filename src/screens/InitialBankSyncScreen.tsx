@@ -26,7 +26,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
   
-  const { addAccount, updateAccount, addTransaction, switchAccount, updateSettings } = useTransactionStore();
+  const { updateAccountInfo, addTransaction, updateSettings, initializeWithSeedData, getActiveAccount } = useTransactionStore();
 
   const demoBank = [
     { id: 'chase', name: 'Chase Bank', icon: '🏦' },
@@ -181,7 +181,9 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
       color: '#3B82F6',
     };
     
-    addAccount(newAccount);
+    // Initialize default account and update with bank info
+    initializeWithSeedData();
+    updateAccountInfo(newAccount);
     
     // Simulate import progress
     const importSteps = [
@@ -197,30 +199,27 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
       setImportProgress(step.progress);
     }
     
-    // Simple approach: add transactions to the default account for now
-    // In a real app, we'd get the account ID from the addAccount response
+    // Add transactions to the single account
     setTimeout(() => {
-      // For demo purposes, we'll use a default account ID
-      // This avoids the problematic useTransactionStore.getState() call
-      const demoAccountId = 'checking-1'; // Use existing default account
-      
-      switchAccount(demoAccountId);
       
       // Import transactions from the selected starting point forward
       const startingTransactionIndex = fetchedTransactions.findIndex(t => t.id === selectedStartingTransaction);
       const transactionsToImport = fetchedTransactions.slice(0, startingTransactionIndex + 1);
       
       transactionsToImport.forEach(transaction => {
-        addTransaction({
-          accountId: demoAccountId,
-          amount: transaction.amount,
-          payee: transaction.payee,
-          date: transaction.date.toISOString().split('T')[0],
-          reconciled: true,
-          userId: 'demo-user',
-          source: 'bank' as const,
-          notes: transaction.category,
-        });
+        const activeAccount = getActiveAccount();
+        if (activeAccount) {
+          addTransaction({
+            accountId: activeAccount.id,
+            amount: transaction.amount,
+            payee: transaction.payee,
+            date: transaction.date.toISOString().split('T')[0],
+            reconciled: true,
+            userId: 'demo-user',
+            source: 'bank' as const,
+            notes: transaction.category,
+          });
+        }
       });
     }, 200);
     

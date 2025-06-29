@@ -401,21 +401,7 @@ ADDITIONAL DETAILS:
           </View>
         </View>
 
-        {/* Account Management Section */}
-        <View className="mt-8">
-          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
-            Account Management
-          </Text>
-          
-          <View className="bg-white">
-            <SettingRow
-              title="Manage Accounts"
-              subtitle="Add, edit, or switch between your bank accounts"
-              onPress={() => navigation.navigate('Accounts')}
-              rightComponent={<Ionicons name="card-outline" size={20} color="#9CA3AF" />}
-            />
-          </View>
-        </View>
+
 
 
 

@@ -36,7 +36,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     initializeWithSeedData,
     getActiveAccount,
     getActiveTransactions,
-    switchAccount,
+
     addTransaction,
     syncBankTransactions,
     clearAndReinitialize,
@@ -480,51 +480,30 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Account Selector */}
-        <View className="mb-4">
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={accounts.filter(a => a.isActive)}
-            renderItem={({ item }) => (
-              <Pressable
-                onPress={() => switchAccount(item.id)}
-                className={cn(
-                  "mr-3 px-4 py-3 rounded-lg border-2 min-w-[140px]",
-                  activeAccount?.id === item.id
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 bg-white"
-                )}
-                style={{ borderColor: activeAccount?.id === item.id ? item.color : '#E5E7EB' }}
-              >
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-1">
-                    <Text className={cn(
-                      "text-sm font-semibold",
-                      activeAccount?.id === item.id ? "text-gray-900" : "text-gray-600"
-                    )}>
-                      {item.name}
-                    </Text>
-                    <Text className="text-xs text-gray-500">
-                      {item.bankName} •••{item.accountNumber}
-                    </Text>
-                  </View>
-                  <View
-                    className="w-3 h-3 rounded-full ml-2"
-                    style={{ backgroundColor: item.color }}
-                  />
+        {/* Single Account Info */}
+        {activeAccount && (
+          <View className="mb-4">
+            <View className="px-4 py-3 rounded-lg border-2 border-blue-500 bg-blue-50">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold text-gray-900">
+                    {activeAccount.name}
+                  </Text>
+                  <Text className="text-xs text-gray-500">
+                    {activeAccount.bankName} •••{activeAccount.accountNumber}
+                  </Text>
                 </View>
-                <Text className={cn(
-                  "text-lg font-bold mt-1",
-                  activeAccount?.id === item.id ? "text-gray-900" : "text-gray-700"
-                )}>
-                  ${item.currentBalance.toFixed(2)}
-                </Text>
-              </Pressable>
-            )}
-            keyExtractor={(item) => item.id}
-          />
-        </View>
+                <View
+                  className="w-3 h-3 rounded-full ml-2"
+                  style={{ backgroundColor: activeAccount.color }}
+                />
+              </View>
+              <Text className="text-lg font-bold mt-1 text-gray-900">
+                ${activeAccount.currentBalance.toFixed(2)}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {/* Balance Display */}
         {activeAccount && (

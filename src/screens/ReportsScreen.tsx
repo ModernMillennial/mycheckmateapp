@@ -27,7 +27,7 @@ interface MonthlyReport {
 }
 
 const ReportsScreen: React.FC<Props> = ({ navigation }) => {
-  const { getActiveTransactions, getActiveAccount, accounts, switchAccount } = useTransactionStore();
+  const { getActiveTransactions, getActiveAccount } = useTransactionStore();
   const transactions = getActiveTransactions();
   const activeAccount = getActiveAccount();
 
@@ -228,40 +228,22 @@ const ReportsScreen: React.FC<Props> = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Account Selector */}
-      <View className="px-4 py-2">
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={accounts.filter(a => a.isActive)}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => switchAccount(item.id)}
-              className={cn(
-                "mr-3 px-3 py-2 rounded-lg border",
-                activeAccount?.id === item.id
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 bg-white"
-              )}
-              style={{ borderColor: activeAccount?.id === item.id ? item.color : '#E5E7EB' }}
-            >
-              <View className="flex-row items-center">
-                <View
-                  className="w-3 h-3 rounded-full mr-2"
-                  style={{ backgroundColor: item.color }}
-                />
-                <Text className={cn(
-                  "text-sm font-medium",
-                  activeAccount?.id === item.id ? "text-gray-900" : "text-gray-600"
-                )}>
-                  {item.name}
-                </Text>
-              </View>
-            </Pressable>
-          )}
-          keyExtractor={(item) => item.id}
-        />
-      </View>
+      {/* Account Info */}
+      {activeAccount && (
+        <View className="px-4 py-2">
+          <View className="bg-white px-3 py-2 rounded-lg border border-gray-200">
+            <View className="flex-row items-center">
+              <View
+                className="w-3 h-3 rounded-full mr-2"
+                style={{ backgroundColor: activeAccount.color }}
+              />
+              <Text className="text-sm font-medium text-gray-900">
+                {activeAccount.name}
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* Summary Cards */}
       <View className="px-4 py-4">

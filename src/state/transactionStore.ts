@@ -38,14 +38,10 @@ interface TransactionState {
   connectPlaidAccount: (accessToken: string, accountData: any, startingDate?: string, startingBalance?: number) => void;
   syncPlaidTransactions: (accessToken: string, accountId: string, startDate: string, endDate: string) => Promise<void>;
   
-  // Account management
-  addAccount: (account: Omit<Account, 'id'>) => void;
-  updateAccount: (id: string, updates: Partial<Account>) => void;
-  deleteAccount: (id: string) => void;
-  switchAccount: (accountId: string) => void;
+  // Single account management
   getActiveAccount: () => Account | null;
   getActiveTransactions: () => Transaction[];
-  calculateAllAccountBalances: () => void;
+  updateAccountInfo: (updates: Partial<Account>) => void;
   clearUserData: () => void;
   processManualToBankConversion: (
     currentTransactions: Transaction[], 
@@ -233,8 +229,7 @@ export const useTransactionStore = create<TransactionState>()(
           accounts: updatedAccounts,
         });
 
-        // Also update other accounts if needed
-        get().calculateAllAccountBalances();
+        // Balance calculation is handled above
       },
 
       syncBankTransactions: (bankTransactions) => {
@@ -337,60 +332,48 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       initializeWithSeedData: () => {
-        // Production app starts with empty state - no seed data
-        set({
-          isInitialized: true,
-        });
+        const { accounts } = get();
+        
+        // Ensure there's always exactly one account
+        if (accounts.length === 0) {
+          const defaultAccount: Account = {
+            id: 'default-account-' + Date.now(),
+            name: 'My Account',
+            type: 'checking',
+            bankName: 'Bank Account',
+            accountNumber: '****',
+            isActive: true,
+            startingBalance: 0,
+            startingBalanceDate: new Date().toISOString().split('T')[0],
+            currentBalance: 0,
+            color: '#3B82F6',
+          };
+          
+          set((state) => ({
+            accounts: [defaultAccount],
+            settings: { ...state.settings, activeAccountId: defaultAccount.id },
+            isInitialized: true,
+          }));
+        } else {
+          // If there are multiple accounts, keep only the first one
+          const firstAccount = accounts[0];
+          set((state) => ({
+            accounts: [firstAccount],
+            settings: { ...state.settings, activeAccountId: firstAccount.id },
+            isInitialized: true,
+          }));
+        }
       },
 
-      // Account management functions
-      addAccount: (account) => {
-        const newAccount: Account = {
-          ...account,
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-        };
-
+      // Single account management - simplified
+      updateAccountInfo: (updates) => {
         set((state) => ({
-          accounts: [...state.accounts, newAccount],
-        }));
-      },
-
-      updateAccount: (id, updates) => {
-        set((state) => ({
-          accounts: state.accounts.map((a) =>
-            a.id === id ? { ...a, ...updates } : a
+          accounts: state.accounts.map((account) => 
+            account.id === state.settings.activeAccountId 
+              ? { ...account, ...updates }
+              : account
           ),
         }));
-      },
-
-      deleteAccount: (id) => {
-        const { settings } = get();
-        
-        // Don't allow deleting the active account if it has transactions
-        const accountTransactions = get().transactions.filter(t => t.accountId === id);
-        if (accountTransactions.length > 0) {
-          throw new Error('Cannot delete account with existing transactions');
-        }
-
-        set((state) => ({
-          accounts: state.accounts.filter((a) => a.id !== id),
-        }));
-
-        // If we deleted the active account, switch to the first available account
-        if (settings.activeAccountId === id) {
-          const remainingAccounts = get().accounts;
-          if (remainingAccounts.length > 0) {
-            get().switchAccount(remainingAccounts[0].id);
-          }
-        }
-      },
-
-      switchAccount: (accountId) => {
-        set((state) => ({
-          settings: { ...state.settings, activeAccountId: accountId },
-        }));
-        // Ensure balances are calculated for the new active account
-        get().calculateAllAccountBalances();
       },
 
       getActiveAccount: () => {
@@ -408,51 +391,7 @@ export const useTransactionStore = create<TransactionState>()(
         return filtered;
       },
 
-      calculateAllAccountBalances: () => {
-        const { transactions, accounts } = get();
-        
-        // Calculate balances for each account
-        const updatedAccounts = accounts.map(account => {
-          const accountTransactions = transactions
-            .filter(t => t.accountId === account.id)
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-          let runningBalance = account.startingBalance;
-          const updatedTransactions = accountTransactions.map(transaction => {
-            runningBalance += transaction.amount;
-            return { ...transaction, runningBalance };
-          });
-
-          return {
-            ...account,
-            currentBalance: runningBalance,
-          };
-        });
-
-        // Update all transactions with correct running balances
-        const allUpdatedTransactions = transactions.map(transaction => {
-          const account = updatedAccounts.find(a => a.id === transaction.accountId);
-          if (!account) return transaction;
-
-          const accountTransactions = transactions
-            .filter(t => t.accountId === account.id)
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-          let runningBalance = account.startingBalance;
-          for (const t of accountTransactions) {
-            runningBalance += t.amount;
-            if (t.id === transaction.id) {
-              return { ...transaction, runningBalance };
-            }
-          }
-          return transaction;
-        });
-
-        set({
-          accounts: updatedAccounts,
-          transactions: allUpdatedTransactions,
-        });
-      },
 
       clearAndReinitialize: () => {
         set({
@@ -487,9 +426,9 @@ export const useTransactionStore = create<TransactionState>()(
       connectPlaidAccount: (accessToken, accountData, startingDate, startingBalance) => {
         const { accounts, transactions } = get();
         
-        // Convert Plaid account to our Account type
-        const newAccount = {
-          id: accountData.account_id,
+        // Update the existing default account with Plaid data
+        const updatedAccount = {
+          id: accounts[0]?.id || 'default-account-' + Date.now(),
           name: accountData.name || accountData.official_name || 'Connected Account',
           type: accountData.subtype as 'checking' | 'savings' | 'credit',
           bankName: 'Connected via Plaid',
@@ -504,22 +443,22 @@ export const useTransactionStore = create<TransactionState>()(
 
         // Create starting point transaction
         const startingBalanceTransaction = {
-          id: `starting-balance-${newAccount.id}-${Date.now()}`,
+          id: `starting-balance-${updatedAccount.id}-${Date.now()}`,
           userId: 'user-1',
-          accountId: newAccount.id,
+          accountId: updatedAccount.id,
           date: startingDate || new Date().toISOString().split('T')[0],
           payee: 'Starting Point',
           amount: startingBalance || accountData.balances?.current || 0,
           source: 'bank' as const,
-          notes: `Account starting point from ${newAccount.bankName}`,
+          notes: `Account starting point from ${updatedAccount.bankName}`,
           reconciled: true,
           runningBalance: startingBalance || accountData.balances?.current || 0,
         };
 
         set((state) => ({
-          accounts: [...state.accounts, newAccount],
+          accounts: [updatedAccount], // Replace with updated account
           transactions: [...state.transactions, startingBalanceTransaction],
-          settings: { ...state.settings, bankLinked: true, activeAccountId: newAccount.id },
+          settings: { ...state.settings, bankLinked: true, activeAccountId: updatedAccount.id },
         }));
       },
 
@@ -544,38 +483,7 @@ export const useTransactionStore = create<TransactionState>()(
         }
       },
 
-      // Clear functions for account deletion
-      clearTransactions: () => {
-        set({ transactions: [] });
-      },
 
-      clearAccounts: () => {
-        set({ accounts: [], settings: { ...get().settings, activeAccountId: null } });
-      },
-
-      clearAllData: () => {
-        set({
-          transactions: [],
-          accounts: [],
-          settings: {
-            bankLinked: false,
-            monthlyResetEnabled: false,
-            startDate: new Date().toISOString().split('T')[0],
-            activeAccountId: null,
-          },
-          notificationSettings: {
-            depositsEnabled: true,
-            debitsEnabled: true,
-            overdraftWarningEnabled: true,
-            overdraftThreshold: 100,
-            quietHoursEnabled: false,
-            quietHoursStart: '22:00',
-            quietHoursEnd: '08:00',
-            weekendNotificationsEnabled: true,
-          },
-          isInitialized: false,
-        });
-      },
     }),
     {
       name: 'transaction-storage',

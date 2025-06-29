@@ -22,7 +22,7 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
   const [importProgress, setImportProgress] = useState(0);
   
   // Test all store functions from original component
-  const { addAccount, updateAccount, addTransaction, switchAccount, updateSettings } = useTransactionStore();
+  const { updateAccountInfo, addTransaction, updateSettings, initializeWithSeedData, getActiveAccount } = useTransactionStore();
   console.log('SimpleInitialBankSyncScreen: All store functions accessed successfully');
 
   // Enhanced simulateImport function with proper demo flow
@@ -50,12 +50,15 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
       color: '#3B82F6',
     };
     
-    addAccount(newAccount);
+    // Initialize default account and update with bank info
+    initializeWithSeedData();
+    updateAccountInfo(newAccount);
     
     // Add some demo transactions
+    const activeAccount = getActiveAccount();
     const demoTransactions = [
       {
-        accountId: 'checking-1',
+        accountId: activeAccount?.id || 'default',
         amount: -4.50,
         payee: 'Coffee Shop',
         date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -65,7 +68,7 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
         notes: 'Food & Dining',
       },
       {
-        accountId: 'checking-1',
+        accountId: activeAccount?.id || 'default',
         amount: 2500.00,
         payee: 'Payroll Deposit',
         date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -75,7 +78,7 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
         notes: 'Income',
       },
       {
-        accountId: 'checking-1',
+        accountId: activeAccount?.id || 'default',
         amount: -85.32,
         payee: 'Grocery Store',
         date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
