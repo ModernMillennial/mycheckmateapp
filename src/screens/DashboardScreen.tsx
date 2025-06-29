@@ -5,7 +5,6 @@ import {
   Pressable,
   ScrollView,
   Alert,
-  RefreshControl,
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,7 +18,6 @@ interface Props {
 }
 
 const DashboardScreen: React.FC<Props> = ({ navigation }) => {
-  const [refreshing, setRefreshing] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d'>('30d');
   
   const {
@@ -113,29 +111,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
   const netCashFlow = totalIncome - totalExpenses;
   const avgDailySpending = totalExpenses / (selectedPeriod === '7d' ? 7 : selectedPeriod === '30d' ? 30 : 90);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    
-    try {
-      if (activeAccount?.plaidAccessToken) {
-        const endDate = new Date().toISOString().split('T')[0];
-        const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        
-        await syncPlaidTransactions(
-          activeAccount.plaidAccessToken,
-          activeAccount.id,
-          startDate,
-          endDate
-        );
-      } else {
-        calculateRunningBalance();
-      }
-    } catch (error) {
-      console.error('Refresh error:', error);
-    } finally {
-      setRefreshing(false);
-    }
-  };
+
 
   const spendingByCategory = getSpendingByCategory();
   const dailySpending = getDailySpending();
@@ -186,19 +162,16 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
           >
             <Ionicons name="list" size={24} color="#374151" />
           </Pressable>
+          <Pressable
+            className="p-2"
+          >
+            <Ionicons name="water" size={24} color="#374151" />
+          </Pressable>
         </View>
       </View>
 
       <ScrollView 
         className="flex-1"
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={['#3B82F6']}
-            tintColor="#3B82F6"
-          />
-        }
       >
         {/* Account Balance Card */}
         {activeAccount ? (

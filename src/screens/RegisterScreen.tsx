@@ -5,7 +5,7 @@ import {
   FlatList,
   Pressable,
   TextInput,
-  RefreshControl,
+
   Alert,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -474,9 +474,14 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             </Pressable>
             <Pressable
               onPress={() => navigation.navigate('Settings')}
-              className="p-2"
+              className="p-2 mr-1"
             >
               <Ionicons name="settings-outline" size={24} color="#374151" />
+            </Pressable>
+            <Pressable
+              className="p-2"
+            >
+              <Ionicons name="water" size={24} color="#374151" />
             </Pressable>
           </View>
         </View>
@@ -615,14 +620,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             )}
           </View>
         }
-        refreshControl={
-          <RefreshControl
-            refreshing={false}
-            onRefresh={() => {
-              // Refresh functionality can be added here
-            }}
-          />
-        }
+
       />
 
       {/* Floating Action Button */}

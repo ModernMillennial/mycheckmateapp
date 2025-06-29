@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, Alert, FlatList, Clipboard, ScrollView, Image, RefreshControl, Modal } from 'react-native';
+import { View, Text, Pressable, Alert, FlatList, Clipboard, ScrollView, Image, Modal } from 'react-native';
 import * as MailComposer from 'expo-mail-composer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,7 +18,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [showTransactions, setShowTransactions] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+
   const [showDemoModal, setShowDemoModal] = useState(false);
   
   const { user } = useAuthStore();
@@ -60,84 +60,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
     // App will automatically initialize with working data
   }, []);
 
-  const onRefresh = async () => {
-    // Prevent multiple simultaneous refreshes
-    if (refreshing) return;
-    
-    setRefreshing(true);
-    
-    // Safety timeout to ensure refresh always completes
-    const timeoutId = setTimeout(() => {
-      setRefreshing(false);
-    }, 5000); // 5 second maximum
-    
-    try {
-      // Get the active account
-      const activeAccount = getActiveAccount();
-      
-      if (activeAccount?.plaidAccessToken) {
-        // If it's a Plaid-connected account, sync recent transactions
-        const endDate = new Date().toISOString().split('T')[0];
-        const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        
-        try {
-          await Promise.race([
-            syncPlaidTransactions(
-              activeAccount.plaidAccessToken, 
-              activeAccount.id, 
-              startDate, 
-              endDate
-            ),
-            new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Sync timeout')), 10000)
-            )
-          ]);
-          
-          clearTimeout(timeoutId);
-          Alert.alert(
-            'Sync Complete! 🔄',
-            'Your transactions have been updated with the latest data from your bank.',
-            [{ text: 'OK' }]
-          );
-        } catch (error) {
-          console.error('Plaid sync error:', error);
-          
-          // Fallback to manual refresh
-          calculateRunningBalance();
-          
-          clearTimeout(timeoutId);
-          Alert.alert(
-            'Refresh Complete ✅',
-            'Your account balances and transaction data have been refreshed.',
-            [{ text: 'OK' }]
-          );
-        }
-      } else {
-        // For manual accounts, just recalculate balances
-        calculateRunningBalance();
-        
-        // Add a slight delay to show the refresh animation
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        clearTimeout(timeoutId);
-        Alert.alert(
-          'Refresh Complete ✅',
-          'Your account balances and transaction data have been refreshed.',
-          [{ text: 'OK' }]
-        );
-      }
-    } catch (error) {
-      console.error('Refresh error:', error);
-      clearTimeout(timeoutId);
-      Alert.alert(
-        'Refresh Error',
-        'There was an issue refreshing your data. Please try again.',
-        [{ text: 'OK' }]
-      );
-    } finally {
-      setRefreshing(false);
-    }
-  };
+
 
 
 
@@ -472,14 +395,21 @@ ACTUAL BEHAVIOR:
               Checkmate
             </Text>
           </View>
-          <Pressable
-            onPress={() => {
-              setShowMenu(!showMenu);
-            }}
-            className="p-2"
-          >
-            <Ionicons name="menu" size={24} color="#374151" />
-          </Pressable>
+          <View className="flex-row items-center">
+            <Pressable
+              className="p-2 mr-2"
+            >
+              <Ionicons name="water" size={24} color="#374151" />
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                setShowMenu(!showMenu);
+              }}
+              className="p-2"
+            >
+              <Ionicons name="menu" size={24} color="#374151" />
+            </Pressable>
+          </View>
         </View>
         <Text className="text-gray-600">
           {user ? `Welcome back, ${user.firstName}!` : 'Your digital checkbook register'}
@@ -535,16 +465,7 @@ ACTUAL BEHAVIOR:
                 <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Connect Bank</Text>
               </Pressable>
               
-              <Pressable
-                onPress={() => {
-                  setShowMenu(false);
-                  setTimeout(() => onRefresh(), 100);
-                }}
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
-              >
-                <Ionicons name="sync" size={22} color="#3B82F6" />
-                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Sync Accounts</Text>
-              </Pressable>
+
               
               <Pressable
                 onPress={() => {
@@ -651,16 +572,7 @@ ACTUAL BEHAVIOR:
       <ScrollView 
         className="flex-1" 
         contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 32, paddingBottom: 120 }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={['#3B82F6']} // Android
-            tintColor="#3B82F6" // iOS
-            title="Pull to refresh..."
-            titleColor="#6B7280"
-          />
-        }
+
       >
         {/* Account Summary */}
         {activeAccount ? (
