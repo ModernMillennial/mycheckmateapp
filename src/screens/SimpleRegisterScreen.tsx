@@ -673,7 +673,6 @@ ACTUAL BEHAVIOR:
       <ScrollView 
         className="flex-1" 
         contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 32, paddingBottom: 120 }}
-
       >
         {/* Account Summary */}
         {activeAccount ? (
@@ -944,7 +943,7 @@ ACTUAL BEHAVIOR:
                 </View>
               </View>
               )
-        )}
+            })()}
 
         {/* Quick Actions - Only show for existing users */}
         {showTransactions && (
