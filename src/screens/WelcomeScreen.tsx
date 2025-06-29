@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../state/authStore';
 import { TransparentLogo } from '../components/TransparentLogo';
+import { Image } from 'react-native';
 
 interface Props {
   navigation: any;
@@ -50,8 +51,12 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
         <View className="flex-1 px-6 py-8">
           {/* Header */}
           <View className="items-center mb-12">
-            <View className="w-24 h-24 rounded-3xl bg-blue-500 items-center justify-center mb-6">
-              <TransparentLogo size={80} color="#FFFFFF" />
+            <View className="w-24 h-24 rounded-3xl shadow-lg overflow-hidden mb-6">
+              <Image
+                source={require('../../assets/new-logo.png')}
+                style={{ width: 96, height: 96 }}
+                resizeMode="contain"
+              />
             </View>
             <Text className="text-3xl font-bold text-gray-900 mb-2 text-center">
               Welcome to Checkmate

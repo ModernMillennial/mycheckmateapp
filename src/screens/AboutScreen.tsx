@@ -5,6 +5,7 @@ import {
   ScrollView,
   Pressable,
   Linking,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -82,8 +83,12 @@ const AboutScreen: React.FC<Props> = ({ navigation }) => {
       <ScrollView className="flex-1 px-4 py-6">
         {/* App Logo and Version */}
         <View className="items-center mb-8">
-          <View className="w-24 h-24 bg-blue-500 rounded-2xl items-center justify-center mb-4">
-            <Ionicons name="checkmark-done" size={48} color="white" />
+          <View className="w-24 h-24 rounded-2xl shadow-lg overflow-hidden mb-4">
+            <Image
+              source={require('../../assets/new-logo.png')}
+              style={{ width: 96, height: 96 }}
+              resizeMode="contain"
+            />
           </View>
           <Text className="text-2xl font-bold text-gray-900 mb-2">Checkmate</Text>
           <Text className="text-lg text-gray-600 mb-1">Version 1.0.0</Text>
