@@ -147,7 +147,23 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 
       // Insert starting balance at the correct chronological position
       const allWithStarting = [...sortedTransactions, startingBalanceEntry];
-      return allWithStarting.sort(
+      const chronologicallySorted = allWithStarting.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+      
+      // Recalculate running balances for the combined list
+      let runningBalance = activeAccount.startingBalance;
+      const transactionsWithCorrectBalances = chronologicallySorted.map((transaction) => {
+        if (transaction.id.startsWith('starting-balance-')) {
+          return { ...transaction, runningBalance };
+        } else {
+          runningBalance += transaction.amount;
+          return { ...transaction, runningBalance };
+        }
+      });
+      
+      // Return in reverse chronological order (newest first)
+      return transactionsWithCorrectBalances.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
     }

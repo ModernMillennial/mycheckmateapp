@@ -38,15 +38,15 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
     const newAccount = {
       name: `${bankName} Checking`,
       type: 'checking' as const,
-      balance: 1547.23,
-      startingBalance: 1547.23,
+      balance: 1504.00,
+      startingBalance: 1504.00,
       startingBalanceDate: new Date().toISOString().split('T')[0],
       isConnected: true,
       lastSyncDate: new Date(),
       bankName: bankName,
       accountNumber: '****1234',
       isActive: true,
-      currentBalance: 1547.23,
+      currentBalance: 1504.00,
       color: '#3B82F6',
     };
     
@@ -57,16 +57,6 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
     // Add some demo transactions
     const activeAccount = getActiveAccount();
     const demoTransactions = [
-      {
-        accountId: activeAccount?.id || 'default',
-        amount: -4.50,
-        payee: 'Coffee Shop',
-        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        reconciled: true,
-        userId: 'demo-user',
-        source: 'bank' as const,
-        notes: 'Food & Dining',
-      },
       {
         accountId: activeAccount?.id || 'default',
         amount: 2500.00,
@@ -86,6 +76,16 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
         userId: 'demo-user',
         source: 'bank' as const,
         notes: 'Groceries',
+      },
+      {
+        accountId: activeAccount?.id || 'default',
+        amount: -4.50,
+        payee: 'Coffee Shop',
+        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        reconciled: true,
+        userId: 'demo-user',
+        source: 'bank' as const,
+        notes: 'Food & Dining',
       },
     ];
     
