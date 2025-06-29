@@ -21,7 +21,7 @@ interface Props {
 }
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
-  const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount } = useTransactionStore();
+  const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount, getActiveTransactions } = useTransactionStore();
   const { user, logout } = useAuthStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
