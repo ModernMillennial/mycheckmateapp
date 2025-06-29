@@ -63,8 +63,8 @@ const AppNavigator: React.FC = () => {
   
   // Determine initial route based on auth state and terms acceptance
   const getInitialRoute = (): keyof RootStackParamList => {
-    // Always start with Splash screen first
-    return "Splash";
+    // For budget tracker demo, go directly to Budget screen
+    return "Budget";
   };
   
 
@@ -87,120 +87,110 @@ const AppNavigator: React.FC = () => {
         }}
       />
       
-      {!isAuthenticated ? (
-        // Auth Stack
-        <>
-          <Stack.Screen 
-            name="Welcome" 
-            component={WelcomeScreen}
-            options={{
-              headerShown: false,
-              animationTypeForReplace: 'push',
-            }}
-          />
-          <Stack.Screen 
-            name="Login" 
-            component={LoginScreen}
-            options={{
-              headerShown: false,
-              animationTypeForReplace: 'push',
-            }}
-          />
-          <Stack.Screen 
-            name="Signup" 
-            component={SignupScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen 
-            name="ForgotPassword" 
-            component={ForgotPasswordScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-        </>
-      ) : (
-        // App Stack - include terms screen for authenticated users too
-        <>
-          {/* Terms Acceptance Screen - shown for first-time users after signup */}
-          <Stack.Screen 
-            name="TermsAcceptance" 
-            component={TermsAcceptanceScreen}
-            options={{
-              headerShown: false,
-              gestureEnabled: false, // Prevent back gesture - must accept to continue
-            }}
-          />
-          {/* Terms Screen - shown for first-time users or when accessed from settings */}
-          <Stack.Screen 
-            name="TermsAndConditions" 
-            component={TermsAndConditionsScreen}
-            options={({ route }) => ({
-              headerShown: false,
-              gestureEnabled: !route.params?.isFirstTime, // Allow gesture when not first time
-            })}
-            initialParams={{ isFirstTime: !settings.hasAcceptedTerms }}
-          />
-          <Stack.Screen 
-            name="Register" 
-            component={SimpleRegisterScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-
-          <Stack.Screen 
-            name="Budget" 
-            component={BudgetScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen 
-            name="AddTransaction" 
-            component={AddTransactionScreen}
-            options={{
-              presentation: 'modal',
-              animation: 'slide_from_bottom',
-            }}
-          />
-          <Stack.Screen 
-            name="EditTransaction" 
-            component={EditTransactionScreen}
-          />
-          <Stack.Screen 
-            name="Settings" 
-            component={SettingsScreen}
-          />
-          <Stack.Screen 
-            name="Reports" 
-            component={ReportsScreen}
-          />
-          <Stack.Screen 
-            name="NotificationSettings" 
-            component={NotificationSettingsScreen}
-          />
-
-          <Stack.Screen 
-            name="BankConnection" 
-            component={BankConnectionScreen}
-          />
-          <Stack.Screen 
-            name="StartingBalanceSelection" 
-            component={StartingBalanceSelectionScreen}
-          />
-          <Stack.Screen 
-            name="PrivacyPolicy" 
-            component={PrivacyPolicyScreen}
-          />
-          <Stack.Screen 
-            name="About" 
-            component={AboutScreen}
-          />
-        </>
-      )}
+      {/* Budget Tracker App - Direct Access */}
+      <Stack.Screen 
+        name="Budget" 
+        component={BudgetScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen 
+        name="AddTransaction" 
+        component={AddTransactionScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      />
+      <Stack.Screen 
+        name="EditTransaction" 
+        component={EditTransactionScreen}
+      />
+      
+      {/* Auth Stack - Optional */}
+      <Stack.Screen 
+        name="Welcome" 
+        component={WelcomeScreen}
+        options={{
+          headerShown: false,
+          animationTypeForReplace: 'push',
+        }}
+      />
+      <Stack.Screen 
+        name="Login" 
+        component={LoginScreen}
+        options={{
+          headerShown: false,
+          animationTypeForReplace: 'push',
+        }}
+      />
+      <Stack.Screen 
+        name="Signup" 
+        component={SignupScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen 
+        name="ForgotPassword" 
+        component={ForgotPasswordScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      {/* Other Screens */}
+      <Stack.Screen 
+        name="TermsAcceptance" 
+        component={TermsAcceptanceScreen}
+        options={{
+          headerShown: false,
+          gestureEnabled: false,
+        }}
+      />
+      <Stack.Screen 
+        name="TermsAndConditions" 
+        component={TermsAndConditionsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen 
+        name="Register" 
+        component={SimpleRegisterScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen 
+        name="Settings" 
+        component={SettingsScreen}
+      />
+      <Stack.Screen 
+        name="Reports" 
+        component={ReportsScreen}
+      />
+      <Stack.Screen 
+        name="NotificationSettings" 
+        component={NotificationSettingsScreen}
+      />
+      <Stack.Screen 
+        name="BankConnection" 
+        component={BankConnectionScreen}
+      />
+      <Stack.Screen 
+        name="StartingBalanceSelection" 
+        component={StartingBalanceSelectionScreen}
+      />
+      <Stack.Screen 
+        name="PrivacyPolicy" 
+        component={PrivacyPolicyScreen}
+      />
+      <Stack.Screen 
+        name="About" 
+        component={AboutScreen}
+      />
     </Stack.Navigator>
   );
 };
