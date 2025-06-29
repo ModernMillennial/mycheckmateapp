@@ -71,10 +71,10 @@ const SplashScreen: React.FC<Props> = ({ navigation }) => {
       <View className="flex-1 items-center justify-center px-8">
         {/* Logo */}
         <Animated.View style={[logoAnimatedStyle]} className="items-center mb-8">
-          <View className="w-32 h-32 rounded-3xl shadow-lg overflow-hidden">
+          <View className="w-32 h-32 rounded-3xl shadow-lg overflow-hidden items-center justify-center">
             <Image
               source={require('../../assets/new-logo.png')}
-              style={{ width: 128, height: 128 }}
+              style={{ width: 112, height: 112 }}
               resizeMode="contain"
             />
           </View>

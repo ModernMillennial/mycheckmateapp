@@ -51,10 +51,10 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
         <View className="flex-1 px-6 py-8">
           {/* Header */}
           <View className="items-center mb-12">
-            <View className="w-24 h-24 rounded-3xl shadow-lg overflow-hidden mb-6">
+            <View className="w-24 h-24 rounded-3xl shadow-lg overflow-hidden items-center justify-center mb-6">
               <Image
                 source={require('../../assets/new-logo.png')}
-                style={{ width: 96, height: 96 }}
+                style={{ width: 84, height: 84 }}
                 resizeMode="contain"
               />
             </View>
