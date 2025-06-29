@@ -191,8 +191,8 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 
   const showUserGuide = () => {
     Alert.alert(
-      'CheckMate User Guide 📚',
-      `Welcome to CheckMate! Here's how to use the app:
+      'Checkmate User Guide 📚',
+      `Welcome to Checkmate ✓ Here's how to use the app:
 
 🏦 BANK CONNECTION:
 • Go to Settings → Initial Bank Setup
@@ -235,7 +235,7 @@ A: Manual entries show "NOT POSTED" until they're matched with bank transactions
 Q: How often should I sync with my bank?
 A: We recommend syncing daily or weekly to keep your register up-to-date.
 
-Q: Can I use CheckMate without connecting a bank?
+Q: Can I use Checkmate without connecting a bank?
 A: Yes! You can manually track all transactions without bank connection.
 
 Q: What happens if I delete a transaction?
@@ -283,7 +283,7 @@ ADDITIONAL DETAILS:
         
         await MailComposer.composeAsync({
           recipients: ['support@mycheckmateapp.com'],
-          subject: 'CheckMate Support Request',
+          subject: 'Checkmate Support Request',
           body: supportInfo,
           isHtml: false,
         });
@@ -475,7 +475,7 @@ ADDITIONAL DETAILS:
           
           <View className="bg-white">
             <SettingRow
-              title="About CheckMate"
+              title="About Checkmate"
               subtitle="Version 1.0.0"
               onPress={() => navigation.navigate('About')}
               rightComponent={<Ionicons name="information-circle-outline" size={20} color="#9CA3AF" />}
@@ -513,7 +513,7 @@ ADDITIONAL DETAILS:
           <View className="bg-white">
             <SettingRow
               title="Sign Out"
-              subtitle="Sign out of your CheckMate account"
+              subtitle="Sign out of your Checkmate account"
               onPress={() => {
                 Alert.alert(
                   'Sign Out',
@@ -540,7 +540,7 @@ ADDITIONAL DETAILS:
               onPress={() => {
                 Alert.alert(
                   'Delete Account',
-                  'This will permanently delete your CheckMate account and all associated data. This action cannot be undone.',
+                  'This will permanently delete your Checkmate account and all associated data. This action cannot be undone.',
                   [
                     { text: 'Cancel', style: 'cancel' },
                     {

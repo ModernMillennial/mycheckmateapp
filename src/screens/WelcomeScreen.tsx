@@ -53,7 +53,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
               <Ionicons name="checkmark-circle" size={64} color="white" />
             </View>
             <Text className="text-3xl font-bold text-gray-900 mb-2 text-center">
-              Welcome to CheckMate!
+              Welcome to Checkmate ✓
             </Text>
             <Text className="text-lg text-gray-600 text-center mb-2">
               {isAuthenticated && user?.firstName ? `Hi ${user.firstName}! ` : ''}Ready to take control of your finances?
@@ -66,7 +66,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
           {/* Features */}
           <View className="mb-12">
             <Text className="text-xl font-semibold text-gray-900 mb-6 text-center">
-              What you can do with CheckMate
+              What you can do with Checkmate
             </Text>
             
             {features.map((feature, index) => (

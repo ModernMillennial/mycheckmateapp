@@ -75,7 +75,7 @@ const AboutScreen: React.FC<Props> = ({ navigation }) => {
         </Pressable>
         
         <Text className="text-lg font-semibold text-gray-900 ml-2">
-          About CheckMate
+          About Checkmate
         </Text>
       </View>
 
@@ -85,15 +85,15 @@ const AboutScreen: React.FC<Props> = ({ navigation }) => {
           <View className="w-24 h-24 bg-blue-500 rounded-2xl items-center justify-center mb-4">
             <Ionicons name="checkmark-done" size={48} color="white" />
           </View>
-          <Text className="text-2xl font-bold text-gray-900 mb-2">CheckMate</Text>
+          <Text className="text-2xl font-bold text-gray-900 mb-2">Checkmate</Text>
           <Text className="text-lg text-gray-600 mb-1">Version 1.0.0</Text>
           <Text className="text-sm text-gray-500">Digital Register & Banking</Text>
         </View>
 
         {/* About Section */}
-        <InfoSection title="About CheckMate">
+        <InfoSection title="About Checkmate">
           <Text className="text-gray-700 leading-6">
-            CheckMate is your complete digital checkbook register that seamlessly integrates with your bank accounts. 
+            Checkmate is your complete digital checkbook register that seamlessly integrates with your bank accounts. 
             Keep track of your finances with the familiar checkbook format while enjoying modern features like 
             automatic bank synchronization, transaction matching, and real-time balance calculations.
           </Text>
@@ -204,7 +204,7 @@ const AboutScreen: React.FC<Props> = ({ navigation }) => {
         {/* Copyright */}
         <View className="items-center pt-6 pb-4">
           <Text className="text-sm text-gray-500 text-center">
-            © 2024 CheckMate. All rights reserved.
+            © 2024 Checkmate. All rights reserved.
           </Text>
           <Text className="text-xs text-gray-400 text-center mt-1">
             Made with ♥ for better financial management

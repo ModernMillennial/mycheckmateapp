@@ -245,7 +245,7 @@ ACTUAL BEHAVIOR:
   const handleDemoReset = () => {
     Alert.alert(
       'Start Demo 🚀',
-      'This will add sample transactions to demonstrate the CheckMate features including manual entry, bank sync, and transaction conversion.',
+      'This will add sample transactions to demonstrate the Checkmate features including manual entry, bank sync, and transaction conversion.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -722,7 +722,7 @@ ACTUAL BEHAVIOR:
                 <Ionicons name="wallet" size={64} color="#3B82F6" />
               </View>
               <Text className="text-3xl font-bold text-gray-900 text-center mb-3">
-                Welcome to Checkmate!
+                Welcome to Checkmate ✓
               </Text>
               <Text className="text-lg text-gray-600 text-center leading-6">
                 Your digital checkbook register that automatically syncs with your bank account.
@@ -960,7 +960,7 @@ ACTUAL BEHAVIOR:
         <View className="flex-row items-center justify-center">
           <Ionicons name="checkmark-circle" size={20} color="#10B981" />
           <Text className="text-green-600 font-medium ml-2">
-            CheckMate Active
+            Checkmate Active ✓
           </Text>
         </View>
         <Text className="text-center text-gray-500 text-sm mt-1">

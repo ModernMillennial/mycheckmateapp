@@ -53,7 +53,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
     if (isFirstTime) {
       Alert.alert(
         'Terms Required',
-        'You must accept the Terms & Conditions to use CheckMate.',
+        'You must accept the Terms & Conditions to use Checkmate.',
         [
           {
             text: 'Review Again',
@@ -127,7 +127,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
               1. Introduction
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              Welcome to CheckMate ("we," "our," or "us"). These Terms and Conditions ("Terms") govern your use of our mobile application CheckMate (the "Service") operated by CheckMate Inc.
+              Welcome to Checkmate ("we," "our," or "us"). These Terms and Conditions ("Terms") govern your use of our mobile application Checkmate (the "Service") operated by Checkmate Inc.
             </Text>
             <Text className="text-base text-gray-700 leading-6 mt-3">
               By accessing or using our Service, you agree to be bound by these Terms. If you disagree with any part of these terms, then you may not access the Service.
@@ -140,7 +140,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
               2. Acceptance of Terms
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              By downloading, installing, or using CheckMate, you acknowledge that you have read, understood, and agree to be bound by these Terms and our Privacy Policy. These Terms constitute a legally binding agreement between you and CheckMate Inc.
+              By downloading, installing, or using Checkmate, you acknowledge that you have read, understood, and agree to be bound by these Terms and our Privacy Policy. These Terms constitute a legally binding agreement between you and Checkmate Inc.
             </Text>
           </View>
 
@@ -150,7 +150,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
               3. Description of Service
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              CheckMate is a digital checkbook register application that allows users to:
+              Checkmate is a digital checkbook register application that allows users to:
             </Text>
             <View className="ml-4 mt-2">
               <Text className="text-base text-gray-700 leading-6">• Track personal financial transactions</Text>
@@ -167,7 +167,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
               4. User Eligibility
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              You must be at least 18 years old to use CheckMate. By using the Service, you represent and warrant that you are at least 18 years of age and have the legal capacity to enter into these Terms.
+              You must be at least 18 years old to use Checkmate. By using the Service, you represent and warrant that you are at least 18 years of age and have the legal capacity to enter into these Terms.
             </Text>
           </View>
 
@@ -193,7 +193,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
               6. Financial Data and Bank Connections
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              CheckMate uses Plaid and other third-party services to connect to your bank accounts. By connecting your bank account, you authorize us to:
+              Checkmate uses Plaid and other third-party services to connect to your bank accounts. By connecting your bank account, you authorize us to:
             </Text>
             <View className="ml-4 mt-2">
               <Text className="text-base text-gray-700 leading-6">• Access your account information and transaction history</Text>
@@ -211,7 +211,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
               7. Prohibited Uses
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              You may not use CheckMate to:
+              You may not use Checkmate to:
             </Text>
             <View className="ml-4 mt-2">
               <Text className="text-base text-gray-700 leading-6">• Violate any applicable laws or regulations</Text>
@@ -228,7 +228,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
               8. Data Accuracy and Disclaimers
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              While we strive to provide accurate financial data, CheckMate is not a substitute for professional financial advice. You are responsible for:
+              While we strive to provide accurate financial data, Checkmate is not a substitute for professional financial advice. You are responsible for:
             </Text>
             <View className="ml-4 mt-2">
               <Text className="text-base text-gray-700 leading-6">• Verifying the accuracy of all financial information</Text>
@@ -243,7 +243,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
               9. Limitation of Liability
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              CheckMate Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or use, incurred by you or any third party, whether in an action in contract or tort, even if we have been advised of the possibility of such damages.
+              Checkmate Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or use, incurred by you or any third party, whether in an action in contract or tort, even if we have been advised of the possibility of such damages.
             </Text>
           </View>
 

@@ -53,7 +53,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
     if (isFirstTime) {
       Alert.alert(
         'Privacy Policy Required',
-        'You must accept the Privacy Policy to use CheckMate.',
+        'You must accept the Privacy Policy to use Checkmate.',
         [
           {
             text: 'Review Again',
@@ -127,10 +127,10 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
               1. Introduction
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              CheckMate Inc. ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application CheckMate ("the Service").
+              Checkmate Inc. ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application Checkmate ("the Service").
             </Text>
             <Text className="text-base text-gray-700 leading-6 mt-3">
-              Please read this Privacy Policy carefully. By using CheckMate, you consent to the data practices described in this policy.
+              Please read this Privacy Policy carefully. By using Checkmate, you consent to the data practices described in this policy.
             </Text>
           </View>
 
@@ -170,7 +170,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
               2.3 Usage Information
             </Text>
             <Text className="text-base text-gray-700 leading-6 mb-3">
-              We automatically collect information about how you use CheckMate:
+              We automatically collect information about how you use Checkmate:
             </Text>
             <View className="ml-4 mb-4">
               <Text className="text-base text-gray-700 leading-6">• App usage patterns and preferences</Text>
@@ -196,7 +196,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
               We use the collected information for the following purposes:
             </Text>
             <View className="ml-4">
-              <Text className="text-base text-gray-700 leading-6">• Provide and maintain the CheckMate service</Text>
+              <Text className="text-base text-gray-700 leading-6">• Provide and maintain the Checkmate service</Text>
               <Text className="text-base text-gray-700 leading-6">• Process and categorize your financial transactions</Text>
               <Text className="text-base text-gray-700 leading-6">• Generate account balances and financial insights</Text>
               <Text className="text-base text-gray-700 leading-6">• Sync data between devices and accounts</Text>
@@ -307,7 +307,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
               8. Third-Party Services
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              CheckMate integrates with third-party services, particularly Plaid, to provide bank connectivity. These services have their own privacy policies, and we encourage you to review them. We are not responsible for the privacy practices of these third-party services.
+              Checkmate integrates with third-party services, particularly Plaid, to provide bank connectivity. These services have their own privacy policies, and we encourage you to review them. We are not responsible for the privacy practices of these third-party services.
             </Text>
           </View>
 
@@ -317,7 +317,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
               9. Children's Privacy
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              CheckMate is not intended for children under 18 years of age. We do not knowingly collect personal information from children under 18. If we become aware that we have collected personal information from a child under 18, we will take steps to delete such information.
+              Checkmate is not intended for children under 18 years of age. We do not knowingly collect personal information from children under 18. If we become aware that we have collected personal information from a child under 18, we will take steps to delete such information.
             </Text>
           </View>
 
@@ -337,7 +337,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
               11. Changes to This Privacy Policy
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new Privacy Policy in the app and updating the "Last updated" date. Your continued use of CheckMate after any changes constitutes acceptance of the updated Privacy Policy.
+              We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new Privacy Policy in the app and updating the "Last updated" date. Your continued use of Checkmate after any changes constitutes acceptance of the updated Privacy Policy.
             </Text>
           </View>
 
@@ -350,7 +350,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
               If you have any questions about this Privacy Policy or our privacy practices, please contact us:
             </Text>
             <View className="p-4 bg-gray-50 rounded-lg">
-              <Text className="text-base font-medium text-gray-900">CheckMate Inc.</Text>
+              <Text className="text-base font-medium text-gray-900">Checkmate Inc.</Text>
               <Text className="text-base text-gray-700">Email: support@mycheckmateapp.com</Text>
             </View>
             
@@ -392,7 +392,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
               <Text className={`font-semibold ${
                 hasScrolledToBottom ? 'text-white' : 'text-gray-500'
               }`}>
-                Accept & Start Using CheckMate
+                Accept & Start Using Checkmate ✓
               </Text>
             </Pressable>
           </View>

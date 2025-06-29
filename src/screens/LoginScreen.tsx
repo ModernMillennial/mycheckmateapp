@@ -91,7 +91,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                 Welcome Back
               </Text>
               <Text className="text-gray-600 text-center">
-                Sign in to your CheckMate account
+                Sign in to your Checkmate account
               </Text>
             </View>
 
