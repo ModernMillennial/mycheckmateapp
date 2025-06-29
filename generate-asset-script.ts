@@ -50,13 +50,14 @@ async function logImageGeneration(prompt: string, imageUrl: string): Promise<voi
 async function main() {
   try {
     //update this to
-    const prompt = "describe the asset you want to generate";
+    const prompt = "A minimalist logo icon with a white chess knight piece and a white dollar bill symbol on a transparent background. Modern, clean design, no background color, high contrast white symbols suitable for app icon";
 
     console.log("Generating image with prompt:", prompt);
     const imageUrl = await generateImage(prompt, {
       size: "1024x1024",
       quality: "high",
       format: "png",
+      background: "transparent",
     });
 
     console.log("Image generated successfully. URL:", imageUrl);
@@ -64,7 +65,7 @@ async function main() {
     // Log the image generation
     await logImageGeneration(prompt, imageUrl);
 
-    const outputPath = path.join(__dirname, "assets", "japanese-art-logo.png");
+    const outputPath = path.join(__dirname, "assets", "logo-transparent.png");
     await downloadImage(imageUrl, outputPath);
 
     console.log("Process completed successfully");
