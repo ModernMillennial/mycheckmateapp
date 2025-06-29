@@ -13,6 +13,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../state/authStore';
+import { useTransactionStore } from '../state/transactionStore';
+import TermsAcceptanceModal from '../components/TermsAcceptanceModal';
 
 interface Props {
   navigation: any;
@@ -26,7 +28,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   
   // Error states
   const [firstNameError, setFirstNameError] = useState('');
@@ -34,9 +36,10 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
-  const [termsError, setTermsError] = useState('');
+
   
   const { signup, isLoading } = useAuthStore();
+  const { updateSettings } = useTransactionStore();
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -54,7 +57,6 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
     setEmailError('');
     setPasswordError('');
     setConfirmPasswordError('');
-    setTermsError('');
 
     // Validation
     let hasErrors = false;
@@ -93,10 +95,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
       hasErrors = true;
     }
 
-    if (!acceptTerms) {
-      setTermsError('Please accept the terms and conditions');
-      hasErrors = true;
-    }
+
 
     if (hasErrors) return;
 
@@ -121,8 +120,8 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
         ]
       );
     } else {
-      // Success - navigation will automatically redirect due to auth state change
-      // The auth store will update isAuthenticated to true
+      // Success - show terms acceptance modal
+      setShowTermsModal(true);
     }
   };
 
@@ -292,31 +291,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
                 ) : null}
               </View>
 
-              {/* Terms and Conditions */}
-              <View className="mb-6">
-                <Pressable
-                  onPress={() => {
-                    setAcceptTerms(!acceptTerms);
-                    if (termsError) setTermsError('');
-                  }}
-                  className="flex-row items-start"
-                >
-                  <View className={`w-5 h-5 rounded border-2 ${acceptTerms ? 'bg-blue-500 border-blue-500' : 'border-gray-300'} items-center justify-center mr-3 mt-0.5`}>
-                    {acceptTerms && (
-                      <Ionicons name="checkmark" size={12} color="white" />
-                    )}
-                  </View>
-                  <Text className="text-sm text-gray-700 flex-1">
-                    I agree to the{' '}
-                    <Text className="text-blue-500 font-medium">Terms of Service</Text>
-                    {' '}and{' '}
-                    <Text className="text-blue-500 font-medium">Privacy Policy</Text>
-                  </Text>
-                </Pressable>
-                {termsError ? (
-                  <Text className="text-red-500 text-sm mt-2 ml-8">{termsError}</Text>
-                ) : null}
-              </View>
+
 
               {/* Signup Button */}
               <Pressable
@@ -351,6 +326,28 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Terms Acceptance Modal */}
+      <TermsAcceptanceModal
+        visible={showTermsModal}
+        onAccept={() => {
+          // Mark both terms and privacy as accepted
+          updateSettings({ 
+            hasAcceptedTerms: true,
+            termsAcceptedDate: new Date().toISOString(),
+            hasAcceptedPrivacy: true,
+            privacyAcceptedDate: new Date().toISOString()
+          });
+          setShowTermsModal(false);
+          // Navigation will automatically redirect due to auth state change
+        }}
+        onViewTerms={() => {
+          navigation.navigate('TermsAndConditions', { isFirstTime: true });
+        }}
+        onViewPrivacy={() => {
+          navigation.navigate('PrivacyPolicy', { isFirstTime: true });
+        }}
+      />
     </SafeAreaView>
   );
 };
