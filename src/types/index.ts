@@ -39,3 +39,21 @@ export interface UserSettings {
 }
 
 export type FilterType = 'all' | 'manual' | 'bank' | 'reconciled' | 'unreconciled';
+
+export interface Budget {
+  id: string;
+  name: string;
+  category: string;
+  limit: number;
+  period: 'weekly' | 'monthly' | 'yearly';
+  color: string;
+  isActive: boolean;
+  createdDate: string;
+}
+
+export interface BudgetSpending {
+  budgetId: string;
+  spent: number;
+  remaining: number;
+  percentUsed: number;
+}

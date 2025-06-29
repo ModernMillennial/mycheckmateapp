@@ -84,10 +84,20 @@ export default function App() {
     // Setup notification listeners
     const unsubscribe = setupNotificationListeners();
     
-    // Add a small delay to ensure everything is ready
-    setTimeout(() => {
-      setIsReady(true);
-    }, 100);
+    // Initialize the financial app
+    const initializeApp = async () => {
+      try {
+        // Add a small delay to ensure everything is ready
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        setIsReady(true);
+      } catch (error) {
+        console.error('App initialization error:', error);
+        setIsReady(true); // Continue anyway
+      }
+    };
+    
+    initializeApp();
     
     return unsubscribe;
   }, []);

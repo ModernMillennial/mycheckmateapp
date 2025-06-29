@@ -3,6 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '../state/authStore';
 import { useTransactionStore } from '../state/transactionStore';
 import SimpleRegisterScreen from '../screens/SimpleRegisterScreen';
+import DashboardScreen from '../screens/DashboardScreen';
+import BudgetScreen from '../screens/BudgetScreen';
 import AddTransactionScreen from '../screens/AddTransactionScreen';
 import EditTransactionScreen from '../screens/EditTransactionScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -34,6 +36,8 @@ export type RootStackParamList = {
   PrivacyPolicy: { isFirstTime?: boolean; isReadOnly?: boolean };
   // App screens
   Register: undefined;
+  Dashboard: undefined;
+  Budget: undefined;
   AddTransaction: undefined;
   EditTransaction: { transaction: Transaction };
   Settings: undefined;
@@ -133,6 +137,20 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen 
             name="Register" 
             component={SimpleRegisterScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="Dashboard" 
+            component={DashboardScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="Budget" 
+            component={BudgetScreen}
             options={{
               headerShown: false,
             }}

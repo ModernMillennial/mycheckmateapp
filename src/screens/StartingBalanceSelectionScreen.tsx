@@ -19,12 +19,13 @@ interface Props {
       accessToken: string;
       accountData: any;
       institutionName: string;
+      isDemo?: boolean;
     };
   };
 }
 
 const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) => {
-  const { accessToken, accountData, institutionName } = route.params;
+  const { accessToken, accountData, institutionName, isDemo = false } = route.params;
   const { connectPlaidAccount, syncPlaidTransactions } = useTransactionStore();
   
   const [transactions, setTransactions] = useState<PlaidTransaction[]>([]);
@@ -44,7 +45,8 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
       const endDate = new Date().toISOString().split('T')[0];
       const startDate = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       
-      const bankTransactions = await plaidService.getTransactions(
+      // Use the unified method that handles both real and demo data
+      const bankTransactions = await plaidService.getTransactionsOrDemo(
         accessToken,
         [accountData.account_id],
         startDate,
@@ -112,17 +114,34 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
 
       connectPlaidAccount(accessToken, accountWithBalance, startingDate, startingBalance);
 
-      // Sync transactions from selected date (skip for demo mode)
-      if (accessToken !== 'demo_public_token' && accessToken !== 'demo_access_token') {
+      // Sync transactions from selected date
+      if (!isDemo && !accessToken.startsWith('demo_')) {
         try {
           await syncPlaidTransactions(accessToken, accountData.account_id, syncFromDate, new Date().toISOString().split('T')[0]);
         } catch (syncError) {
-          console.log('Sync error (continuing with demo):', syncError);
-          // Continue without failing - demo mode
+          console.log('Sync error (continuing):', syncError);
+          // Continue without failing - might be demo mode anyway
         }
+      } else {
+        // For demo mode, manually add sample transactions to the store
+        const demoTransactions = transactions.filter(tx => {
+          const txDate = new Date(tx.date);
+          const syncDate = new Date(syncFromDate);
+          return txDate >= syncDate;
+        });
+        
+        // Convert demo transactions and add them
+        const convertedTransactions = demoTransactions.map(tx => 
+          plaidService.convertPlaidTransactionToApp(tx, 'user-1')
+        ).map(tx => ({
+          ...tx,
+          accountId: accountData.account_id // Use the demo account ID
+        }));
+        
+        // Add transactions to the store
+        const { syncBankTransactions } = useTransactionStore.getState();
+        syncBankTransactions(convertedTransactions);
       }
-
-      const isDemo = accessToken === 'demo_public_token' || accessToken === 'demo_access_token';
       
       Alert.alert(
         `Account Connected! ${isDemo ? '(Demo Mode)' : ''} 🎉`,
