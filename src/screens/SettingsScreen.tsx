@@ -266,19 +266,11 @@ A: Enable "Monthly Reset" in Settings to start fresh each month, or contact supp
     );
   };
 
-  const contactSupport = () => {
-    Alert.alert(
-      'Contact Support 📞',
-      'Need help with CheckMate? Here are your options:\n\n📧 Email: support@checkmate-app.com\n📞 Phone: 1-800-CHECKMATE\n💬 Live Chat: checkmate-app.com/support\n\nWould you like to compose an email now?',
-      [
-        { text: 'Not Now', style: 'cancel' },
-        {
-          text: 'Send Email',
-          onPress: async () => {
-            try {
-              const isAvailable = await MailComposer.isAvailableAsync();
-              if (isAvailable) {
-                const supportInfo = `
+  const contactSupport = async () => {
+    try {
+      const isAvailable = await MailComposer.isAvailableAsync();
+      if (isAvailable) {
+        const supportInfo = `
 CHECKMATE SUPPORT REQUEST
 =======================
 App Version: 1.0.0
@@ -287,38 +279,33 @@ Account: ${activeAccount?.name || 'Not connected'}
 Transactions: ${getActiveTransactions()?.length || 0}
 
 SUPPORT REQUEST:
-[Please describe your issue or question]
+[Please describe your question or issue]
 
-CONTACT INFO:
-Email: 
-Phone: (optional)
+ADDITIONAL DETAILS:
+[Any additional information that might help]
 `;
-                
-                await MailComposer.composeAsync({
-                  recipients: ['support@checkmate-app.com'],
-                  subject: 'CheckMate Support Request',
-                  body: supportInfo,
-                  isHtml: false,
-                });
-              } else {
-                Alert.alert(
-                  'Email Not Available',
-                  'Email is not configured on this device. Please email us directly at support@checkmate-app.com',
-                  [{ text: 'OK' }]
-                );
-              }
-            } catch (error) {
-              console.error('Email error:', error);
-              Alert.alert(
-                'Email Error',
-                'Could not open email. Please contact us directly at support@checkmate-app.com',
-                [{ text: 'OK' }]
-              );
-            }
-          }
-        }
-      ]
-    );
+        
+        await MailComposer.composeAsync({
+          recipients: ['support@mycheckmateapp.com'],
+          subject: 'CheckMate Support Request',
+          body: supportInfo,
+          isHtml: false,
+        });
+      } else {
+        Alert.alert(
+          'Email Not Available',
+          'Email is not set up on this device. Please email us directly at support@mycheckmateapp.com',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Error opening email:', error);
+      Alert.alert(
+        'Email Error',
+        'Unable to open email. Please contact us at support@mycheckmateapp.com',
+        [{ text: 'OK' }]
+      );
+    }
   };
 
 
