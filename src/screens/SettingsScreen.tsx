@@ -14,6 +14,7 @@ import { useTransactionStore } from '../state/transactionStore';
 import { useAuthStore } from '../state/authStore';
 import InitialBankSyncScreen from './InitialBankSyncScreen';
 import Calculator from '../components/Calculator';
+import * as MailComposer from 'expo-mail-composer';
 
 interface Props {
   navigation: any;
@@ -26,6 +27,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showInitialSync, setShowInitialSync] = useState(false);
   const [showCalculator, setShowCalculator] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
 
 
@@ -172,6 +174,137 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
     setShowDatePicker(false);
     if (selectedDate) {
       updateSettings({ startDate: selectedDate.toISOString().split('T')[0] });
+    }
+  };
+
+  const handleHelpAndSupport = () => {
+    Alert.alert(
+      'Help & Support 🤝',
+      'How can we help you today?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'User Guide', 
+          onPress: () => showUserGuide(),
+          style: 'default'
+        },
+        { 
+          text: 'Contact Support', 
+          onPress: () => contactSupport(),
+          style: 'default'
+        },
+        { 
+          text: 'FAQ', 
+          onPress: () => showFAQ(),
+          style: 'default'
+        }
+      ]
+    );
+  };
+
+  const showUserGuide = () => {
+    Alert.alert(
+      'CheckMate User Guide 📚',
+      `Welcome to CheckMate! Here's how to use the app:
+
+🏦 BANK CONNECTION:
+• Go to Settings → Initial Bank Setup
+• Connect your bank account via Plaid
+• Select a starting transaction point
+
+💰 ADDING TRANSACTIONS:
+• Tap "Add" button on main screen
+• Enter transaction details
+• Manual entries show "NOT POSTED"
+
+🔄 BANK SYNC:
+• Use Settings → Sync Bank Transactions
+• Manual entries convert to "POSTED" when matched
+• Pull down on main screen to refresh
+
+🧮 BALANCE TRACKING:
+• Running balance calculated automatically
+• Green = credits, Red = debits
+• Blue = posted transactions
+
+🛠️ TOOLS:
+• Built-in calculator in Settings
+• Transaction filtering options
+• Monthly register reset option
+
+📱 DEMO MODE:
+• Try "Start Demo" for sample data
+• "Demo Conversion" shows how sync works`,
+      [{ text: 'Got it!' }]
+    );
+  };
+
+  const showFAQ = () => {
+    Alert.alert(
+      'Frequently Asked Questions ❓',
+      `Q: Why do some transactions show "NOT POSTED"?
+A: Manual entries show "NOT POSTED" until they're matched with bank transactions during sync.
+
+Q: How often should I sync with my bank?
+A: We recommend syncing daily or weekly to keep your register up-to-date.
+
+Q: Can I use CheckMate without connecting a bank?
+A: Yes! You can manually track all transactions without bank connection.
+
+Q: What happens if I delete a transaction?
+A: Deleted transactions will be removed from your register and balance calculations.
+
+Q: Is my financial data secure?
+A: Yes, we use bank-level encryption and never store your banking credentials.
+
+Q: Can I export my transaction data?
+A: Currently, you can email transaction reports through the bug report feature.
+
+Q: How do I reset my register?
+A: Enable "Monthly Reset" in Settings to start fresh each month, or contact support for a full reset.`,
+      [{ text: 'Thanks!' }]
+    );
+  };
+
+  const contactSupport = async () => {
+    const supportInfo = `
+CHECKMATE SUPPORT REQUEST
+=======================
+App Version: 1.0.0
+Device: React Native / Expo
+Account: ${activeAccount?.name || 'Not connected'}
+Transactions: ${getActiveTransactions()?.length || 0}
+
+SUPPORT REQUEST:
+[Please describe your issue or question]
+
+CONTACT INFO:
+Email: 
+Phone: (optional)
+`;
+
+    try {
+      const isAvailable = await MailComposer.isAvailableAsync();
+      if (isAvailable) {
+        await MailComposer.composeAsync({
+          recipients: ['support@checkmate-app.com'],
+          subject: 'CheckMate Support Request',
+          body: supportInfo,
+          isHtml: false,
+        });
+      } else {
+        Alert.alert(
+          'Email Not Available',
+          'Email is not set up on this device. Please contact support at:\n\n📧 support@checkmate-app.com\n📞 1-800-CHECKMATE',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      Alert.alert(
+        'Contact Support',
+        'Email not available. Please reach out to us:\n\n📧 support@checkmate-app.com\n📞 1-800-CHECKMATE\n💬 Live chat available at checkmate-app.com',
+        [{ text: 'OK' }]
+      );
     }
   };
 
@@ -395,6 +528,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
             <SettingRow
               title="Help & Support"
               subtitle="Get help with using the app"
+              onPress={handleHelpAndSupport}
               rightComponent={<Ionicons name="help-circle-outline" size={20} color="#9CA3AF" />}
             />
             
