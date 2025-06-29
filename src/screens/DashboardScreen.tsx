@@ -11,13 +11,28 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const DashboardScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { transactions, getTotalIncome, getTotalExpenses, getCurrentBalance } = useTransactionStore();
+  const { 
+    transactions, 
+    getTotalIncome, 
+    getTotalExpenses, 
+    getCurrentBalance,
+    initializeWithSeedData,
+    isInitialized 
+  } = useTransactionStore();
 
-  const totalIncome = getTotalIncome();
-  const totalExpenses = getTotalExpenses();
-  const currentBalance = getCurrentBalance();
+  // Initialize store if not already initialized
+  React.useEffect(() => {
+    if (!isInitialized) {
+      initializeWithSeedData();
+    }
+  }, [isInitialized, initializeWithSeedData]);
 
-  const recentTransactions = transactions.slice(0, 5);
+  // Safe function calls with fallbacks
+  const totalIncome = getTotalIncome ? getTotalIncome() : 0;
+  const totalExpenses = getTotalExpenses ? getTotalExpenses() : 0;
+  const currentBalance = getCurrentBalance ? getCurrentBalance() : 0;
+
+  const recentTransactions = (transactions || []).slice(0, 5);
 
   const quickActions = [
     {
@@ -164,7 +179,7 @@ const DashboardScreen: React.FC = () => {
           <View className="flex-row justify-between items-center">
             <View className="flex-1">
               <Text className="text-gray-500 text-sm">Transactions</Text>
-              <Text className="text-2xl font-bold text-gray-900">{transactions.length}</Text>
+              <Text className="text-2xl font-bold text-gray-900">{(transactions || []).length}</Text>
             </View>
             <View className="w-px h-12 bg-gray-200 mx-4" />
             <View className="flex-1">
