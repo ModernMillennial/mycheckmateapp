@@ -54,6 +54,11 @@ interface TransactionState {
   calculatePayeeSimilarity: (payee1: string, payee2: string) => number;
   clearAndReinitialize: () => void;
   resetToFirstTimeUser: () => void;
+  
+  // Computed values
+  getTotalIncome: () => number;
+  getTotalExpenses: () => number;
+  getCurrentBalance: () => number;
 }
 
 const initialSettings: UserSettings = {
@@ -498,6 +503,32 @@ export const useTransactionStore = create<TransactionState>()(
           console.error('Error syncing Plaid transactions:', error);
           throw error;
         }
+      },
+
+      getTotalIncome: () => {
+        const { transactions, settings } = get();
+        const allTransactions = transactions || [];
+        const accountTransactions = allTransactions.filter(t => t.accountId === settings.activeAccountId);
+        
+        return accountTransactions
+          .filter(t => t.amount > 0)
+          .reduce((total, t) => total + t.amount, 0);
+      },
+
+      getTotalExpenses: () => {
+        const { transactions, settings } = get();
+        const allTransactions = transactions || [];
+        const accountTransactions = allTransactions.filter(t => t.accountId === settings.activeAccountId);
+        
+        return Math.abs(accountTransactions
+          .filter(t => t.amount < 0)
+          .reduce((total, t) => total + t.amount, 0));
+      },
+
+      getCurrentBalance: () => {
+        const { accounts, settings } = get();
+        const activeAccount = accounts.find(a => a.id === settings.activeAccountId);
+        return activeAccount?.currentBalance || 0;
       },
 
 

@@ -6,6 +6,7 @@ export interface Transaction {
   payee: string;
   amount: number;
   source: 'manual' | 'bank';
+  category?: string;
   checkNumber?: string;
   notes?: string;
   reconciled: boolean;

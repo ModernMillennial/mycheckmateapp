@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '../state/authStore';
 import { useTransactionStore } from '../state/transactionStore';
@@ -60,7 +60,14 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
-  const { settings } = useTransactionStore();
+  const { settings, isInitialized, initializeWithSeedData } = useTransactionStore();
+  
+  // Initialize the store when the component mounts
+  useEffect(() => {
+    if (!isInitialized) {
+      initializeWithSeedData();
+    }
+  }, [isInitialized, initializeWithSeedData]);
   
   // Determine initial route based on auth state and terms acceptance
   const getInitialRoute = (): keyof RootStackParamList => {
