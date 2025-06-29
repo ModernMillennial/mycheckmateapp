@@ -185,17 +185,17 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'User Guide', 
-          onPress: () => showUserGuide(),
+          onPress: showUserGuide,
           style: 'default'
         },
         { 
           text: 'Contact Support', 
-          onPress: () => contactSupport(),
+          onPress: contactSupport,
           style: 'default'
         },
         { 
           text: 'FAQ', 
-          onPress: () => showFAQ(),
+          onPress: showFAQ,
           style: 'default'
         }
       ]
@@ -266,8 +266,19 @@ A: Enable "Monthly Reset" in Settings to start fresh each month, or contact supp
     );
   };
 
-  const contactSupport = async () => {
-    const supportInfo = `
+  const contactSupport = () => {
+    Alert.alert(
+      'Contact Support 📞',
+      'Need help with CheckMate? Here are your options:\n\n📧 Email: support@checkmate-app.com\n📞 Phone: 1-800-CHECKMATE\n💬 Live Chat: checkmate-app.com/support\n\nWould you like to compose an email now?',
+      [
+        { text: 'Not Now', style: 'cancel' },
+        {
+          text: 'Send Email',
+          onPress: async () => {
+            try {
+              const isAvailable = await MailComposer.isAvailableAsync();
+              if (isAvailable) {
+                const supportInfo = `
 CHECKMATE SUPPORT REQUEST
 =======================
 App Version: 1.0.0
@@ -282,30 +293,32 @@ CONTACT INFO:
 Email: 
 Phone: (optional)
 `;
-
-    try {
-      const isAvailable = await MailComposer.isAvailableAsync();
-      if (isAvailable) {
-        await MailComposer.composeAsync({
-          recipients: ['support@checkmate-app.com'],
-          subject: 'CheckMate Support Request',
-          body: supportInfo,
-          isHtml: false,
-        });
-      } else {
-        Alert.alert(
-          'Email Not Available',
-          'Email is not set up on this device. Please contact support at:\n\n📧 support@checkmate-app.com\n📞 1-800-CHECKMATE',
-          [{ text: 'OK' }]
-        );
-      }
-    } catch (error) {
-      Alert.alert(
-        'Contact Support',
-        'Email not available. Please reach out to us:\n\n📧 support@checkmate-app.com\n📞 1-800-CHECKMATE\n💬 Live chat available at checkmate-app.com',
-        [{ text: 'OK' }]
-      );
-    }
+                
+                await MailComposer.composeAsync({
+                  recipients: ['support@checkmate-app.com'],
+                  subject: 'CheckMate Support Request',
+                  body: supportInfo,
+                  isHtml: false,
+                });
+              } else {
+                Alert.alert(
+                  'Email Not Available',
+                  'Email is not configured on this device. Please email us directly at support@checkmate-app.com',
+                  [{ text: 'OK' }]
+                );
+              }
+            } catch (error) {
+              console.error('Email error:', error);
+              Alert.alert(
+                'Email Error',
+                'Could not open email. Please contact us directly at support@checkmate-app.com',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        }
+      ]
+    );
   };
 
 
