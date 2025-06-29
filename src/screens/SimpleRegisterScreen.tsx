@@ -61,7 +61,15 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   }, []);
 
   const onRefresh = async () => {
+    // Prevent multiple simultaneous refreshes
+    if (refreshing) return;
+    
     setRefreshing(true);
+    
+    // Safety timeout to ensure refresh always completes
+    const timeoutId = setTimeout(() => {
+      setRefreshing(false);
+    }, 5000); // 5 second maximum
     
     try {
       // Get the active account
@@ -73,13 +81,19 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
         const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         
         try {
-          await syncPlaidTransactions(
-            activeAccount.plaidAccessToken, 
-            activeAccount.id, 
-            startDate, 
-            endDate
-          );
+          await Promise.race([
+            syncPlaidTransactions(
+              activeAccount.plaidAccessToken, 
+              activeAccount.id, 
+              startDate, 
+              endDate
+            ),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Sync timeout')), 10000)
+            )
+          ]);
           
+          clearTimeout(timeoutId);
           Alert.alert(
             'Sync Complete! 🔄',
             'Your transactions have been updated with the latest data from your bank.',
@@ -91,6 +105,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
           // Fallback to manual refresh
           calculateRunningBalance();
           
+          clearTimeout(timeoutId);
           Alert.alert(
             'Refresh Complete ✅',
             'Your account balances and transaction data have been refreshed.',
@@ -102,8 +117,9 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
         calculateRunningBalance();
         
         // Add a slight delay to show the refresh animation
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 800));
         
+        clearTimeout(timeoutId);
         Alert.alert(
           'Refresh Complete ✅',
           'Your account balances and transaction data have been refreshed.',
@@ -112,6 +128,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Refresh error:', error);
+      clearTimeout(timeoutId);
       Alert.alert(
         'Refresh Error',
         'There was an issue refreshing your data. Please try again.',
