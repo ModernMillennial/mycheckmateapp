@@ -79,6 +79,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
       setHasScrolledToBottom(true);
     }
   };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
