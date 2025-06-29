@@ -414,26 +414,6 @@ ADDITIONAL DETAILS:
               onPress={() => navigation.navigate('Accounts')}
               rightComponent={<Ionicons name="card-outline" size={20} color="#9CA3AF" />}
             />
-            
-            <SettingRow
-              title="User Profile"
-              subtitle={user ? `Signed in as ${user.firstName || 'User'} ${user.lastName || ''}`.trim() : 'Not signed in'}
-              rightComponent={<Ionicons name="person-outline" size={20} color="#9CA3AF" />}
-            />
-            
-            <SettingRow
-              title="Sign Out"
-              subtitle="Sign out of your CheckMate account"
-              onPress={handleLogout}
-              rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
-            />
-            
-            <SettingRow
-              title="Delete Account"
-              subtitle="Permanently delete your account and all data"
-              onPress={handleDeleteAccount}
-              rightComponent={<Ionicons name="trash-outline" size={20} color="#EF4444" />}
-            />
           </View>
         </View>
 
