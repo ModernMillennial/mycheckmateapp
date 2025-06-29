@@ -942,7 +942,7 @@ ACTUAL BEHAVIOR:
                   </Pressable>
                 </View>
               </View>
-              )
+              }
             })()}
 
         {/* Quick Actions - Only show for existing users */}
