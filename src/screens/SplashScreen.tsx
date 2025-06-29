@@ -3,6 +3,7 @@ import {
   View,
   Text,
   Dimensions,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
@@ -11,7 +12,6 @@ import Animated, {
   withTiming,
   withDelay,
 } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../state/authStore';
 import { useTransactionStore } from '../state/transactionStore';
 
@@ -67,25 +67,29 @@ const SplashScreen: React.FC<Props> = ({ navigation }) => {
   }, [navigation]);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#1e3a44' }}>
       <View className="flex-1 items-center justify-center px-8">
         {/* Logo */}
         <Animated.View style={[logoAnimatedStyle]} className="items-center mb-8">
-          <View className="w-32 h-32 bg-blue-500 rounded-3xl items-center justify-center shadow-lg">
-            <Ionicons name="library" size={64} color="white" />
+          <View className="w-32 h-32 rounded-3xl shadow-lg overflow-hidden">
+            <Image
+              source={require('../../assets/icon.png')}
+              style={{ width: 128, height: 128 }}
+              resizeMode="contain"
+            />
           </View>
         </Animated.View>
 
         {/* App Name */}
         <Animated.View style={[titleAnimatedStyle]} className="items-center mb-4">
-          <Text className="text-4xl font-bold text-gray-900 tracking-tight">
+          <Text className="text-4xl font-bold text-white tracking-tight">
             CheckMate
           </Text>
         </Animated.View>
 
         {/* Tagline */}
         <Animated.View style={[subtitleAnimatedStyle]} className="items-center">
-          <Text className="text-lg text-gray-600 text-center font-medium">
+          <Text className="text-lg text-gray-300 text-center font-medium">
             Master Your Finances
           </Text>
         </Animated.View>
