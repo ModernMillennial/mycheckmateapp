@@ -1027,7 +1027,7 @@ ACTUAL BEHAVIOR:
           </View>
         )}
       </ScrollView>
-
+      
       {/* Footer Status - Only show for existing users */}
       {showTransactions && (
         <View className="px-6 py-4 border-t border-gray-200">
