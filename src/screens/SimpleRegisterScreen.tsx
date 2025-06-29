@@ -1025,6 +1025,7 @@ ACTUAL BEHAVIOR:
             )}
           </View>
         </View>
+        )}
       </ScrollView>
 
       {/* Footer Status - Only show for existing users */}
