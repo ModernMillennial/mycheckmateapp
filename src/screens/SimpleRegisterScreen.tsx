@@ -926,9 +926,7 @@ ACTUAL BEHAVIOR:
                     ))}
                 </>
               ) : null;
-            })()
-              </>
-            ) : (
+            })() : (
               <View className="mx-2 p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                 <View className="items-center">
                   <Ionicons name="receipt-outline" size={48} color="#9CA3AF" />
