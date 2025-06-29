@@ -515,7 +515,109 @@ ADDITIONAL DETAILS:
           </View>
         </View>
 
-
+        {/* Account Actions Section */}
+        <View className="mt-8">
+          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
+            Account Actions
+          </Text>
+          
+          <View className="bg-white">
+            <SettingRow
+              title="Sign Out"
+              subtitle="Sign out of your CheckMate account"
+              onPress={() => {
+                Alert.alert(
+                  'Sign Out',
+                  'Are you sure you want to sign out? Your data will remain on this device.',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Sign Out',
+                      style: 'destructive',
+                      onPress: () => {
+                        // Clear user session but keep local data
+                        updateSettings({ 
+                          bankLinked: false,
+                          monthlyResetEnabled: false,
+                          startDate: new Date().toISOString().split('T')[0]
+                        });
+                        Alert.alert(
+                          'Signed Out',
+                          'You have been successfully signed out. Your local data remains safe.',
+                          [{ text: 'OK' }]
+                        );
+                      }
+                    }
+                  ]
+                );
+              }}
+              rightComponent={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
+            />
+            
+            <SettingRow
+              title="Delete Account"
+              subtitle="Permanently delete your account and all data"
+              onPress={() => {
+                Alert.alert(
+                  'Delete Account',
+                  'This will permanently delete your CheckMate account and all associated data. This action cannot be undone.',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Delete Account',
+                      style: 'destructive',
+                      onPress: () => {
+                        Alert.alert(
+                          'Final Confirmation',
+                          'Are you absolutely sure? This will delete ALL your transactions, accounts, and settings permanently.',
+                          [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                              text: 'Yes, Delete Everything',
+                              style: 'destructive',
+                              onPress: () => {
+                                // Clear all data from the store
+                                const { clearAllData } = useTransactionStore.getState();
+                                if (clearAllData) {
+                                  clearAllData();
+                                } else {
+                                  // Fallback: clear data manually
+                                  const { clearTransactions, clearAccounts, updateSettings } = useTransactionStore.getState();
+                                  clearTransactions();
+                                  clearAccounts();
+                                  updateSettings({
+                                    bankLinked: false,
+                                    monthlyResetEnabled: false,
+                                    startDate: new Date().toISOString().split('T')[0]
+                                  });
+                                }
+                                
+                                Alert.alert(
+                                  'Account Deleted',
+                                  'Your account and all data have been permanently deleted.',
+                                  [
+                                    {
+                                      text: 'OK',
+                                      onPress: () => {
+                                        // Navigate back to the beginning
+                                        navigation.navigate('SimpleRegister');
+                                      }
+                                    }
+                                  ]
+                                );
+                              }
+                            }
+                          ]
+                        );
+                      }
+                    }
+                  ]
+                );
+              }}
+              rightComponent={<Ionicons name="trash-outline" size={20} color="#EF4444" />}
+            />
+          </View>
+        </View>
 
         {/* Mock Bank Notice */}
         <View className="mx-4 mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">

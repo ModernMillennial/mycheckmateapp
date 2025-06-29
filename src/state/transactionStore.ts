@@ -543,6 +543,39 @@ export const useTransactionStore = create<TransactionState>()(
           throw error;
         }
       },
+
+      // Clear functions for account deletion
+      clearTransactions: () => {
+        set({ transactions: [] });
+      },
+
+      clearAccounts: () => {
+        set({ accounts: [], settings: { ...get().settings, activeAccountId: null } });
+      },
+
+      clearAllData: () => {
+        set({
+          transactions: [],
+          accounts: [],
+          settings: {
+            bankLinked: false,
+            monthlyResetEnabled: false,
+            startDate: new Date().toISOString().split('T')[0],
+            activeAccountId: null,
+          },
+          notificationSettings: {
+            depositsEnabled: true,
+            debitsEnabled: true,
+            overdraftWarningEnabled: true,
+            overdraftThreshold: 100,
+            quietHoursEnabled: false,
+            quietHoursStart: '22:00',
+            quietHoursEnd: '08:00',
+            weekendNotificationsEnabled: true,
+          },
+          isInitialized: false,
+        });
+      },
     }),
     {
       name: 'transaction-storage',
