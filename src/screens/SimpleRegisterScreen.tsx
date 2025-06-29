@@ -944,6 +944,8 @@ ACTUAL BEHAVIOR:
               </View>
             )
             })()}
+          </View>
+        )}
 
         {/* Quick Actions - Only show for existing users */}
         {showTransactions && (
