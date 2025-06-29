@@ -135,7 +135,7 @@ const AuthScreen: React.FC<Props> = ({ onAuthSuccess }) => {
           </View>
           
           <Text className="text-3xl font-bold text-gray-900 mb-2">
-            CheckMate
+            Checkmate
           </Text>
           <Text className="text-lg text-gray-600 text-center">
             Secure access to your financial data
@@ -206,7 +206,7 @@ const AuthScreen: React.FC<Props> = ({ onAuthSuccess }) => {
             }`}
           >
             <Text className="text-white text-center text-base font-semibold">
-              {isLoading ? 'Authenticating...' : 'Unlock CheckMate'}
+              {isLoading ? 'Authenticating...' : 'Unlock Checkmate'}
             </Text>
           </Pressable>
         </View>

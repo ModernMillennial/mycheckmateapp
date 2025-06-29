@@ -83,7 +83,7 @@ const SplashScreen: React.FC<Props> = ({ navigation }) => {
         {/* App Name */}
         <Animated.View style={[titleAnimatedStyle]} className="items-center mb-4">
           <Text className="text-4xl font-bold text-white tracking-tight">
-            CheckMate
+            Checkmate
           </Text>
         </Animated.View>
 

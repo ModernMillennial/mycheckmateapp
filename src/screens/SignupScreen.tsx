@@ -148,7 +148,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
                 Create Account
               </Text>
               <Text className="text-gray-600 text-center">
-                Join CheckMate and take control of your finances
+                Join Checkmate and take control of your finances
               </Text>
             </View>
 

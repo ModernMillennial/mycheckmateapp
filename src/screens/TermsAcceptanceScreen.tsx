@@ -31,7 +31,7 @@ const TermsAcceptanceScreen: React.FC<Props> = ({ navigation }) => {
     if (!termsAccepted || !privacyAccepted) {
       Alert.alert(
         'Agreement Required',
-        'Please accept both the Terms of Service and Privacy Policy to continue using CheckMate.',
+        'Please accept both the Terms of Service and Privacy Policy to continue using Checkmate.',
         [{ text: 'OK' }]
       );
       return;
@@ -58,7 +58,7 @@ const TermsAcceptanceScreen: React.FC<Props> = ({ navigation }) => {
             <Ionicons name="shield-checkmark" size={32} color="white" />
           </View>
           <Text className="text-2xl font-bold text-gray-900 mb-2">
-            Welcome to CheckMate!
+            Welcome to Checkmate!
           </Text>
           <Text className="text-gray-600 text-center">
             Before you start managing your finances, please review and accept our agreements
@@ -73,7 +73,7 @@ const TermsAcceptanceScreen: React.FC<Props> = ({ navigation }) => {
             🎉 Account Created Successfully!
           </Text>
           <Text className="text-gray-700 leading-6">
-            Your CheckMate account has been created. To ensure a secure and transparent experience, 
+            Your Checkmate account has been created. To ensure a secure and transparent experience, 
             please review and accept our Terms of Service and Privacy Policy.
           </Text>
         </View>
@@ -88,7 +88,7 @@ const TermsAcceptanceScreen: React.FC<Props> = ({ navigation }) => {
               </Text>
             </View>
             <Text className="text-gray-700 mb-4 leading-5">
-              Our Terms of Service outline your rights and responsibilities when using CheckMate, 
+              Our Terms of Service outline your rights and responsibilities when using Checkmate, 
               including account usage, data handling, and service limitations.
             </Text>
             <Pressable
@@ -163,7 +163,7 @@ const TermsAcceptanceScreen: React.FC<Props> = ({ navigation }) => {
                 Important Notice
               </Text>
               <Text className="text-amber-700 text-sm leading-5">
-                By accepting these agreements, you're agreeing to how CheckMate handles your 
+                By accepting these agreements, you're agreeing to how Checkmate handles your 
                 financial data and the terms under which you can use our services.
               </Text>
             </View>
@@ -185,12 +185,12 @@ const TermsAcceptanceScreen: React.FC<Props> = ({ navigation }) => {
           <Text className={`${
             termsAccepted && privacyAccepted ? 'text-white' : 'text-gray-500'
           } text-base font-semibold`}>
-            Accept & Continue to CheckMate
+            Accept & Continue to Checkmate
           </Text>
         </Pressable>
 
         <Text className="text-xs text-gray-500 text-center">
-          You must accept both agreements to use CheckMate
+          You must accept both agreements to use Checkmate
         </Text>
       </View>
     </SafeAreaView>

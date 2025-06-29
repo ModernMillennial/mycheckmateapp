@@ -133,7 +133,7 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
             Connect Your Bank
           </Text>
           <Text className="text-gray-600 text-center mb-8">
-            Welcome to CheckMate! Let's connect your bank account to get started with automatic transaction tracking.
+            Welcome to Checkmate! Let's connect your bank account to get started with automatic transaction tracking.
           </Text>
           
           {step === 'connect' && (
@@ -224,7 +224,7 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
                     })}
                   >
                     <Text className="text-white font-semibold text-center text-lg">
-                      Start Using CheckMate
+                      Start Using Checkmate
                     </Text>
                   </Pressable>
                 </>
