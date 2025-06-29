@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, Alert, FlatList, Clipboard, ScrollView, Image, RefreshControl } from 'react-native';
+import { View, Text, Pressable, Alert, FlatList, Clipboard, ScrollView, Image, RefreshControl, Modal } from 'react-native';
 import * as MailComposer from 'expo-mail-composer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +19,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [showLegend, setShowLegend] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
   
   const { user } = useAuthStore();
   const {
@@ -217,18 +218,12 @@ ACTUAL BEHAVIOR:
   };
 
   const handleManualTransactionDemo = () => {
-    Alert.alert(
-      'Demo: Manual to Bank Conversion 🔄',
-      'This feature demonstrates how manual transactions are automatically converted to bank transactions when matching deposits or withdrawals are found during bank sync.\n\nTo see this in action:\n1. Add a manual transaction\n2. Go to Settings → Sync Bank Transactions\n3. Watch as matching transactions convert from "NOT POSTED" to "POSTED"',
-      [
-        { text: 'Got it!', style: 'default' },
-        { 
-          text: 'Try Settings', 
-          onPress: () => navigation?.navigate('Settings'),
-          style: 'default'
-        }
-      ]
-    );
+    setShowDemoModal(true);
+    
+    // Auto-dismiss after 3.5 seconds
+    setTimeout(() => {
+      setShowDemoModal(false);
+    }, 3500);
   };
 
   const handleDemoReset = () => {
@@ -981,6 +976,40 @@ ACTUAL BEHAVIOR:
         </Pressable>
       )}
 
+      {/* Demo Modal */}
+      <Modal
+        visible={showDemoModal}
+        transparent={true}
+        animationType="fade"
+      >
+        <View className="flex-1 bg-black bg-opacity-50 items-center justify-center px-6">
+          <View className="bg-white rounded-xl p-6 max-w-sm w-full">
+            <View className="items-center mb-4">
+              <Ionicons name="flask" size={48} color="#3B82F6" />
+              <Text className="text-xl font-bold text-gray-900 mt-2">
+                Demo: Manual to Bank Conversion 🔄
+              </Text>
+            </View>
+            
+            <Text className="text-gray-700 text-center leading-6">
+              This feature demonstrates how manual transactions are automatically converted to bank transactions when matching deposits or withdrawals are found during bank sync.
+            </Text>
+            
+            <View className="mt-4 space-y-2">
+              <Text className="text-gray-700 font-medium">To see this in action:</Text>
+              <Text className="text-gray-600">1. Add a manual transaction</Text>
+              <Text className="text-gray-600">2. Go to Settings → Sync Bank Transactions</Text>
+              <Text className="text-gray-600">3. Watch as matching transactions convert from "NOT POSTED" to "POSTED"</Text>
+            </View>
+            
+            <View className="mt-6 pt-4 border-t border-gray-200">
+              <Text className="text-center text-sm text-gray-500">
+                Auto-closing in 3.5 seconds...
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
     </SafeAreaView>
   );
