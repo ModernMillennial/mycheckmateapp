@@ -205,12 +205,14 @@ export const useTransactionStore = create<TransactionState>()(
           return updatedTransaction || t;
         });
 
-        // Update account current balance
-        const updatedAccounts = accounts.map(a => 
-          a.id === settings.activeAccountId 
-            ? { ...a, currentBalance: finalBalance }
-            : a
-        );
+        // Update account current balance - but make sure it reflects the correct balance from starting point
+        const updatedAccounts = accounts.map(a => {
+          if (a.id === settings.activeAccountId) {
+            // Final balance should be starting balance + all transaction amounts
+            return { ...a, currentBalance: finalBalance };
+          }
+          return a;
+        });
 
         // Check for overdraft warnings after all transactions are processed
         if (notificationSettings.overdraftWarningEnabled && settings.activeAccountId === activeAccount.id) {
@@ -408,14 +410,16 @@ export const useTransactionStore = create<TransactionState>()(
         }
         
         // Filter transactions to only show those after the starting point date
-        return accountTransactions.filter(transaction => {
+        const filteredTransactions = accountTransactions.filter(transaction => {
           const transactionDate = new Date(transaction.date);
           const startingDate = new Date(activeAccount.startingBalanceDate);
           
           // Show transactions that are on or after the starting point date
-          // But exclude the starting balance transaction itself
-          return transactionDate >= startingDate && transaction.payee !== 'Starting Point';
+          // Note: The RegisterScreen handles showing the starting balance separately
+          return transactionDate >= startingDate;
         });
+        
+        return filteredTransactions;
       },
 
 
@@ -461,30 +465,15 @@ export const useTransactionStore = create<TransactionState>()(
           bankName: 'Connected via Plaid',
           accountNumber: accountData.mask || '****',
           isActive: true,
-          startingBalance: 0, // Starting balance is now a transaction
-          startingBalanceDate: new Date().toISOString().split('T')[0],
+          startingBalance: startingBalance || accountData.balances?.current || 0,
+          startingBalanceDate: startingDate || new Date().toISOString().split('T')[0],
           currentBalance: startingBalance || accountData.balances?.current || 0,
           color: accountData.subtype === 'savings' ? '#10B981' : '#3B82F6',
           plaidAccessToken: accessToken, // Store access token for future syncs
         };
 
-        // Create starting point transaction
-        const startingBalanceTransaction = {
-          id: `starting-balance-${updatedAccount.id}-${Date.now()}`,
-          userId: 'user-1',
-          accountId: updatedAccount.id,
-          date: startingDate || new Date().toISOString().split('T')[0],
-          payee: 'Starting Point',
-          amount: startingBalance || accountData.balances?.current || 0,
-          source: 'bank' as const,
-          notes: `Account starting point from ${updatedAccount.bankName}`,
-          reconciled: true,
-          runningBalance: startingBalance || accountData.balances?.current || 0,
-        };
-
         set((state) => ({
           accounts: [updatedAccount], // Replace with updated account
-          transactions: [...state.transactions, startingBalanceTransaction],
           settings: { ...state.settings, bankLinked: true, activeAccountId: updatedAccount.id },
         }));
       },

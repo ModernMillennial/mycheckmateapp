@@ -136,7 +136,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         id: `starting-balance-${activeAccount.id}`,
         userId: 'system',
         accountId: activeAccount.id,
-        date: activeAccount.startingBalanceDate,
+        date: activeAccount.startingBalanceDate || new Date().toISOString().split('T')[0],
         payee: 'Starting Balance',
         amount: activeAccount.startingBalance,
         source: 'manual',

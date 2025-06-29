@@ -26,7 +26,7 @@ interface Props {
 
 const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) => {
   const { accessToken, accountData, institutionName, isDemo = false } = route.params;
-  const { connectPlaidAccount, syncPlaidTransactions } = useTransactionStore();
+  const { connectPlaidAccount, syncPlaidTransactions, syncBankTransactions } = useTransactionStore();
   
   const [transactions, setTransactions] = useState<PlaidTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,15 +112,15 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
         },
       };
 
+      // First connect the account
       connectPlaidAccount(accessToken, accountWithBalance, startingDate, startingBalance);
 
-      // Sync transactions from selected date
+      // Then sync transactions from selected date - AFTER connecting the account
       if (!isDemo && !accessToken.startsWith('demo_')) {
         try {
           await syncPlaidTransactions(accessToken, accountData.account_id, syncFromDate, new Date().toISOString().split('T')[0]);
         } catch (syncError) {
-          console.log('Sync error (continuing):', syncError);
-          // Continue without failing - might be demo mode anyway
+          console.log('Sync error (continuing):', syncError); 
         }
       } else {
         // For demo mode, manually add sample transactions to the store
@@ -130,17 +130,22 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
           return txDate >= syncDate;
         });
         
-        // Convert demo transactions and add them
-        const convertedTransactions = demoTransactions.map(tx => 
-          plaidService.convertPlaidTransactionToApp(tx, 'user-1')
-        ).map(tx => ({
-          ...tx,
-          accountId: accountData.account_id // Use the demo account ID
-        }));
+        // Get the connected account ID from the store (after connection)
+        const { accounts: connectedAccounts } = useTransactionStore.getState();
+        const connectedAccountId = connectedAccounts[0]?.id;
         
-        // Add transactions to the store
-        const { syncBankTransactions } = useTransactionStore.getState();
-        syncBankTransactions(convertedTransactions);
+        if (connectedAccountId) {
+          // Convert demo transactions and add them
+          const convertedTransactions = demoTransactions.map(tx => 
+            plaidService.convertPlaidTransactionToApp(tx, 'user-1')
+          ).map(tx => ({
+            ...tx,
+            accountId: connectedAccountId // Use the connected account ID
+          }));
+          
+          // Add transactions to the store
+          syncBankTransactions(convertedTransactions);
+        }
       }
       
       Alert.alert(
