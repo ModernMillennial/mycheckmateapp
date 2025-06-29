@@ -17,6 +17,7 @@ import WelcomeScreen from '../screens/WelcomeScreen';
 import SplashScreen from '../screens/SplashScreen';
 import TermsAndConditionsScreen from '../screens/TermsAndConditionsScreen';
 import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
+import TermsAcceptanceScreen from '../screens/TermsAcceptanceScreen';
 import AboutScreen from '../screens/AboutScreen';
 import { Transaction } from '../types';
 
@@ -28,8 +29,9 @@ export type RootStackParamList = {
   Signup: undefined;
   Welcome: undefined;
   // Terms screens - two separate flows
-  TermsAndConditions: { isFirstTime?: boolean };
-  PrivacyPolicy: { isFirstTime?: boolean };
+  TermsAcceptance: undefined;
+  TermsAndConditions: { isFirstTime?: boolean; isReadOnly?: boolean };
+  PrivacyPolicy: { isFirstTime?: boolean; isReadOnly?: boolean };
   // App screens
   Register: undefined;
   AddTransaction: undefined;
@@ -50,16 +52,16 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { settings } = useTransactionStore();
   
   // Determine initial route based on auth state and terms acceptance
-  const getInitialRoute = () => {
+  const getInitialRoute = (): keyof RootStackParamList => {
     // Always start with Splash screen first
     return "Splash";
   };
   
-  console.log('AppNavigator rendering... isAuthenticated:', isAuthenticated, 'hasAcceptedTerms:', settings.hasAcceptedTerms);
+
   
   return (
     <Stack.Navigator
@@ -109,6 +111,15 @@ const AppNavigator: React.FC = () => {
       ) : (
         // App Stack - include terms screen for authenticated users too
         <>
+          {/* Terms Acceptance Screen - shown for first-time users after signup */}
+          <Stack.Screen 
+            name="TermsAcceptance" 
+            component={TermsAcceptanceScreen}
+            options={{
+              headerShown: false,
+              gestureEnabled: false, // Prevent back gesture - must accept to continue
+            }}
+          />
           {/* Terms Screen - shown for first-time users or when accessed from settings */}
           <Stack.Screen 
             name="TermsAndConditions" 

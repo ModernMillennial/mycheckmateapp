@@ -57,7 +57,7 @@ const SplashScreen: React.FC<Props> = ({ navigation }) => {
       if (!isAuthenticated) {
         navigation.replace('Welcome');
       } else if (!settings.hasAcceptedTerms || !settings.hasAcceptedPrivacy) {
-        navigation.replace('TermsAndConditions');
+        navigation.replace('TermsAcceptance');
       } else {
         navigation.replace('Register');
       }

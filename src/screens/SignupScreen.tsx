@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../state/authStore';
 import { useTransactionStore } from '../state/transactionStore';
-import TermsAcceptanceModal from '../components/TermsAcceptanceModal';
+
 
 interface Props {
   navigation: any;
@@ -28,7 +28,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showTermsModal, setShowTermsModal] = useState(false);
+
   
   // Error states
   const [firstNameError, setFirstNameError] = useState('');
@@ -120,8 +120,9 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
         ]
       );
     } else {
-      // Success - show terms acceptance modal
-      setShowTermsModal(true);
+      // Success - navigation will automatically handle showing terms
+      // The splash screen will detect that user is authenticated but hasn't accepted terms
+      navigation.replace('Splash');
     }
   };
 
@@ -327,27 +328,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* Terms Acceptance Modal */}
-      <TermsAcceptanceModal
-        visible={showTermsModal}
-        onAccept={() => {
-          // Mark both terms and privacy as accepted
-          updateSettings({ 
-            hasAcceptedTerms: true,
-            termsAcceptedDate: new Date().toISOString(),
-            hasAcceptedPrivacy: true,
-            privacyAcceptedDate: new Date().toISOString()
-          });
-          setShowTermsModal(false);
-          // Navigation will automatically redirect due to auth state change
-        }}
-        onViewTerms={() => {
-          navigation.navigate('TermsAndConditions', { isFirstTime: true });
-        }}
-        onViewPrivacy={() => {
-          navigation.navigate('PrivacyPolicy', { isFirstTime: true });
-        }}
-      />
+
     </SafeAreaView>
   );
 };

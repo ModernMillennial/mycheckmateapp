@@ -17,6 +17,7 @@ interface Props {
 
 const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
   const isFirstTime = route.params?.isFirstTime || false;
+  const isReadOnly = route.params?.isReadOnly || false;
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const { updateSettings } = useTransactionStore();
 
@@ -396,6 +397,20 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
               </Text>
             </Pressable>
           </View>
+        </View>
+      )}
+      
+      {/* Read-only mode close button */}
+      {isReadOnly && (
+        <View className="p-6 border-t border-gray-200 bg-white">
+          <Pressable
+            onPress={() => navigation.goBack()}
+            className="bg-green-500 py-4 rounded-lg items-center"
+          >
+            <Text className="text-white font-semibold">
+              Close
+            </Text>
+          </Pressable>
         </View>
       )}
     </SafeAreaView>
