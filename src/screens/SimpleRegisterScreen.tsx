@@ -949,82 +949,82 @@ ACTUAL BEHAVIOR:
 
         {/* Quick Actions - Only show for existing users */}
         {showTransactions && (
-        <View className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-          <Text className="text-lg font-semibold text-gray-900 mb-3">Quick Actions</Text>
-          <View className="flex-row space-x-3">
-            {activeAccount ? (
-              <>
-                <Pressable 
-                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                  onPress={() => navigation?.navigate('AddTransaction')}
-                >
-                  <View className="items-center">
-                    <Ionicons name="add-circle" size={24} color="#10B981" />
-                    <Text className="text-sm font-medium text-gray-900 mt-1">Add</Text>
-                    <Text className="text-xs text-gray-500">Transaction</Text>
-                  </View>
-                </Pressable>
-                
-                <Pressable 
-                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                  onPress={handleManualTransactionDemo}
-                >
-                  <View className="items-center">
-                    <Ionicons name="flask" size={24} color="#3B82F6" />
-                    <Text className="text-sm font-medium text-gray-900 mt-1">Demo</Text>
-                    <Text className="text-xs text-gray-500">Conversion</Text>
-                  </View>
-                </Pressable>
-                
-                <Pressable 
-                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                  onPress={() => setShowLegend(true)}
-                >
-                  <View className="items-center">
-                    <Ionicons name="help-circle" size={24} color="#F59E0B" />
-                    <Text className="text-sm font-medium text-gray-900 mt-1">Help</Text>
-                    <Text className="text-xs text-gray-500">Guide</Text>
-                  </View>
-                </Pressable>
-              </>
-            ) : (
-              <>
-                <Pressable 
-                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                  onPress={handleDemoReset}
-                >
-                  <View className="items-center">
-                    <Ionicons name="play-circle" size={24} color="#3B82F6" />
-                    <Text className="text-sm font-medium text-gray-900 mt-1">Start</Text>
-                    <Text className="text-xs text-gray-500">Demo</Text>
-                  </View>
-                </Pressable>
-                
-                <Pressable 
-                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                  onPress={() => setShowLegend(true)}
-                >
-                  <View className="items-center">
-                    <Ionicons name="help-circle" size={24} color="#F59E0B" />
-                    <Text className="text-sm font-medium text-gray-900 mt-1">Help</Text>
-                    <Text className="text-xs text-gray-500">Guide</Text>
-                  </View>
-                </Pressable>
-                
-                <Pressable 
-                  className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                  onPress={handleBugReport}
-                >
-                  <View className="items-center">
-                    <Ionicons name="bug" size={24} color="#DC2626" />
-                    <Text className="text-sm font-medium text-gray-900 mt-1">Report</Text>
-                    <Text className="text-xs text-gray-500">Bug</Text>
-                  </View>
-                </Pressable>
-              </>
-            )}
+          <View className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <Text className="text-lg font-semibold text-gray-900 mb-3">Quick Actions</Text>
+            <View className="flex-row space-x-3">
+              {activeAccount ? (
+                <>
+                  <Pressable 
+                    className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                    onPress={() => navigation?.navigate('AddTransaction')}
+                  >
+                    <View className="items-center">
+                      <Ionicons name="add-circle" size={24} color="#10B981" />
+                      <Text className="text-sm font-medium text-gray-900 mt-1">Add</Text>
+                      <Text className="text-xs text-gray-500">Transaction</Text>
+                    </View>
+                  </Pressable>
+                  
+                  <Pressable 
+                    className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                    onPress={handleManualTransactionDemo}
+                  >
+                    <View className="items-center">
+                      <Ionicons name="flask" size={24} color="#3B82F6" />
+                      <Text className="text-sm font-medium text-gray-900 mt-1">Demo</Text>
+                      <Text className="text-xs text-gray-500">Conversion</Text>
+                    </View>
+                  </Pressable>
+                  
+                  <Pressable 
+                    className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                    onPress={() => setShowLegend(true)}
+                  >
+                    <View className="items-center">
+                      <Ionicons name="help-circle" size={24} color="#F59E0B" />
+                      <Text className="text-sm font-medium text-gray-900 mt-1">Help</Text>
+                      <Text className="text-xs text-gray-500">Guide</Text>
+                    </View>
+                  </Pressable>
+                </>
+              ) : (
+                <>
+                  <Pressable 
+                    className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                    onPress={handleDemoReset}
+                  >
+                    <View className="items-center">
+                      <Ionicons name="play-circle" size={24} color="#3B82F6" />
+                      <Text className="text-sm font-medium text-gray-900 mt-1">Start</Text>
+                      <Text className="text-xs text-gray-500">Demo</Text>
+                    </View>
+                  </Pressable>
+                  
+                  <Pressable 
+                    className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                    onPress={() => setShowLegend(true)}
+                  >
+                    <View className="items-center">
+                      <Ionicons name="help-circle" size={24} color="#F59E0B" />
+                      <Text className="text-sm font-medium text-gray-900 mt-1">Help</Text>
+                      <Text className="text-xs text-gray-500">Guide</Text>
+                    </View>
+                  </Pressable>
+                  
+                  <Pressable 
+                    className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
+                    onPress={handleBugReport}
+                  >
+                    <View className="items-center">
+                      <Ionicons name="bug" size={24} color="#DC2626" />
+                      <Text className="text-sm font-medium text-gray-900 mt-1">Report</Text>
+                      <Text className="text-xs text-gray-500">Bug</Text>
+                    </View>
+                  </Pressable>
+                </>
+              )}
+            </View>
           </View>
-        </View>
         )}
       </ScrollView>
 
