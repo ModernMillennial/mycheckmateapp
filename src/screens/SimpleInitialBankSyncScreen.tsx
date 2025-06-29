@@ -38,15 +38,15 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
     const newAccount = {
       name: `${bankName} Checking`,
       type: 'checking' as const,
-      balance: 1504.00,
-      startingBalance: 1504.00,
-      startingBalanceDate: new Date().toISOString().split('T')[0],
+      balance: 1503.12,
+      startingBalance: 1503.12,
+      startingBalanceDate: '2025-06-24', // Set to specific date as shown in screenshot
       isConnected: true,
       lastSyncDate: new Date(),
       bankName: bankName,
       accountNumber: '****1234',
       isActive: true,
-      currentBalance: 1504.00,
+      currentBalance: 1503.12,
       color: '#3B82F6',
     };
     
@@ -54,38 +54,53 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
     initializeWithSeedData();
     updateAccountInfo(newAccount);
     
-    // Add some demo transactions
+    // Get the active account after updating it
     const activeAccount = getActiveAccount();
+    if (!activeAccount) {
+      console.error('No active account found for demo transactions');
+      return;
+    }
+    
     const demoTransactions = [
       {
-        accountId: activeAccount?.id || 'default',
-        amount: 2500.00,
-        payee: 'Payroll Deposit',
-        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        accountId: activeAccount.id,
+        amount: 2800.00,
+        payee: 'ACME Corp',
+        date: '2025-06-24',
         reconciled: true,
         userId: 'demo-user',
         source: 'bank' as const,
-        notes: 'Income',
+        notes: 'Deposit, Payroll',
       },
       {
-        accountId: activeAccount?.id || 'default',
-        amount: -85.32,
-        payee: 'Grocery Store',
-        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        accountId: activeAccount.id,
+        amount: -1250.00,
+        payee: 'Property Management Co',
+        date: '2025-06-25',
         reconciled: true,
         userId: 'demo-user',
         source: 'bank' as const,
-        notes: 'Groceries',
+        notes: 'Payment, Rent',
       },
       {
-        accountId: activeAccount?.id || 'default',
-        amount: -4.50,
-        payee: 'Coffee Shop',
-        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        accountId: activeAccount.id,
+        amount: -4.95,
+        payee: 'Starbucks',
+        date: '2025-06-26',
         reconciled: true,
         userId: 'demo-user',
         source: 'bank' as const,
-        notes: 'Food & Dining',
+        notes: 'Shops, Food and Drink, Coffee Shop',
+      },
+      {
+        accountId: activeAccount.id,
+        amount: -89.43,
+        payee: 'Whole Foods Market',
+        date: '2025-06-27',
+        reconciled: true,
+        userId: 'demo-user',
+        source: 'bank' as const,
+        notes: 'Shops, Food and Drink, Groceries',
       },
     ];
     

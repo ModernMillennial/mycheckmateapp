@@ -170,6 +170,7 @@ export const useTransactionStore = create<TransactionState>()(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
         );
 
+        // Start with the account's starting balance as the base
         let runningBalance = activeAccount.startingBalance;
         let previousBalance = runningBalance;
         

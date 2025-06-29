@@ -330,11 +330,24 @@ ACTUAL BEHAVIOR:
           return new Date(a.date).getTime() - new Date(b.date).getTime();
         });
       
-      // Calculate running balance from start
-      runningBalance = 0;
-      for (let i = 0; i <= sortedTransactions.findIndex(t => t.id === item.id); i++) {
-        if (sortedTransactions[i] && typeof sortedTransactions[i].amount === 'number') {
-          runningBalance += sortedTransactions[i].amount;
+      // Calculate running balance properly with starting balance
+      const currentItemIndex = sortedTransactions.findIndex(t => t.id === item.id);
+      
+      if (isStartingBalance) {
+        // For starting balance entry, just show the starting balance
+        runningBalance = item.amount;
+      } else {
+        // For regular transactions, start with account starting balance and add all transactions up to this one
+        runningBalance = activeAccount?.startingBalance || 0;
+        for (let i = 0; i <= currentItemIndex; i++) {
+          const transaction = sortedTransactions[i];
+          if (transaction && typeof transaction.amount === 'number') {
+            // Skip starting balance entries in the calculation since we already start with the starting balance
+            const transactionIsStarting = transaction.payee === 'Starting Point' || transaction.payee === 'Starting Balance' || transaction.id.startsWith('starting-balance-');
+            if (!transactionIsStarting) {
+              runningBalance += transaction.amount;
+            }
+          }
         }
       }
     } catch (error) {
@@ -854,42 +867,66 @@ ACTUAL BEHAVIOR:
               </View>
             )}
             
-            {transactions.length > 0 ? (
-              <>
-                {/* Column Headers */}
-                <View className="mx-2 mb-2 px-2 py-2 bg-gray-50 rounded-lg">
-                  <View className="flex-row items-center">
-                    <View className="flex-1">
-                      <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
-                    </View>
-                    <View className="flex-1 items-center">
-                      <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
-                    </View>
-                    <View className="flex-1 items-center">
-                      <Text className="text-xs font-bold text-gray-700 uppercase">Balance</Text>
+{(() => {
+              // Create transactions list with starting balance entry if we have an active account
+              let transactionsToDisplay = [...transactions];
+              
+              if (activeAccount && activeAccount.startingBalance !== 0) {
+                const startingBalanceEntry = {
+                  id: `starting-balance-${activeAccount.id}`,
+                  userId: 'system',
+                  accountId: activeAccount.id,
+                  date: activeAccount.startingBalanceDate || new Date().toISOString().split('T')[0],
+                  payee: 'Starting Balance',
+                  amount: activeAccount.startingBalance,
+                  source: 'manual' as const,
+                  notes: `Opening balance for ${activeAccount.name}`,
+                  reconciled: true,
+                  runningBalance: activeAccount.startingBalance,
+                };
+                
+                transactionsToDisplay = [...transactions, startingBalanceEntry];
+              }
+              
+              return transactionsToDisplay.length > 0 ? (
+                <>
+                  {/* Column Headers */}
+                  <View className="mx-2 mb-2 px-2 py-2 bg-gray-50 rounded-lg">
+                    <View className="flex-row items-center">
+                      <View className="flex-1">
+                        <Text className="text-xs font-bold text-gray-700 uppercase">Date/Type</Text>
+                      </View>
+                      <View className="flex-1 items-center">
+                        <Text className="text-xs font-bold text-gray-700 uppercase">Amount</Text>
+                      </View>
+                      <View className="flex-1 items-center">
+                        <Text className="text-xs font-bold text-gray-700 uppercase">Balance</Text>
+                      </View>
                     </View>
                   </View>
-                </View>
-                
-                {transactions
-                  .slice()
-                  .sort((a, b) => {
-                    // Starting balance transactions should always be at the bottom
-                    const aIsStarting = a.payee === 'Starting Point' || a.payee === 'Starting Balance' || a.id.startsWith('starting-balance-');
-                    const bIsStarting = b.payee === 'Starting Point' || b.payee === 'Starting Balance' || b.id.startsWith('starting-balance-');
-                    
-                    if (aIsStarting && !bIsStarting) return 1; // a goes to bottom
-                    if (bIsStarting && !aIsStarting) return -1; // b goes to bottom
-                    if (aIsStarting && bIsStarting) return new Date(a.date).getTime() - new Date(b.date).getTime(); // oldest starting balance first
-                    
-                    // For all other transactions, sort by date (newest first)
-                    return new Date(b.date).getTime() - new Date(a.date).getTime();
-                  })
-                  .map((item, index) => (
-                    <View key={item.id}>
-                      {renderTransaction({ item, index })}
-                    </View>
-                  ))}
+                  
+                  {transactionsToDisplay
+                    .slice()
+                    .sort((a, b) => {
+                      // Starting balance transactions should always be at the bottom
+                      const aIsStarting = a.payee === 'Starting Point' || a.payee === 'Starting Balance' || a.id.startsWith('starting-balance-');
+                      const bIsStarting = b.payee === 'Starting Point' || b.payee === 'Starting Balance' || b.id.startsWith('starting-balance-');
+                      
+                      if (aIsStarting && !bIsStarting) return 1; // a goes to bottom
+                      if (bIsStarting && !aIsStarting) return -1; // b goes to bottom
+                      if (aIsStarting && bIsStarting) return new Date(a.date).getTime() - new Date(b.date).getTime(); // oldest starting balance first
+                      
+                      // For all other transactions, sort by date (newest first)
+                      return new Date(b.date).getTime() - new Date(a.date).getTime();
+                    })
+                    .map((item, index) => (
+                      <View key={item.id}>
+                        {renderTransaction({ item, index })}
+                      </View>
+                    ))}
+                </>
+              ) : null;
+            })()
               </>
             ) : (
               <View className="mx-2 p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
