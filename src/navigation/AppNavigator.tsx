@@ -71,8 +71,8 @@ const AppNavigator: React.FC = () => {
   
   // Determine initial route based on auth state and terms acceptance
   const getInitialRoute = (): keyof RootStackParamList => {
-    // For budget tracker demo, go directly to Dashboard screen
-    return "Dashboard";
+    // Load the checkbook register app directly
+    return "Register";
   };
   
 
