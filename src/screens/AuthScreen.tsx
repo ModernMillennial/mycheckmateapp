@@ -36,9 +36,9 @@ const AuthScreen: React.FC<Props> = ({ onAuthSuccess }) => {
       const types = await AuthService.getSupportedBiometricTypes();
       const typeNames = types.map(type => {
         switch (type) {
-          case 1: return 'Touch ID';
-          case 2: return 'Face ID';
-          case 3: return 'Fingerprint';
+          case 'TOUCH_ID': return 'Touch ID';
+          case 'FACE_ID': return 'Face ID';
+          case 'FINGERPRINT': return 'Fingerprint';
           default: return 'Biometric';
         }
       });

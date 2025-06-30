@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { 
-  PlaidLink as PlaidLinkSDK, 
   LinkSuccess, 
   LinkExit,
-  PlaidLinkProps
+  PlaidLinkProps,
+  usePlaidEmitter
 } from 'react-native-plaid-link-sdk';
 import { plaidService, PlaidLinkResult } from '../services/plaidService';
 
@@ -97,8 +97,23 @@ const PlaidLink: React.FC<Props> = ({
       const result: PlaidLinkResult = {
         publicToken: success.publicToken,
         metadata: {
-          institution: success.metadata.institution,
-          accounts: success.metadata.accounts,
+          institution: {
+            name: (success.metadata.institution as any)?.name || 'Unknown Bank',
+            institution_id: (success.metadata.institution as any)?.institution_id || 'unknown',
+          },
+          accounts: (success.metadata.accounts || []).map((account: any) => ({
+            account_id: account.id || account.account_id,
+            name: account.name || 'Account',
+            official_name: account.official_name,
+            type: account.type,
+            subtype: account.subtype,
+            balances: {
+              available: account.balances?.available || null,
+              current: account.balances?.current || null,
+              limit: account.balances?.limit || null,
+            },
+            mask: account.mask || '',
+          })),
         },
       };
       onSuccess(result);
@@ -171,28 +186,39 @@ const PlaidLink: React.FC<Props> = ({
     );
   }
 
-  // Real Plaid Link component
+  // For now, use manual opening approach
+  usePlaidEmitter((event: any) => {
+    if (event.eventName === 'onSuccess') {
+      handleSuccess(event.data);
+    } else if (event.eventName === 'onExit') {
+      handleExit(event.data);
+    }
+  });
+
+  const handlePress = () => {
+    // For demo purposes, trigger the mock flow
+    if (!plaidService.isPlaidConfigured()) {
+      initializePlaidLink();
+    } else {
+      // In a real implementation, you would trigger the Plaid Link flow here
+      console.log('Plaid Link would open here with token:', linkToken);
+    }
+  };
+
   return (
-    <PlaidLinkSDK
-      tokenConfig={{
-        token: linkToken,
+    <Pressable
+      onPress={handlePress}
+      style={{
+        backgroundColor: buttonStyle === 'primary' ? '#3B82F6' : 'white',
+        borderWidth: buttonStyle === 'secondary' ? 2 : 0,
+        borderColor: buttonStyle === 'secondary' ? '#3B82F6' : 'transparent',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 8,
       }}
-      onSuccess={handleSuccess}
-      onExit={handleExit}
     >
-      <Pressable
-        style={{
-          backgroundColor: buttonStyle === 'primary' ? '#3B82F6' : 'white',
-          borderWidth: buttonStyle === 'secondary' ? 2 : 0,
-          borderColor: buttonStyle === 'secondary' ? '#3B82F6' : 'transparent',
-          paddingVertical: 12,
-          paddingHorizontal: 24,
-          borderRadius: 8,
-        }}
-      >
-        {renderContent()}
-      </Pressable>
-    </PlaidLinkSDK>
+      {renderContent()}
+    </Pressable>
   );
 };
 

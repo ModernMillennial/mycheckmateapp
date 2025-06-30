@@ -133,8 +133,6 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
     console.log('Generated transactions with balances:', demoTransactions.slice(0, 5).map(t => ({
       payee: t.payee,
       amount: t.amount,
-      balance: t.balance,
-      amount: t.amount,
       balance: t.balance
     })));
     

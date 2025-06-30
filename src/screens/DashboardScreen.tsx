@@ -133,27 +133,27 @@ const DashboardScreen: React.FC = () => {
                   <View className="flex-row items-center justify-between p-4">
                     <View className="flex-row items-center flex-1">
                       <View className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
-                        transaction.type === 'income' ? 'bg-green-100' : 'bg-red-100'
+                        transaction.amount >= 0 ? 'bg-green-100' : 'bg-red-100'
                       }`}>
                         <Ionicons 
-                          name={transaction.type === 'income' ? 'arrow-up' : 'arrow-down'} 
+                          name={transaction.amount >= 0 ? 'arrow-up' : 'arrow-down'} 
                           size={16} 
-                          color={transaction.type === 'income' ? '#059669' : '#DC2626'} 
+                          color={transaction.amount >= 0 ? '#059669' : '#DC2626'} 
                         />
                       </View>
                       <View className="flex-1">
                         <Text className="font-medium text-gray-900" numberOfLines={1}>
-                          {transaction.description}
+                          {transaction.payee}
                         </Text>
                         <Text className="text-sm text-gray-500">
-                          {transaction.category}
+                          {transaction.category || 'Uncategorized'}
                         </Text>
                       </View>
                     </View>
                     <Text className={`font-semibold ${
-                      transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                      transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                      {transaction.amount >= 0 ? '+' : ''}${Math.abs(transaction.amount).toFixed(2)}
                     </Text>
                   </View>
                   {index < recentTransactions.length - 1 && (

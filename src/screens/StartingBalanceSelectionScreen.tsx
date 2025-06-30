@@ -162,7 +162,7 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
       console.error('Error connecting account:', error);
       
       // Check if it's a Plaid credentials error
-      if (error.message?.includes('Plaid creden') || error.message?.includes('not configured')) {
+      if ((error as Error).message?.includes('Plaid creden') || (error as Error).message?.includes('not configured')) {
         Alert.alert(
           'Demo Mode Available',
           'Plaid integration is not configured for production use. Would you like to continue with demonstration data?',

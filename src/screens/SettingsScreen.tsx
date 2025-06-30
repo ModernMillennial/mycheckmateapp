@@ -34,7 +34,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
       </SafeAreaView>
     );
   }
-  const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccount, getActiveTransactions } = useTransactionStore();
+  const { settings, updateSettings, syncBankTransactions, getActiveAccount, updateAccountInfo, getActiveTransactions } = useTransactionStore();
   const { logout, deleteAccount } = useAuthStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
