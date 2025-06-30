@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -84,8 +85,12 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
           <View className="flex-1 px-6 py-8">
             {/* Header */}
             <View className="items-center mb-12">
-              <View className="bg-blue-500 w-20 h-20 rounded-2xl items-center justify-center mb-4">
-                <Ionicons name="checkmark-circle" size={40} color="white" />
+              <View className="w-20 h-20 rounded-3xl shadow-lg overflow-hidden items-center justify-center mb-4">
+                <Image
+                  source={require('../../assets/new-logo.png')}
+                  style={{ width: 72, height: 72 }}
+                  resizeMode="contain"
+                />
               </View>
               <Text className="text-3xl font-bold text-gray-900 mb-2">
                 Welcome Back

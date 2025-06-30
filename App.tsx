@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Image } from "react-native";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { setupNotificationListeners } from "./src/utils/notifications";
 // Authentication temporarily disabled for development
@@ -105,7 +105,14 @@ export default function App() {
   if (!isReady) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-        <Text>Initializing...</Text>
+        <View style={{ width: 80, height: 80, borderRadius: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+          <Image
+            source={require('./assets/new-logo.png')}
+            style={{ width: 72, height: 72 }}
+            resizeMode="contain"
+          />
+        </View>
+        <Text style={{ fontSize: 16, color: '#6B7280' }}>Initializing...</Text>
       </View>
     );
   }
