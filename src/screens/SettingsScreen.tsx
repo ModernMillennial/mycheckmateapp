@@ -12,13 +12,15 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
 import { useAuthStore } from '../state/authStore';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
 import InitialBankSyncScreen from './InitialBankSyncScreen';
 import Calculator from '../components/Calculator';
 import * as MailComposer from 'expo-mail-composer';
 
 interface Props {
-  navigation: any;
+  navigation: StackNavigationProp<RootStackParamList>;
 }
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
@@ -564,8 +566,17 @@ ADDITIONAL DETAILS:
                       text: 'Sign Out',
                       style: 'destructive',
                       onPress: () => {
-                        // Sign out user - this will trigger navigation back to auth screens
+                        // Sign out user and navigate to signup page
                         logout();
+                        try {
+                          navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Signup' }],
+                          });
+                        } catch (error) {
+                          console.error('Navigation error:', error);
+                          navigation.navigate('Signup');
+                        }
                       }
                     }
                   ]
@@ -598,6 +609,15 @@ ADDITIONAL DETAILS:
                               onPress: () => {
                                 // Delete account and all associated data
                                 deleteAccount();
+                                try {
+                                  navigation.reset({
+                                    index: 0,
+                                    routes: [{ name: 'Signup' }],
+                                  });
+                                } catch (error) {
+                                  console.error('Navigation error:', error);
+                                  navigation.navigate('Signup');
+                                }
                               }
                             }
                           ]
