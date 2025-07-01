@@ -348,7 +348,8 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
                           <Text className="text-sm text-gray-600">
                             {new Date(transaction.date).toLocaleDateString('en-US', { 
                               month: 'numeric', 
-                              day: 'numeric' 
+                              day: 'numeric', 
+                              year: 'numeric' 
                             })}
                           </Text>
                           <Text className="text-xs text-gray-500 capitalize">bank</Text>
