@@ -1,4 +1,6 @@
 import { Transaction } from '../types';
+import { SecurityManager, SECURE_STORAGE_KEYS } from '../utils/security';
+import logger from '../utils/logger';
 
 export interface PlaidAccount {
   account_id: string;
@@ -251,15 +253,32 @@ const MOCK_INSTITUTIONS: MockBankInstitution[] = [
 ];
 
 class PlaidService {
-  private baseUrl = 'https://production.plaid.com';
+  private baseUrl: string;
   private clientId = process.env.EXPO_PUBLIC_PLAID_CLIENT_ID;
   private secret = process.env.EXPO_PUBLIC_PLAID_SECRET;
+  private environment = process.env.EXPO_PUBLIC_PLAID_ENVIRONMENT || 'production';
   private isConfigured = false;
 
   constructor() {
+    // Set base URL based on environment
+    switch (this.environment) {
+      case 'sandbox':
+        this.baseUrl = 'https://sandbox.plaid.com';
+        break;
+      case 'development':
+        this.baseUrl = 'https://development.plaid.com';
+        break;
+      case 'production':
+      default:
+        this.baseUrl = 'https://production.plaid.com';
+        break;
+    }
+
     this.isConfigured = !!(this.clientId && this.secret);
     if (!this.isConfigured) {
-      console.warn('Plaid credentials not configured. App will run in demo mode.');
+      logger.warn('Plaid credentials not configured. App will run in demo mode.');
+    } else {
+      logger.info(`Plaid service initialized in ${this.environment} mode`);
     }
   }
 

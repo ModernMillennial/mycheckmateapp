@@ -15,10 +15,15 @@
     },
     "production": {
       "ios": {
-        "autoIncrement": true
+        "autoIncrement": true,
+        "buildConfiguration": "Release"
       },
       "android": {
-        "autoIncrement": true
+        "autoIncrement": true,
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_PLAID_ENVIRONMENT": "production"
       }
     }
   },
