@@ -71,39 +71,30 @@ const AppNavigator: React.FC = () => {
 
   console.log('AppNavigator - isAuthenticated:', isAuthenticated);
   
-  // If authenticated, show the main app screens first
-  if (isAuthenticated) {
-    return (
-      <Stack.Navigator
-        initialRouteName="Dashboard"
-        screenOptions={{
-          headerShown: false,
-          animation: 'slide_from_right',
-        }}
-      >
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
-        <Stack.Screen name="Budget" component={BudgetScreen} />
-        <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
-        <Stack.Screen name="EditTransaction" component={EditTransactionScreen} />
-        <Stack.Screen name="Settings" component={SettingsScreen} />
-        <Stack.Screen name="Reports" component={ReportsScreen} />
-        <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
-        <Stack.Screen name="BankConnection" component={BankConnectionScreen} />
-        <Stack.Screen name="StartingBalanceSelection" component={StartingBalanceSelectionScreen} />
-        <Stack.Screen name="About" component={AboutScreen} />
-      </Stack.Navigator>
-    );
-  }
-
-  // If not authenticated, show auth flow
+  // Show the checkbook register app directly
   return (
     <Stack.Navigator
-      initialRouteName="Login"
+      initialRouteName="Register"
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
       }}
     >
+      {/* Main Checkbook Register Screen */}
+      <Stack.Screen name="Register" component={SimpleRegisterScreen} />
+      
+      {/* Supporting screens */}
+      <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
+      <Stack.Screen name="EditTransaction" component={EditTransactionScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="Reports" component={ReportsScreen} />
+      <Stack.Screen name="Budget" component={BudgetScreen} />
+      <Stack.Screen name="BankConnection" component={BankConnectionScreen} />
+      <Stack.Screen name="StartingBalanceSelection" component={StartingBalanceSelectionScreen} />
+      <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
+      <Stack.Screen name="About" component={AboutScreen} />
+      
+      {/* Auth screens (still available if needed) */}
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
@@ -111,6 +102,7 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen name="TermsAcceptance" component={TermsAcceptanceScreen} />
       <Stack.Screen name="TermsAndConditions" component={TermsAndConditionsScreen} />
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+      <Stack.Screen name="Dashboard" component={DashboardScreen} />
     </Stack.Navigator>
   );
 };
