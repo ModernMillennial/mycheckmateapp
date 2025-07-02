@@ -31,10 +31,10 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   // Effect to navigate when authentication state changes
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('Authentication state changed to true, navigating to Register');
-      navigation.replace('Register');
+      console.log('User authenticated, but navigation will be handled by AppNavigator');
+      // The AppNavigator will handle navigation when authentication state changes
     }
-  }, [isAuthenticated, navigation]);
+  }, [isAuthenticated]);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,7 +68,9 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     if (hasErrors) return;
 
     // Attempt login
+    console.log('Attempting login with:', email.trim().toLowerCase());
     const success = await login(email.trim().toLowerCase(), password);
+    console.log('Login result:', success);
     
     if (!success) {
       Alert.alert(
@@ -216,15 +218,25 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
               </View>
             </View>
 
-            {/* Debug Info - Remove this later */}
-            <View className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-              <Text className="text-xs font-medium text-gray-800">
-                Debug: Auth State = {isAuthenticated ? 'AUTHENTICATED' : 'NOT AUTHENTICATED'}
+            {/* Quick Demo Login */}
+            <Pressable
+              onPress={async () => {
+                setEmail('demo@checkmate.com');
+                setPassword('demo123');
+                const success = await login('demo@checkmate.com', 'demo123');
+                if (success) {
+                  console.log('Quick demo login successful');
+                }
+              }}
+              disabled={isLoading}
+              className="bg-green-500 active:bg-green-600 rounded-lg py-3 items-center justify-center mb-4"
+            >
+              <Text className="text-white text-base font-semibold">
+                Quick Demo Login
               </Text>
-              <Text className="text-xs text-gray-600 mt-1">
-                Loading: {isLoading ? 'YES' : 'NO'}
-              </Text>
-            </View>
+            </Pressable>
+
+
 
             {/* Sign Up Link */}
             <View className="flex-row justify-center items-center">

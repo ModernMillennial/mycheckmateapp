@@ -68,137 +68,49 @@ const AppNavigator: React.FC = () => {
       initializeWithSeedData();
     }
   }, [isInitialized, initializeWithSeedData]);
+
+  console.log('AppNavigator - isAuthenticated:', isAuthenticated);
   
+  // If authenticated, show the main app screens first
+  if (isAuthenticated) {
+    return (
+      <Stack.Navigator
+        initialRouteName="Dashboard"
+        screenOptions={{
+          headerShown: false,
+          animation: 'slide_from_right',
+        }}
+      >
+        <Stack.Screen name="Dashboard" component={DashboardScreen} />
+        <Stack.Screen name="Budget" component={BudgetScreen} />
+        <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
+        <Stack.Screen name="EditTransaction" component={EditTransactionScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="Reports" component={ReportsScreen} />
+        <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
+        <Stack.Screen name="BankConnection" component={BankConnectionScreen} />
+        <Stack.Screen name="StartingBalanceSelection" component={StartingBalanceSelectionScreen} />
+        <Stack.Screen name="About" component={AboutScreen} />
+      </Stack.Navigator>
+    );
+  }
+
+  // If not authenticated, show auth flow
   return (
     <Stack.Navigator
-      key={isAuthenticated ? "authenticated" : "unauthenticated"}
-      initialRouteName={isAuthenticated ? "Register" : "Login"}
+      initialRouteName="Login"
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
       }}
     >
-      {/* Splash Screen - always shown first */}
-      <Stack.Screen 
-        name="Splash" 
-        component={SplashScreen}
-        options={{
-          headerShown: false,
-          animationTypeForReplace: 'push',
-        }}
-      />
-      
-      {/* Budget Tracker App - Direct Access */}
-      <Stack.Screen 
-        name="Dashboard" 
-        component={DashboardScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen 
-        name="Budget" 
-        component={BudgetScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen 
-        name="AddTransaction" 
-        component={AddTransactionScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-        }}
-      />
-      <Stack.Screen 
-        name="EditTransaction" 
-        component={EditTransactionScreen}
-      />
-      
-      {/* Auth Stack - Optional */}
-      <Stack.Screen 
-        name="Welcome" 
-        component={WelcomeScreen}
-        options={{
-          headerShown: false,
-          animationTypeForReplace: 'push',
-        }}
-      />
-      <Stack.Screen 
-        name="Login" 
-        component={LoginScreen}
-        options={{
-          headerShown: false,
-          animationTypeForReplace: 'push',
-        }}
-      />
-      <Stack.Screen 
-        name="Signup" 
-        component={SignupScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen 
-        name="ForgotPassword" 
-        component={ForgotPasswordScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
-      
-      {/* Other Screens */}
-      <Stack.Screen 
-        name="TermsAcceptance" 
-        component={TermsAcceptanceScreen}
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
-      />
-      <Stack.Screen 
-        name="TermsAndConditions" 
-        component={TermsAndConditionsScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen 
-        name="Register" 
-        component={SimpleRegisterScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen 
-        name="Settings" 
-        component={SettingsScreen}
-      />
-      <Stack.Screen 
-        name="Reports" 
-        component={ReportsScreen}
-      />
-      <Stack.Screen 
-        name="NotificationSettings" 
-        component={NotificationSettingsScreen}
-      />
-      <Stack.Screen 
-        name="BankConnection" 
-        component={BankConnectionScreen}
-      />
-      <Stack.Screen 
-        name="StartingBalanceSelection" 
-        component={StartingBalanceSelectionScreen}
-      />
-      <Stack.Screen 
-        name="PrivacyPolicy" 
-        component={PrivacyPolicyScreen}
-      />
-      <Stack.Screen 
-        name="About" 
-        component={AboutScreen}
-      />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="TermsAcceptance" component={TermsAcceptanceScreen} />
+      <Stack.Screen name="TermsAndConditions" component={TermsAndConditionsScreen} />
+      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
     </Stack.Navigator>
   );
 };
