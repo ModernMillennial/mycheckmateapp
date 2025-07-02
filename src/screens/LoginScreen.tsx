@@ -25,8 +25,9 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   
-  const { login, isLoading, isAuthenticated } = useAuthStore();
+  const { login, isLoading, isAuthenticated, rememberedCredentials } = useAuthStore();
 
   // Effect to navigate when authentication state changes
   useEffect(() => {
@@ -35,6 +36,15 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       navigation.navigate('BankConnection');
     }
   }, [isAuthenticated, navigation]);
+
+  // Effect to load remembered credentials
+  useEffect(() => {
+    if (rememberedCredentials) {
+      setEmail(rememberedCredentials.email);
+      setPassword(rememberedCredentials.password);
+      setRememberMe(true);
+    }
+  }, [rememberedCredentials]);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -69,7 +79,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
     // Attempt login
     console.log('Attempting login with:', email.trim().toLowerCase());
-    const success = await login(email.trim().toLowerCase(), password);
+    const success = await login(email.trim().toLowerCase(), password, rememberMe);
     console.log('Login result:', success);
     
     if (!success) {
@@ -175,6 +185,22 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                 ) : null}
               </View>
 
+              {/* Remember Me Checkbox */}
+              <Pressable
+                onPress={() => setRememberMe(!rememberMe)}
+                className="flex-row items-center mb-6"
+                disabled={isLoading}
+              >
+                <View className={`w-5 h-5 rounded border-2 ${rememberMe ? 'bg-blue-500 border-blue-500' : 'border-gray-300'} items-center justify-center mr-3`}>
+                  {rememberMe && (
+                    <Ionicons name="checkmark" size={12} color="white" />
+                  )}
+                </View>
+                <Text className="text-sm text-gray-700">
+                  Remember me
+                </Text>
+              </Pressable>
+
               {/* Login Button */}
               <Pressable
                 onPress={handleLogin}
@@ -223,7 +249,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
               onPress={async () => {
                 setEmail('demo@checkmate.com');
                 setPassword('demo123');
-                const success = await login('demo@checkmate.com', 'demo123');
+                const success = await login('demo@checkmate.com', 'demo123', rememberMe);
                 if (success) {
                   console.log('Quick demo login successful');
                   // Navigation will be handled by useEffect

@@ -14,13 +14,16 @@ export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  rememberMe: boolean;
+  rememberedCredentials: { email: string; password: string } | null;
   
   // Actions
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<boolean>;
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<boolean>;
   logout: () => void;
   deleteAccount: () => void;
   setLoading: (loading: boolean) => void;
+  clearRememberedCredentials: () => void;
 }
 
 // Mock authentication service
@@ -91,20 +94,32 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       isLoading: false,
+      rememberMe: false,
+      rememberedCredentials: null,
       
-      login: async (email: string, password: string) => {
+      login: async (email: string, password: string, rememberMe = false) => {
         console.log('Login attempt started for:', email);
         set({ isLoading: true });
         
         try {
           const user = await mockAuthService.login(email, password);
           console.log('Login successful for user:', user.email);
-          set({ 
+          
+          const updateData: any = { 
             user, 
             isAuthenticated: true, 
-            isLoading: false 
-          });
-          console.log('Auth state updated - isAuthenticated: true');
+            isLoading: false,
+            rememberMe
+          };
+          
+          if (rememberMe) {
+            updateData.rememberedCredentials = { email, password };
+          } else {
+            updateData.rememberedCredentials = null;
+          }
+          
+          set(updateData);
+          console.log('Auth state updated - isAuthenticated: true, rememberMe:', rememberMe);
           return true;
         } catch (error) {
           console.log('Login failed:', error instanceof Error ? error.message : 'Unknown error');
@@ -131,11 +146,14 @@ export const useAuthStore = create<AuthState>()(
       },
       
       logout: () => {
-        // Sign out user but keep their data
+        // Sign out user but keep their data and remembered credentials if rememberMe is true
+        const currentState = get();
         set({ 
           user: null, 
           isAuthenticated: false, 
-          isLoading: false 
+          isLoading: false,
+          // Keep remembered credentials if rememberMe was true
+          rememberedCredentials: currentState.rememberMe ? currentState.rememberedCredentials : null,
         });
       },
       
@@ -155,6 +173,13 @@ export const useAuthStore = create<AuthState>()(
       setLoading: (loading: boolean) => {
         set({ isLoading: loading });
       },
+      
+      clearRememberedCredentials: () => {
+        set({ 
+          rememberMe: false,
+          rememberedCredentials: null 
+        });
+      },
     }),
     {
       name: 'checkmate-auth',
@@ -162,6 +187,8 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
+        rememberMe: state.rememberMe,
+        rememberedCredentials: state.rememberedCredentials,
       }),
     }
   )
