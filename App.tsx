@@ -82,10 +82,14 @@ export default function App() {
 
   useEffect(() => {
     // Setup notification listeners
-    const unsubscribe = setupNotificationListeners().catch(error => {
+    let unsubscribe: (() => void) | undefined;
+    
+    try {
+      unsubscribe = setupNotificationListeners();
+    } catch (error) {
       console.error('Notification setup error:', error);
-      return () => {}; // Return empty cleanup function on error
-    });
+      unsubscribe = () => {}; // Empty cleanup function on error
+    }
     
     // Initialize the financial app
     const initializeApp = async () => {
@@ -105,12 +109,6 @@ export default function App() {
     return () => {
       if (typeof unsubscribe === 'function') {
         unsubscribe();
-      } else if (unsubscribe && typeof unsubscribe.then === 'function') {
-        unsubscribe.then(cleanup => {
-          if (typeof cleanup === 'function') {
-            cleanup();
-          }
-        }).catch(console.error);
       }
     };
   }, []);
