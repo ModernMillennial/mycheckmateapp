@@ -113,35 +113,39 @@ const AppNavigator: React.FC = () => {
   
   return (
     <Stack.Navigator
-      initialRouteName={isAuthenticated ? "Register" : "Login"}
+      initialRouteName={isAuthenticated ? "Register" : "Welcome"}
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
       }}
     >
-      {/* Main Checkbook Register Screen */}
-      <Stack.Screen name="Register" component={SimpleRegisterScreen} />
-      
-      {/* Supporting screens */}
-      <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
-      <Stack.Screen name="EditTransaction" component={EditTransactionScreen} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
-      <Stack.Screen name="Reports" component={ReportsScreen} />
-      <Stack.Screen name="Budget" component={BudgetScreen} />
-      <Stack.Screen name="BankConnection" component={BankConnectionScreen} />
-      <Stack.Screen name="StartingBalanceSelection" component={StartingBalanceSelectionScreen} />
-      <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
-      <Stack.Screen name="About" component={AboutScreen} />
-      
-      {/* Auth screens (still available if needed) */}
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
-      <Stack.Screen name="Welcome" component={WelcomeScreen} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-      <Stack.Screen name="TermsAcceptance" component={TermsAcceptanceScreen} />
-      <Stack.Screen name="TermsAndConditions" component={TermsAndConditionsScreen} />
-      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
-      <Stack.Screen name="Dashboard" component={DashboardScreen} />
+      {!isAuthenticated ? (
+        // Auth screens - only show when not authenticated
+        <>
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+          <Stack.Screen name="TermsAcceptance" component={TermsAcceptanceScreen} />
+          <Stack.Screen name="TermsAndConditions" component={TermsAndConditionsScreen} />
+          <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+        </>
+      ) : (
+        // App screens - only show when authenticated
+        <>
+          <Stack.Screen name="Register" component={SimpleRegisterScreen} />
+          <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
+          <Stack.Screen name="EditTransaction" component={EditTransactionScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="Reports" component={ReportsScreen} />
+          <Stack.Screen name="Budget" component={BudgetScreen} />
+          <Stack.Screen name="BankConnection" component={BankConnectionScreen} />
+          <Stack.Screen name="StartingBalanceSelection" component={StartingBalanceSelectionScreen} />
+          <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
+          <Stack.Screen name="About" component={AboutScreen} />
+          <Stack.Screen name="Dashboard" component={DashboardScreen} />
+        </>
+      )}
     </Stack.Navigator>
   );
 };

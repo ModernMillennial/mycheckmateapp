@@ -91,7 +91,7 @@ export default function App() {
       unsubscribe = () => {}; // Empty cleanup function on error
     }
     
-    // Initialize the financial app
+    // Initialize the app
     const initializeApp = async () => {
       try {
         // Add a delay to ensure stores are hydrated from AsyncStorage
@@ -123,9 +123,9 @@ export default function App() {
             resizeMode="contain"
           />
         </View>
-        <Text style={{ fontSize: 16, color: '#6B7280' }}>Initializing...</Text>
+        <Text style={{ fontSize: 16, color: '#6B7280' }}>Loading...</Text>
         <Text style={{ fontSize: 12, color: '#9CA3AF', marginTop: 8 }}>
-          Loading stores and navigation...
+          Getting ready...
         </Text>
       </View>
     );

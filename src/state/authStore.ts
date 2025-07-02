@@ -26,6 +26,7 @@ export interface AuthState {
   setLoading: (loading: boolean) => void;
   clearRememberedCredentials: () => void;
   setHasHydrated: (hasHydrated: boolean) => void;
+  resetAuthState: () => void;
 }
 
 // Mock authentication service
@@ -186,6 +187,17 @@ export const useAuthStore = create<AuthState>()(
       
       setHasHydrated: (hasHydrated: boolean) => {
         set({ _hasHydrated: hasHydrated });
+      },
+      
+      // Helper method to reset authentication state (for development/testing)
+      resetAuthState: () => {
+        set({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          rememberMe: false,
+          rememberedCredentials: null,
+        });
       },
     }),
     {
