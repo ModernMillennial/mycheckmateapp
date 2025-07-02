@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '../state/authStore';
 import { useTransactionStore } from '../state/transactionStore';
@@ -59,21 +59,61 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
-  const { isAuthenticated } = useAuthStore();
-  const { settings, isInitialized, initializeWithSeedData } = useTransactionStore();
+  const { isAuthenticated, _hasHydrated: authHydrated } = useAuthStore();
+  const { settings, isInitialized, initializeWithSeedData, _hasHydrated: transactionHydrated } = useTransactionStore();
+  const [isStoreReady, setIsStoreReady] = useState(false);
   
   // Initialize the store when the component mounts
   useEffect(() => {
-    if (!isInitialized) {
-      initializeWithSeedData();
-    }
-  }, [isInitialized, initializeWithSeedData]);
+    const initializeStores = async () => {
+      try {
+        console.log('AppNavigator: Starting store initialization...');
+        console.log('isInitialized:', isInitialized);
+        console.log('isAuthenticated:', isAuthenticated);
+        console.log('authHydrated:', authHydrated);
+        console.log('transactionHydrated:', transactionHydrated);
+        
+        // Wait for both stores to hydrate
+        if (!authHydrated || !transactionHydrated) {
+          console.log('Waiting for store hydration...');
+          return; // Exit early, will retry when hydration completes
+        }
+        
+        if (!isInitialized) {
+          console.log('Initializing transaction store with seed data...');
+          initializeWithSeedData();
+        }
+        
+        // Give stores time to complete initialization
+        await new Promise(resolve => setTimeout(resolve, 100));
+        console.log('AppNavigator: Store initialization complete');
+        setIsStoreReady(true);
+      } catch (error) {
+        console.error('Store initialization error:', error);
+        setIsStoreReady(true); // Continue anyway
+      }
+    };
+    
+    initializeStores();
+  }, [isInitialized, initializeWithSeedData, authHydrated, transactionHydrated]);
 
-  console.log('AppNavigator - isAuthenticated:', isAuthenticated);
+  console.log('AppNavigator render - isAuthenticated:', isAuthenticated, 'isStoreReady:', isStoreReady);
+  
+  // Show loading until stores are ready and hydrated
+  if (!isStoreReady || !authHydrated || !transactionHydrated) {
+    console.log('AppNavigator: Stores not ready or not hydrated, showing loading...', { 
+      isStoreReady, 
+      authHydrated, 
+      transactionHydrated 
+    });
+    return null; // This will show the App.tsx loading screen
+  }
+  
+  console.log('AppNavigator: Rendering navigator with initial route:', isAuthenticated ? "Register" : "Login");
   
   return (
     <Stack.Navigator
-      initialRouteName={isAuthenticated ? "BankConnection" : "Login"}
+      initialRouteName={isAuthenticated ? "Register" : "Login"}
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',

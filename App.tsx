@@ -82,13 +82,16 @@ export default function App() {
 
   useEffect(() => {
     // Setup notification listeners
-    const unsubscribe = setupNotificationListeners();
+    const unsubscribe = setupNotificationListeners().catch(error => {
+      console.error('Notification setup error:', error);
+      return () => {}; // Return empty cleanup function on error
+    });
     
     // Initialize the financial app
     const initializeApp = async () => {
       try {
-        // Add a small delay to ensure everything is ready
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Add a delay to ensure stores are hydrated from AsyncStorage
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         setIsReady(true);
       } catch (error) {
@@ -99,7 +102,17 @@ export default function App() {
     
     initializeApp();
     
-    return unsubscribe;
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      } else if (unsubscribe && typeof unsubscribe.then === 'function') {
+        unsubscribe.then(cleanup => {
+          if (typeof cleanup === 'function') {
+            cleanup();
+          }
+        }).catch(console.error);
+      }
+    };
   }, []);
 
   if (!isReady) {
@@ -113,6 +126,9 @@ export default function App() {
           />
         </View>
         <Text style={{ fontSize: 16, color: '#6B7280' }}>Initializing...</Text>
+        <Text style={{ fontSize: 12, color: '#9CA3AF', marginTop: 8 }}>
+          Loading stores and navigation...
+        </Text>
       </View>
     );
   }

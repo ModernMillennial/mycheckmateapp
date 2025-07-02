@@ -16,6 +16,7 @@ export interface AuthState {
   isLoading: boolean;
   rememberMe: boolean;
   rememberedCredentials: { email: string; password: string } | null;
+  _hasHydrated: boolean;
   
   // Actions
   login: (email: string, password: string, rememberMe?: boolean) => Promise<boolean>;
@@ -24,6 +25,7 @@ export interface AuthState {
   deleteAccount: () => void;
   setLoading: (loading: boolean) => void;
   clearRememberedCredentials: () => void;
+  setHasHydrated: (hasHydrated: boolean) => void;
 }
 
 // Mock authentication service
@@ -96,6 +98,7 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       rememberMe: false,
       rememberedCredentials: null,
+      _hasHydrated: false,
       
       login: async (email: string, password: string, rememberMe = false) => {
         console.log('Login attempt started for:', email);
@@ -180,6 +183,10 @@ export const useAuthStore = create<AuthState>()(
           rememberedCredentials: null 
         });
       },
+      
+      setHasHydrated: (hasHydrated: boolean) => {
+        set({ _hasHydrated: hasHydrated });
+      },
     }),
     {
       name: 'checkmate-auth',
@@ -190,6 +197,10 @@ export const useAuthStore = create<AuthState>()(
         rememberMe: state.rememberMe,
         rememberedCredentials: state.rememberedCredentials,
       }),
+      onRehydrateStorage: () => (state) => {
+        console.log('Auth store hydration complete');
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

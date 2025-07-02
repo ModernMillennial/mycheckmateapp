@@ -32,8 +32,8 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   // Effect to navigate when authentication state changes
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('User authenticated, navigating to BankConnection');
-      navigation.navigate('BankConnection');
+      console.log('User authenticated, navigating to Register');
+      navigation.navigate('Register');
     }
   }, [isAuthenticated, navigation]);
 

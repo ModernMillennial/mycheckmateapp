@@ -20,8 +20,10 @@ interface TransactionState {
   searchQuery: string;
   filterType: FilterType;
   isInitialized: boolean;
+  _hasHydrated: boolean;
   
   // Actions
+  setHasHydrated: (hasHydrated: boolean) => void;
   addTransaction: (transaction: Omit<Transaction, 'id' | 'runningBalance'>) => void;
   updateTransaction: (id: string, updates: Partial<Transaction>) => void;
   deleteTransaction: (id: string) => void;
@@ -83,6 +85,7 @@ export const useTransactionStore = create<TransactionState>()(
       searchQuery: '',
       filterType: 'all',
       isInitialized: false,
+      _hasHydrated: false,
 
       addTransaction: (transaction) => {
         const newTransaction: Transaction = {
@@ -530,7 +533,10 @@ export const useTransactionStore = create<TransactionState>()(
         const activeAccount = accounts.find(a => a.id === settings.activeAccountId);
         return activeAccount?.currentBalance || 0;
       },
-
+      
+      setHasHydrated: (hasHydrated: boolean) => {
+        set({ _hasHydrated: hasHydrated });
+      },
 
     }),
     {
@@ -543,6 +549,10 @@ export const useTransactionStore = create<TransactionState>()(
         notificationSettings: state.notificationSettings,
         isInitialized: state.isInitialized,
       }),
+      onRehydrateStorage: () => (state) => {
+        console.log('Transaction store hydration complete');
+        state?.setHasHydrated(true);
+      },
     }
   )
 );
