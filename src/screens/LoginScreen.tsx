@@ -31,10 +31,10 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   // Effect to navigate when authentication state changes
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('User authenticated, but navigation will be handled by AppNavigator');
-      // The AppNavigator will handle navigation when authentication state changes
+      console.log('User authenticated, navigating to BankConnection');
+      navigation.navigate('BankConnection');
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigation]);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -226,6 +226,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                 const success = await login('demo@checkmate.com', 'demo123');
                 if (success) {
                   console.log('Quick demo login successful');
+                  // Navigation will be handled by useEffect
                 }
               }}
               disabled={isLoading}

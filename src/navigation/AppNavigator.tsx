@@ -71,10 +71,9 @@ const AppNavigator: React.FC = () => {
 
   console.log('AppNavigator - isAuthenticated:', isAuthenticated);
   
-  // Show the checkbook register app directly
   return (
     <Stack.Navigator
-      initialRouteName="Register"
+      initialRouteName={isAuthenticated ? "BankConnection" : "Login"}
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
