@@ -1,6 +1,7 @@
 import logger from './logger';
 
 // Performance monitoring and optimization utilities
+import React from 'react';
 export class PerformanceManager {
   private static timers: Map<string, number> = new Map();
 

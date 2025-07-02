@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -26,7 +26,15 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   
-  const { login, isLoading } = useAuthStore();
+  const { login, isLoading, isAuthenticated } = useAuthStore();
+
+  // Effect to navigate when authentication state changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log('Authentication state changed to true, navigating to Register');
+      navigation.replace('Register');
+    }
+  }, [isAuthenticated, navigation]);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -69,6 +77,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
         [{ text: 'OK' }]
       );
     }
+    // Navigation will be handled by the useEffect when authentication state changes
   };
 
   return (
@@ -205,6 +214,16 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                   </Text>
                 </View>
               </View>
+            </View>
+
+            {/* Debug Info - Remove this later */}
+            <View className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+              <Text className="text-xs font-medium text-gray-800">
+                Debug: Auth State = {isAuthenticated ? 'AUTHENTICATED' : 'NOT AUTHENTICATED'}
+              </Text>
+              <Text className="text-xs text-gray-600 mt-1">
+                Loading: {isLoading ? 'YES' : 'NO'}
+              </Text>
             </View>
 
             {/* Sign Up Link */}

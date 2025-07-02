@@ -69,17 +69,10 @@ const AppNavigator: React.FC = () => {
     }
   }, [isInitialized, initializeWithSeedData]);
   
-  // Determine initial route based on auth state and terms acceptance
-  const getInitialRoute = (): keyof RootStackParamList => {
-    // Load the checkbook register app directly
-    return "Register";
-  };
-  
-
-  
   return (
     <Stack.Navigator
-      initialRouteName={getInitialRoute()}
+      key={isAuthenticated ? "authenticated" : "unauthenticated"}
+      initialRouteName={isAuthenticated ? "Register" : "Login"}
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',

@@ -93,17 +93,21 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       
       login: async (email: string, password: string) => {
+        console.log('Login attempt started for:', email);
         set({ isLoading: true });
         
         try {
           const user = await mockAuthService.login(email, password);
+          console.log('Login successful for user:', user.email);
           set({ 
             user, 
             isAuthenticated: true, 
             isLoading: false 
           });
+          console.log('Auth state updated - isAuthenticated: true');
           return true;
         } catch (error) {
+          console.log('Login failed:', error instanceof Error ? error.message : 'Unknown error');
           set({ isLoading: false });
           return false;
         }

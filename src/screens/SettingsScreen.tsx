@@ -566,16 +566,16 @@ ADDITIONAL DETAILS:
                       text: 'Sign Out',
                       style: 'destructive',
                       onPress: () => {
-                        // Sign out user and navigate to signup page
+                        // Sign out user and navigate to login page
                         logout();
                         try {
                           navigation.reset({
                             index: 0,
-                            routes: [{ name: 'Signup' }],
+                            routes: [{ name: 'Login' }],
                           });
                         } catch (error) {
                           console.error('Navigation error:', error);
-                          navigation.navigate('Signup');
+                          navigation.navigate('Login');
                         }
                       }
                     }
@@ -612,11 +612,11 @@ ADDITIONAL DETAILS:
                                 try {
                                   navigation.reset({
                                     index: 0,
-                                    routes: [{ name: 'Signup' }],
+                                    routes: [{ name: 'Login' }],
                                   });
                                 } catch (error) {
                                   console.error('Navigation error:', error);
-                                  navigation.navigate('Signup');
+                                  navigation.navigate('Login');
                                 }
                               }
                             }
