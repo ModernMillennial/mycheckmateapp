@@ -16,6 +16,7 @@
       "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to scan receipts and documents for transaction entry.",
+        "NSContactsUsageDescription": "This app accesses your contacts to help you split bills and share expenses with friends.",
         "NSMicrophoneUsageDescription": "This app uses the microphone for voice memos and transaction notes.",
         "NSUserTrackingUsageDescription": "This app uses tracking to provide personalized financial insights and improve your experience.",
         "NSLocationWhenInUseUsageDescription": "This app uses location to help categorize transactions based on nearby merchants."
