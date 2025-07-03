@@ -373,29 +373,7 @@ const HelpGuideModal: React.FC<HelpGuideModalProps> = ({ visible, onClose }) => 
               </Pressable>
             ))}
 
-            {/* Quick Help Section */}
-            <View style={{ 
-              backgroundColor: '#F3F4F6', 
-              borderRadius: 12, 
-              padding: 16, 
-              marginTop: 8,
-              marginBottom: 32
-            }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                <Ionicons name="flash" size={20} color="#3B82F6" />
-                <Text style={{ 
-                  marginLeft: 8, 
-                  fontSize: 16, 
-                  fontWeight: '600', 
-                  color: '#374151' 
-                }}>
-                  Quick Help
-                </Text>
-              </View>
-              <Text style={{ fontSize: 14, color: '#6B7280', lineHeight: 20 }}>
-                Need immediate assistance? Use the "Report Bug" option in the menu to contact our support team with detailed diagnostic information.
-              </Text>
-            </View>
+
           </ScrollView>
         </View>
       </Modal>
