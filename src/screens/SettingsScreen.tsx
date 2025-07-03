@@ -566,17 +566,8 @@ ADDITIONAL DETAILS:
                       text: 'Sign Out',
                       style: 'destructive',
                       onPress: () => {
-                        // Sign out user and navigate to login page
+                        // Sign out user - navigation will automatically handle the redirect
                         logout();
-                        try {
-                          navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Login' }],
-                          });
-                        } catch (error) {
-                          console.error('Navigation error:', error);
-                          navigation.navigate('Login');
-                        }
                       }
                     }
                   ]
