@@ -14,6 +14,7 @@ import Animated, {
 import { useTransactionStore } from '../state/transactionStore';
 import { useAuthStore } from '../state/authStore';
 import { Transaction } from '../types';
+import HelpGuideModal from '../components/HelpGuideModal';
 
 const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
 
@@ -27,6 +28,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [showTransactions, setShowTransactions] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showHelpGuide, setShowHelpGuide] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<{visible: boolean, title: string, message: string, isError: boolean}>({
     visible: false,
@@ -585,7 +587,7 @@ ACTUAL BEHAVIOR:
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  setTimeout(() => setShowLegend(true), 100);
+                  setTimeout(() => setShowHelpGuide(true), 100);
                 }}
                 style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
               >
@@ -959,7 +961,7 @@ ACTUAL BEHAVIOR:
                   
                   <Pressable 
                     className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                    onPress={() => setShowLegend(true)}
+                    onPress={() => setShowHelpGuide(true)}
                   >
                     <View className="items-center">
                       <Ionicons name="help-circle" size={24} color="#F59E0B" />
@@ -983,7 +985,7 @@ ACTUAL BEHAVIOR:
                   
                   <Pressable 
                     className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                    onPress={() => setShowLegend(true)}
+                    onPress={() => setShowHelpGuide(true)}
                   >
                     <View className="items-center">
                       <Ionicons name="help-circle" size={24} color="#F59E0B" />
@@ -1103,6 +1105,12 @@ ACTUAL BEHAVIOR:
           </View>
         </View>
       )}
+
+      {/* Help Guide Modal */}
+      <HelpGuideModal 
+        visible={showHelpGuide} 
+        onClose={() => setShowHelpGuide(false)} 
+      />
 
     </SafeAreaView>
   );
