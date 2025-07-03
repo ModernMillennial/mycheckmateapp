@@ -62,6 +62,7 @@ const AppNavigator: React.FC = () => {
   const { isAuthenticated, _hasHydrated: authHydrated } = useAuthStore();
   const { settings, isInitialized, initializeWithSeedData, _hasHydrated: transactionHydrated } = useTransactionStore();
   const [isStoreReady, setIsStoreReady] = useState(false);
+  const [forceReady, setForceReady] = useState(false);
   
   // Initialize the store when the component mounts
   useEffect(() => {
@@ -97,15 +98,28 @@ const AppNavigator: React.FC = () => {
     initializeStores();
   }, [isInitialized, initializeWithSeedData, authHydrated, transactionHydrated]);
 
+  // Fallback timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      console.log('AppNavigator: Force ready timeout reached');
+      setForceReady(true);
+      setIsStoreReady(true);
+    }, 3000);
+    
+    return () => clearTimeout(timeout);
+  }, []);
+
   console.log('AppNavigator render - isAuthenticated:', isAuthenticated, 'isStoreReady:', isStoreReady);
   
-  // Show loading until stores are ready and hydrated
-  if (!isStoreReady || !authHydrated || !transactionHydrated) {
+  // Show loading until stores are ready and hydrated, but with a timeout
+  if (!forceReady && (!isStoreReady || !authHydrated || !transactionHydrated)) {
     console.log('AppNavigator: Stores not ready or not hydrated, showing loading...', { 
       isStoreReady, 
       authHydrated, 
-      transactionHydrated 
+      transactionHydrated,
+      forceReady
     });
+    
     return null; // This will show the App.tsx loading screen
   }
   

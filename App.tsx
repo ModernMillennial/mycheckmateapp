@@ -104,12 +104,19 @@ export default function App() {
       }
     };
     
+    // Fallback timeout to ensure app doesn't get stuck loading
+    const fallbackTimeout = setTimeout(() => {
+      console.log('App: Fallback timeout reached, forcing ready state');
+      setIsReady(true);
+    }, 5000);
+    
     initializeApp();
     
     return () => {
       if (typeof unsubscribe === 'function') {
         unsubscribe();
       }
+      clearTimeout(fallbackTimeout);
     };
   }, []);
 

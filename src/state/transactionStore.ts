@@ -551,7 +551,11 @@ export const useTransactionStore = create<TransactionState>()(
       }),
       onRehydrateStorage: () => (state) => {
         console.log('Transaction store hydration complete');
-        state?.setHasHydrated(true);
+        if (state) {
+          state.setHasHydrated(true);
+        } else {
+          console.warn('Transaction store state is null during hydration');
+        }
       },
     }
   )
