@@ -12,7 +12,7 @@
 
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.checkmate",
+      "bundleIdentifier": "com.vibecode.checkmate",
       "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to scan receipts and documents for transaction entry.",
@@ -24,7 +24,7 @@
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "package": "com.yourcompany.checkmate",
+      "package": "com.vibecode.checkmate",
       "versionCode": 1,
       "permissions": [
         "CAMERA",
@@ -37,7 +37,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "your-project-id-will-be-generated"
+        "projectId": "12345678-1234-1234-1234-123456789abc"
       }
     }
   }
