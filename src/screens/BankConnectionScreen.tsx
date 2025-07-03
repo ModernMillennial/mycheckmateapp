@@ -193,34 +193,36 @@ const BankConnectionScreen: React.FC<Props> = ({ navigation }) => {
 
 
         {/* Connect Button */}
-        {!showInstitutionSelection && (
-          <View className="mb-8">
-            {connecting ? (
-              <View className="bg-gray-100 p-4 rounded-lg">
-                <View className="flex-row items-center justify-center">
-                  <ActivityIndicator color="#3B82F6" size="small" />
-                  <Text className="ml-2 text-gray-600 font-medium">
-                    Connecting your account...
+        <View className="mb-8">
+          {connecting ? (
+            <View className="bg-gray-100 p-4 rounded-lg">
+              <View className="flex-row items-center justify-center">
+                <ActivityIndicator color="#3B82F6" size="small" />
+                <Text className="ml-2 text-gray-600 font-medium">
+                  Connecting your account...
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <View className="space-y-3">
+              {isPlaidConfigured ? (
+                <PlaidLink
+                  userId="user-1"
+                  onSuccess={handlePlaidSuccess}
+                  onError={handlePlaidError}
+                  buttonText="Connect Real Bank Account"
+                  buttonStyle="primary"
+                />
+              ) : (
+                <View className="bg-gray-100 p-4 rounded-lg">
+                  <Text className="text-center text-gray-600">
+                    Bank connection not configured
                   </Text>
                 </View>
-              </View>
-            ) : (
-              <View className="space-y-3">
-                {isPlaidConfigured ? (
-                  <PlaidLink
-                    userId="user-1"
-                    onSuccess={handlePlaidSuccess}
-                    onError={handlePlaidError}
-                    buttonText="Connect Real Bank Account"
-                    buttonStyle="primary"
-                  />
-)}
-                
-
-              </View>
-            )}
-          </View>
-        )}
+              )}
+            </View>
+          )}
+        </View>
 
         {/* Manual Entry Option */}
         <View className="border-t border-gray-200 pt-6">
