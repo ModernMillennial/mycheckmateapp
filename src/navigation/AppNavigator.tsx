@@ -14,6 +14,9 @@ import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
 
 import BankConnectionScreen from '../screens/BankConnectionScreen';
 import StartingBalanceSelectionScreen from '../screens/StartingBalanceSelectionScreen';
+import PlaidDemoScreen from '../screens/PlaidDemoScreen';
+import AccountsScreen from '../screens/AccountsScreen';
+import TransactionsScreen from '../screens/TransactionsScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
@@ -54,6 +57,11 @@ export type RootStackParamList = {
     accountData: any;
     institutionName: string;
   };
+  
+  // Plaid screens
+  PlaidDemo: undefined;
+  Accounts: undefined;
+  Transactions: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -158,6 +166,11 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
           <Stack.Screen name="About" component={AboutScreen} />
           <Stack.Screen name="Dashboard" component={DashboardScreen} />
+          
+          {/* Plaid Screens */}
+          <Stack.Screen name="PlaidDemo" component={PlaidDemoScreen} />
+          <Stack.Screen name="Accounts" component={AccountsScreen} />
+          <Stack.Screen name="Transactions" component={TransactionsScreen} />
         </>
       )}
     </Stack.Navigator>

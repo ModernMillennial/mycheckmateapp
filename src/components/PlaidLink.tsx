@@ -4,17 +4,23 @@ import { Ionicons } from '@expo/vector-icons';
 import { 
   LinkSuccess, 
   LinkExit,
-  PlaidLinkProps,
+  PlaidLink as PlaidLinkSDK,
   usePlaidEmitter
 } from 'react-native-plaid-link-sdk';
 import { plaidService, PlaidLinkResult } from '../services/plaidService';
+import { usePlaidStore } from '../state/plaidStore';
+import { plaidAPI } from '../api/plaid';
+import { PLAID_CONFIG } from '../config/plaid';
 
 interface Props {
   userId: string;
-  onSuccess: (result: PlaidLinkResult) => void;
+  onSuccess?: (result: PlaidLinkResult) => void;
   onError?: (error: any) => void;
   buttonText?: string;
   buttonStyle?: 'primary' | 'secondary';
+  products?: string[];
+  environment?: 'sandbox' | 'production';
+  autoLink?: boolean;
 }
 
 const PlaidLink: React.FC<Props> = ({ 
@@ -22,10 +28,20 @@ const PlaidLink: React.FC<Props> = ({
   onSuccess, 
   onError, 
   buttonText = 'Connect Bank Account',
-  buttonStyle = 'primary'
+  buttonStyle = 'primary',
+  products = PLAID_CONFIG.products,
+  environment = 'sandbox',
+  autoLink = false
 }) => {
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { 
+    linkAccount, 
+    isLinkingAccount, 
+    error: storeError, 
+    setError, 
+    clearError 
+  } = usePlaidStore();
 
   useEffect(() => {
     initializePlaidLink();
@@ -94,14 +110,22 @@ const PlaidLink: React.FC<Props> = ({
 
   const handleSuccess = async (success: LinkSuccess) => {
     try {
+      const { publicToken, metadata } = success;
+      const institutionName = (metadata.institution as any)?.name || 'Unknown Bank';
+      
+      // Use the store to link the account
+      if (autoLink) {
+        await linkAccount(publicToken, institutionName);
+      }
+      
       const result: PlaidLinkResult = {
-        publicToken: success.publicToken,
+        publicToken,
         metadata: {
           institution: {
-            name: (success.metadata.institution as any)?.name || 'Unknown Bank',
-            institution_id: (success.metadata.institution as any)?.institution_id || 'unknown',
+            name: institutionName,
+            institution_id: (metadata.institution as any)?.institution_id || 'unknown',
           },
-          accounts: (success.metadata.accounts || []).map((account: any) => ({
+          accounts: (metadata.accounts || []).map((account: any) => ({
             account_id: account.id || account.account_id,
             name: account.name || 'Account',
             official_name: account.official_name,
@@ -116,9 +140,15 @@ const PlaidLink: React.FC<Props> = ({
           })),
         },
       };
-      onSuccess(result);
+      
+      if (onSuccess) {
+        onSuccess(result);
+      } else {
+        Alert.alert('Success', `Successfully connected ${institutionName}`);
+      }
     } catch (error) {
       console.error('Error processing Plaid success:', error);
+      setError(error instanceof Error ? error.message : 'Failed to link account');
       onError?.(error);
     }
   };
