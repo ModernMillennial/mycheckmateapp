@@ -30,13 +30,17 @@ const HelpGuideModal: React.FC<HelpGuideModalProps> = ({ visible, onClose }) => 
         'Choose "Connect Your Bank" for automatic transaction import',
         'Or select "Enter Manually" to track transactions by hand',
         'If connecting bank: follow the secure bank connection process',
-        'Your account will be set up with your current balance',
+        'Choose your starting balance method:',
+        '  • Use transactions from connected bank as starting point',
+        '  • Or manually enter your own starting balance',
+        'Your account will be set up with your chosen starting balance',
         'Start tracking your transactions!'
       ],
       tips: [
         'Bank connection is secure and read-only',
         'You can always switch between manual and automatic modes',
-        'Starting balance is automatically imported from your bank'
+        'Starting balance can be chosen from bank transactions or entered manually',
+        'Manual starting balance gives you full control over your account setup'
       ]
     },
     {
