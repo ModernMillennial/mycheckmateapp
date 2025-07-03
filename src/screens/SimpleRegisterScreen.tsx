@@ -510,32 +510,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
               
 
               
-              <Pressable
-                onPress={() => {
-                  setShowMenu(false);
-                  setTimeout(() => {
-                    Alert.alert(
-                      'Reset to First-Time User',
-                      'This will clear all data and show the onboarding experience.',
-                      [
-                        { text: 'Cancel', style: 'cancel' },
-                        {
-                          text: 'Reset',
-                          style: 'destructive',
-                          onPress: () => {
-                            resetToFirstTimeUser();
-                            setShowTransactions(false);
-                          },
-                        },
-                      ]
-                    );
-                  }, 100);
-                }}
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
-              >
-                <Ionicons name="person-add-outline" size={22} color="#8B5CF6" />
-                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>First-Time User</Text>
-              </Pressable>
+
               
               <Pressable
                 onPress={() => {
