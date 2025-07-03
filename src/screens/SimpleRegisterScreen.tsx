@@ -90,98 +90,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
 
 
 
-  const handleBugReport = () => {
-    // Collect diagnostic information
-    const debugInfo = {
-      timestamp: new Date().toISOString(),
-      appVersion: '1.0.0',
-      platform: 'React Native / Expo',
-      accountInfo: {
-        hasActiveAccount: !!activeAccount,
-        accountName: activeAccount?.name || 'None',
-        bankLinked: settings.bankLinked,
-        transactionCount: transactions.length,
-      },
-      systemInfo: {
-        transactionStoreLoaded: true,
-        navigationWorking: !!navigation,
-        currentScreen: 'SimpleRegisterScreen',
-      },
-      recentErrors: 'No recent errors logged', // In a real app, you'd track errors
-    };
 
-    const debugText = `CHECKMATE BUG REPORT
-=====================================
-Timestamp: ${debugInfo.timestamp}
-App Version: ${debugInfo.appVersion}
-Platform: ${debugInfo.platform}
-
-ACCOUNT INFO:
-- Active Account: ${debugInfo.accountInfo.hasActiveAccount ? 'Yes' : 'No'}
-- Account Name: ${debugInfo.accountInfo.accountName}
-- Bank Linked: ${debugInfo.accountInfo.bankLinked ? 'Yes' : 'No'}
-- Transaction Count: ${debugInfo.accountInfo.transactionCount}
-
-SYSTEM INFO:
-- Store Loaded: ${debugInfo.systemInfo.transactionStoreLoaded ? 'Yes' : 'No'}
-- Navigation Working: ${debugInfo.systemInfo.navigationWorking ? 'Yes' : 'No'}
-- Current Screen: ${debugInfo.systemInfo.currentScreen}
-
-RECENT ERRORS:
-${debugInfo.recentErrors}
-
-DESCRIPTION:
-[Please describe the bug you encountered]
-
-STEPS TO REPRODUCE:
-1. [Step 1]
-2. [Step 2]
-3. [Step 3]
-
-EXPECTED BEHAVIOR:
-[What you expected to happen]
-
-ACTUAL BEHAVIOR:
-[What actually happened]
-=====================================`;
-
-    Alert.alert(
-      'Bug Report 🐛',
-      'Send a bug report with diagnostic information to our support team.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Send Email',
-          onPress: async () => {
-            try {
-              const isAvailable = await MailComposer.isAvailableAsync();
-              if (isAvailable) {
-                await MailComposer.composeAsync({
-                  recipients: ['support@mycheckmateapp.com'],
-                  subject: 'Checkmate Bug Report',
-                  body: debugText,
-                  isHtml: false,
-                });
-              } else {
-                Alert.alert(
-                  'Email Not Available',
-                  'Email is not set up on this device. Please set up an email account in your device settings and try again.',
-                  [{ text: 'OK' }]
-                );
-              }
-            } catch (error) {
-              console.error('Error opening email composer:', error);
-              Alert.alert(
-                'Email Error',
-                'Unable to open email composer. Please check your email settings and try again.',
-                [{ text: 'OK' }]
-              );
-            }
-          },
-        },
-      ]
-    );
-  };
 
   const handleManualTransactionDemo = () => {
     setShowDemoModal(true);
@@ -597,16 +506,7 @@ ACTUAL BEHAVIOR:
               
 
               
-              <Pressable
-                onPress={() => {
-                  setShowMenu(false);
-                  setTimeout(() => handleBugReport(), 100);
-                }}
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
-              >
-                <Ionicons name="bug-outline" size={22} color="#DC2626" />
-                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Report Bug</Text>
-              </Pressable>
+
               
 
               
@@ -994,16 +894,7 @@ ACTUAL BEHAVIOR:
                     </View>
                   </Pressable>
                   
-                  <Pressable 
-                    className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                    onPress={handleBugReport}
-                  >
-                    <View className="items-center">
-                      <Ionicons name="bug" size={24} color="#DC2626" />
-                      <Text className="text-sm font-medium text-gray-900 mt-1">Report</Text>
-                      <Text className="text-xs text-gray-500">Bug</Text>
-                    </View>
-                  </Pressable>
+
                 </>
               )}
             </View>
