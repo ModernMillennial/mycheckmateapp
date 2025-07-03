@@ -167,7 +167,7 @@ const PlaidDemoScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             >
               <Ionicons name="trash-outline" size={20} color="white" />
             </Pressable>
-          </div>
+          </View>
         </View>
 
         {/* Features */}
