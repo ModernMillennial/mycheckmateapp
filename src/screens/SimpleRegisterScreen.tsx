@@ -580,16 +580,7 @@ ACTUAL BEHAVIOR:
                 <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Budget Tracker</Text>
               </Pressable>
 
-              <Pressable
-                onPress={() => {
-                  setShowMenu(false);
-                  setTimeout(() => navigation?.navigate('Reports'), 100);
-                }}
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
-              >
-                <Ionicons name="bar-chart-outline" size={22} color="#374151" />
-                <Text style={{ marginLeft: 12, color: '#111827', fontSize: 16 }}>Reports</Text>
-              </Pressable>
+
               
               <Pressable
                 onPress={() => {
