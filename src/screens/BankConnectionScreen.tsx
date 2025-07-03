@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
-import { PlaidLinkResult, plaidService, MockBankInstitution } from '../services/plaidService';
+import { PlaidLinkResult, plaidService } from '../services/plaidService';
 import PlaidLink from '../components/PlaidLink';
 
 interface Props {
@@ -21,17 +21,14 @@ const BankConnectionScreen: React.FC<Props> = ({ navigation }) => {
   const { connectPlaidAccount, syncPlaidTransactions } = useTransactionStore();
   const [connecting, setConnecting] = useState(false);
   const [isPlaidConfigured, setIsPlaidConfigured] = useState(false);
-  const [mockInstitutions, setMockInstitutions] = useState<MockBankInstitution[]>([]);
-  const [showInstitutionSelection, setShowInstitutionSelection] = useState(false);
+
 
   useEffect(() => {
     const checkPlaidConfig = async () => {
       const configured = plaidService.isPlaidConfigured();
       setIsPlaidConfigured(configured);
       
-      if (!configured) {
-        setMockInstitutions(plaidService.getMockInstitutions());
-      }
+
     };
     
     checkPlaidConfig();
@@ -77,89 +74,9 @@ const BankConnectionScreen: React.FC<Props> = ({ navigation }) => {
     );
   };
 
-  const handleDemoConnection = async (institution: MockBankInstitution) => {
-    try {
-      setConnecting(true);
-      
-      // Simulate connecting to the demo institution
-      const demoResult = await plaidService.exchangePublicTokenOrDemo('DEMO_MODE', institution.id);
-      
-      // Get the first account (or let user choose)
-      const primaryAccount = institution.accounts[0];
-      
-      if (!primaryAccount) {
-        Alert.alert('No Accounts Found', 'No accounts were found in this demo bank.');
-        return;
-      }
 
-      // Navigate to starting balance selection with demo data
-      navigation.navigate('StartingBalanceSelection', {
-        accessToken: demoResult,
-        accountData: primaryAccount,
-        institutionName: institution.name,
-        isDemo: true,
-      });
-    } catch (error) {
-      console.error('Error with demo connection:', error);
-      Alert.alert(
-        'Demo Connection Error',
-        'There was an issue with the demo connection. Please try again.',
-        [{ text: 'OK' }]
-      );
-    } finally {
-      setConnecting(false);
-    }
-  };
 
-  const renderDemoInstitutions = () => {
-    if (isPlaidConfigured || !showInstitutionSelection) {
-      return null;
-    }
 
-    return (
-      <View className="mb-8">
-        <Text className="text-lg font-semibold text-gray-900 mb-4">
-          Choose a Demo Bank
-        </Text>
-        <Text className="text-sm text-gray-600 mb-4">
-          These are demo banks with sample transaction data. You can connect to any of them to explore the app features.
-        </Text>
-        
-        <View className="space-y-3">
-          {mockInstitutions.map((institution) => (
-            <Pressable
-              key={institution.id}
-              onPress={() => handleDemoConnection(institution)}
-              className="border border-gray-200 p-4 rounded-lg bg-white active:bg-gray-50"
-              disabled={connecting}
-            >
-              <View className="flex-row items-center">
-                <Text className="text-2xl mr-3">{institution.logo}</Text>
-                <View className="flex-1">
-                  <Text className="font-semibold text-gray-900">
-                    {institution.name}
-                  </Text>
-                  <Text className="text-sm text-gray-600">
-                    {institution.accounts.length} account{institution.accounts.length !== 1 ? 's' : ''} • {institution.transactions.length} sample transactions
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-              </View>
-            </Pressable>
-          ))}
-        </View>
-        
-        <Pressable
-          onPress={() => setShowInstitutionSelection(false)}
-          className="mt-4 p-3 border border-gray-300 rounded-lg"
-        >
-          <Text className="text-center text-gray-600 font-medium">
-            ← Back to Connection Options
-          </Text>
-        </Pressable>
-      </View>
-    );
-  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -273,8 +190,7 @@ const BankConnectionScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Demo Institution Selection */}
-        {renderDemoInstitutions()}
+
 
         {/* Connect Button */}
         {!showInstitutionSelection && (
@@ -298,31 +214,9 @@ const BankConnectionScreen: React.FC<Props> = ({ navigation }) => {
                     buttonText="Connect Real Bank Account"
                     buttonStyle="primary"
                   />
-                ) : (
-                  <Pressable
-                    onPress={() => setShowInstitutionSelection(true)}
-                    className="bg-blue-600 p-4 rounded-lg active:bg-blue-700"
-                  >
-                    <View className="flex-row items-center justify-center">
-                      <Ionicons name="business" size={20} color="white" />
-                      <Text className="ml-2 text-white font-semibold text-base">
-                        Connect Demo Bank Account
-                      </Text>
-                    </View>
-                  </Pressable>
-                )}
+)}
                 
-                {/* Demo Mode Indicator */}
-                {!isPlaidConfigured && (
-                  <View className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                    <View className="flex-row items-start">
-                      <Ionicons name="information-circle" size={16} color="#EA580C" />
-                      <Text className="ml-2 text-xs text-orange-800 flex-1">
-                        <Text className="font-semibold">Demo Mode:</Text> Connect to sample banks with realistic transaction data to explore all features.
-                      </Text>
-                    </View>
-                  </View>
-                )}
+
               </View>
             )}
           </View>

@@ -137,18 +137,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
                   </Text>
                 </Pressable>
 
-                <Pressable
-                  onPress={() => {
-                    // Auto-login with demo credentials
-                    const { login } = useAuthStore.getState();
-                    login('demo@checkmate.com', 'demo123');
-                  }}
-                  className="bg-gray-600 active:bg-gray-700 rounded-lg py-4 items-center justify-center"
-                >
-                  <Text className="text-white text-base font-semibold">
-                    🚀 Try Demo (No Account Needed)
-                  </Text>
-                </Pressable>
+
               </>
             )}
           </View>

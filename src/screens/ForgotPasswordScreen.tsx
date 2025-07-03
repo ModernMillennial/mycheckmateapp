@@ -206,20 +206,7 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
               </Pressable>
             </View>
 
-            {/* Demo Info */}
-            <View className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-              <View className="flex-row items-start">
-                <Ionicons name="information-circle" size={20} color="#D97706" />
-                <View className="ml-3 flex-1">
-                  <Text className="text-sm font-medium text-amber-800">
-                    Demo Mode
-                  </Text>
-                  <Text className="text-sm text-amber-700 mt-1">
-                    This is a demo app. In a real application, this would send an actual password reset email to your address.
-                  </Text>
-                </View>
-              </View>
-            </View>
+
 
             {/* Back to Login */}
             <View className="flex-row justify-center items-center">

@@ -85,7 +85,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     if (!success) {
       Alert.alert(
         'Login Failed',
-        'Invalid email or password. Please try again.\n\nDemo Account:\nEmail: demo@checkmate.com\nPassword: demo123',
+        'Invalid email or password. Please try again.',
         [{ text: 'OK' }]
       );
     }
@@ -228,40 +228,6 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
               </Pressable>
             </View>
 
-            {/* Demo Account Info */}
-            <View className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <View className="flex-row items-start">
-                <Ionicons name="information-circle" size={20} color="#3B82F6" />
-                <View className="ml-3 flex-1">
-                  <Text className="text-sm font-medium text-blue-800">
-                    Demo Account
-                  </Text>
-                  <Text className="text-sm text-blue-700 mt-1">
-                    Email: demo@checkmate.com{'\n'}
-                    Password: demo123
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Quick Demo Login */}
-            <Pressable
-              onPress={async () => {
-                setEmail('demo@checkmate.com');
-                setPassword('demo123');
-                const success = await login('demo@checkmate.com', 'demo123', rememberMe);
-                if (success) {
-                  console.log('Quick demo login successful');
-                  // Navigation will be handled by useEffect
-                }
-              }}
-              disabled={isLoading}
-              className="bg-green-500 active:bg-green-600 rounded-lg py-3 items-center justify-center mb-4"
-            >
-              <Text className="text-white text-base font-semibold">
-                Quick Demo Login
-              </Text>
-            </Pressable>
 
 
 
