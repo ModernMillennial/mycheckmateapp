@@ -92,76 +92,9 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
 
 
 
-  const handleManualTransactionDemo = () => {
-    setShowDemoModal(true);
-    
-    // Auto-dismiss after 3.5 seconds
-    setTimeout(() => {
-      setShowDemoModal(false);
-    }, 3500);
-  };
+  // Demo functionality removed
 
-  const handleDemoReset = () => {
-    Alert.alert(
-      'Start Demo 🚀',
-      'This will add sample transactions to demonstrate the Checkmate features including manual entry, bank sync, and transaction conversion.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Add Demo Data',
-          style: 'default',
-          onPress: () => {
-            // Add some demo transactions
-            const activeAccount = getActiveAccount();
-            if (activeAccount) {
-              const demoTransactions = [
-                {
-                  userId: 'user-1',
-                  accountId: activeAccount.id,
-                  date: new Date(Date.now() - 86400000 * 3).toISOString().split('T')[0], // 3 days ago
-                  payee: 'Coffee Shop',
-                  amount: -4.50,
-                  source: 'manual' as const,
-                  notes: 'Morning coffee',
-                  reconciled: false,
-                },
-                {
-                  userId: 'user-1',
-                  accountId: activeAccount.id,
-                  date: new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0], // 2 days ago
-                  payee: 'Grocery Store',
-                  amount: -125.67,
-                  source: 'manual' as const,
-                  notes: 'Weekly shopping',
-                  reconciled: false,
-                },
-                {
-                  userId: 'user-1',
-                  accountId: activeAccount.id,
-                  date: new Date(Date.now() - 86400000 * 1).toISOString().split('T')[0], // 1 day ago
-                  payee: 'Gas Station',
-                  amount: -45.00,
-                  source: 'manual' as const,
-                  notes: 'Fill up tank',
-                  reconciled: false,
-                }
-              ];
-              
-              demoTransactions.forEach(transaction => {
-                addTransaction(transaction);
-              });
-              
-              Alert.alert(
-                'Demo Data Added! ✅',
-                'Sample transactions have been added to your register. Try syncing with your bank to see the conversion feature in action!',
-                [{ text: 'Great!' }]
-              );
-            }
-          }
-        }
-      ]
-    );
-  };
+  // Demo functionality removed
 
   const handleSync = async () => {
     const activeAccount = getActiveAccount();
@@ -189,8 +122,18 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       const endDate = new Date().toISOString().split('T')[0];
       const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       
-      // Use demo access token if no real plaid token exists
-      const accessToken = activeAccount.plaidAccessToken || `demo_access_token_ins_demo_chase_${Date.now()}`;
+      // Use real plaid access token
+      const accessToken = activeAccount.plaidAccessToken;
+      
+      if (!accessToken) {
+        setSyncMessage({
+          visible: true,
+          title: "Bank Not Connected",
+          message: "Please connect your bank account first to sync transactions.",
+          isError: true
+        });
+        return;
+      }
       
       await syncPlaidTransactions(
         accessToken,
@@ -870,12 +813,12 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
                   
                   <Pressable 
                     className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                    onPress={handleManualTransactionDemo}
+                    onPress={handleSync}
                   >
                     <View className="items-center">
-                      <Ionicons name="flask" size={24} color="#3B82F6" />
-                      <Text className="text-sm font-medium text-gray-900 mt-1">Demo</Text>
-                      <Text className="text-xs text-gray-500">Conversion</Text>
+                      <Ionicons name="sync" size={24} color="#3B82F6" />
+                      <Text className="text-sm font-medium text-gray-900 mt-1">Sync</Text>
+                      <Text className="text-xs text-gray-500">Bank</Text>
                     </View>
                   </Pressable>
                   
@@ -894,12 +837,16 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
                 <>
                   <Pressable 
                     className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                    onPress={handleDemoReset}
+                    onPress={() => {
+                      if (navigation) {
+                        navigation.navigate('BankConnection');
+                      }
+                    }}
                   >
                     <View className="items-center">
-                      <Ionicons name="play-circle" size={24} color="#3B82F6" />
-                      <Text className="text-sm font-medium text-gray-900 mt-1">Start</Text>
-                      <Text className="text-xs text-gray-500">Demo</Text>
+                      <Ionicons name="link" size={24} color="#10B981" />
+                      <Text className="text-sm font-medium text-gray-900 mt-1">Connect</Text>
+                      <Text className="text-xs text-gray-500">Bank</Text>
                     </View>
                   </Pressable>
                   
@@ -952,40 +899,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
         </Pressable>
       )}
 
-      {/* Demo Modal */}
-      <Modal
-        visible={showDemoModal}
-        transparent={true}
-        animationType="fade"
-      >
-        <View className="flex-1 bg-black bg-opacity-50 items-center justify-center px-6">
-          <View className="bg-white rounded-xl p-6 max-w-sm w-full">
-            <View className="items-center mb-4">
-              <Ionicons name="flask" size={48} color="#3B82F6" />
-              <Text className="text-xl font-bold text-gray-900 mt-2">
-                Demo: Manual to Bank Conversion 🔄
-              </Text>
-            </View>
-            
-            <Text className="text-gray-700 text-center leading-6">
-              This feature demonstrates how manual transactions are automatically converted to bank transactions when matching deposits or withdrawals are found during bank sync.
-            </Text>
-            
-            <View className="mt-4 space-y-2">
-              <Text className="text-gray-700 font-medium">To see this in action:</Text>
-              <Text className="text-gray-600">1. Add a manual transaction</Text>
-              <Text className="text-gray-600">2. Go to Settings → Sync Bank Transactions</Text>
-              <Text className="text-gray-600">3. Watch as matching transactions convert from "NOT POSTED" to "POSTED"</Text>
-            </View>
-            
-            <View className="mt-6 pt-4 border-t border-gray-200">
-              <Text className="text-center text-sm text-gray-500">
-                Auto-closing in 3.5 seconds...
-              </Text>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* Demo Modal removed */}
 
       {/* Sync Message Modal */}
       {syncMessage.visible && (

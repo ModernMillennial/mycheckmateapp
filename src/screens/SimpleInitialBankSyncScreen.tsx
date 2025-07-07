@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, Pressable } from 'react-native';
+import { View, Text, Modal, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTransactionStore } from '../state/transactionStore';
 
@@ -25,96 +25,27 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
   const { updateAccountInfo, addTransaction, updateSettings, initializeWithSeedData, getActiveAccount } = useTransactionStore();
   console.log('SimpleInitialBankSyncScreen: All store functions accessed successfully');
 
-  // Enhanced simulateImport function with proper demo flow
-  const simulateImport = async () => {
+  // Real bank connection and import functionality
+  const connectAndImport = async () => {
     setIsImporting(true);
     
-    // Simulate the import process with realistic timing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Create new account with demo data
-    const bankName = 'Acme Bank';
-    
-    const newAccount = {
-      name: `${bankName} Checking`,
-      type: 'checking' as const,
-      balance: 1503.12,
-      startingBalance: 1503.12,
-      startingBalanceDate: '2025-06-24', // Set to specific date as shown in screenshot
-      isConnected: true,
-      lastSyncDate: new Date(),
-      bankName: bankName,
-      accountNumber: '****1234',
-      isActive: true,
-      currentBalance: 1503.12,
-      color: '#3B82F6',
-    };
-    
-    // Initialize default account and update with bank info
-    initializeWithSeedData();
-    updateAccountInfo(newAccount);
-    
-    // Get the active account after updating it
-    const activeAccount = getActiveAccount();
-    if (!activeAccount) {
-      console.error('No active account found for demo transactions');
-      return;
+    try {
+      // TODO: Replace with actual bank connection logic
+      // This should integrate with your real banking API (Plaid, etc.)
+      
+      // For now, throw an error to indicate this needs to be implemented
+      throw new Error('Bank connection not implemented. Please integrate with a real banking service.');
+      
+    } catch (error) {
+      console.error('Bank connection error:', error);
+      setIsImporting(false);
+      // Show error to user
+      Alert.alert(
+        'Connection Failed',
+        'Unable to connect to bank. Please check your configuration and try again.',
+        [{ text: 'OK' }]
+      );
     }
-    
-    const demoTransactions = [
-      {
-        accountId: activeAccount.id,
-        amount: 2800.00,
-        payee: 'ACME Corp',
-        date: '2025-06-24',
-        reconciled: true,
-        userId: `user-${Date.now()}`,
-        source: 'bank' as const,
-        notes: 'Deposit, Payroll',
-      },
-      {
-        accountId: activeAccount.id,
-        amount: -1250.00,
-        payee: 'Property Management Co',
-        date: '2025-06-25',
-        reconciled: true,
-        userId: `user-${Date.now()}`,
-        source: 'bank' as const,
-        notes: 'Payment, Rent',
-      },
-      {
-        accountId: activeAccount.id,
-        amount: -4.95,
-        payee: 'Starbucks',
-        date: '2025-06-26',
-        reconciled: true,
-        userId: `user-${Date.now()}`,
-        source: 'bank' as const,
-        notes: 'Shops, Food and Drink, Coffee Shop',
-      },
-      {
-        accountId: activeAccount.id,
-        amount: -89.43,
-        payee: 'Whole Foods Market',
-        date: '2025-06-27',
-        reconciled: true,
-        userId: `user-${Date.now()}`,
-        source: 'bank' as const,
-        notes: 'Shops, Food and Drink, Groceries',
-      },
-    ];
-    
-    // Add demo transactions
-    demoTransactions.forEach(transaction => {
-      addTransaction(transaction);
-    });
-    
-    // Mark bank as linked and finish setup
-    updateSettings({ bankLinked: true });
-    
-    // Complete the import process
-    setIsImporting(false);
-    console.log('Bank sync demo complete - 3 transactions imported');
   };
 
   if (!visible) {
@@ -140,20 +71,9 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
             <>
               <Text className="text-lg font-semibold text-gray-900 mb-4">Choose Your Bank</Text>
               
-              <Pressable
-                onPress={() => setSelectedBank('demo')}
-                className={`w-full p-4 rounded-lg border-2 mb-4 ${
-                  selectedBank === 'demo' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
-                }`}
-              >
-                <View className="flex-row items-center">
-                  <Text className="text-2xl mr-4">🏦</Text>
-                  <Text className="text-gray-900 font-medium flex-1">Acme Bank</Text>
-                  {selectedBank === 'demo' && (
-                    <Text className="text-blue-500">✓</Text>
-                  )}
-                </View>
-              </Pressable>
+              <Text className="text-gray-600 text-center">
+                Bank connection requires proper integration with a banking service like Plaid.
+              </Text>
               
               <View className="flex-row justify-between w-full mt-8">
                 <Pressable
@@ -165,17 +85,12 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
                 
                 <Pressable
                   onPress={() => {
-                    if (selectedBank) {
-                      setStep('importing');
-                      simulateImport();
-                    }
+                    setStep('importing');
+                    connectAndImport();
                   }}
-                  disabled={!selectedBank}
-                  className={`flex-1 ml-2 py-4 px-6 rounded-lg ${
-                    selectedBank ? 'bg-blue-500' : 'bg-gray-300'
-                  }`}
+                  className="flex-1 ml-2 py-4 px-6 rounded-lg bg-gray-300"
                 >
-                  <Text className="text-white font-semibold text-center">
+                  <Text className="text-gray-600 font-semibold text-center">
                     Connect & Import
                   </Text>
                 </Pressable>
@@ -186,49 +101,26 @@ const SimpleInitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onC
           {step === 'importing' && (
             <>
               <Text className="text-xl font-bold text-gray-900 mb-4">
-                {isImporting ? 'Setting Up Your Account...' : 'Setup Complete!'}
+                Bank Connection Setup Required
               </Text>
               <Text className="text-gray-600 text-center mb-8">
-                {isImporting 
-                  ? 'We are connecting to your bank and importing your transaction history'
-                  : 'Your Digital Register is ready to use!'
-                }
+                This feature requires integration with a banking service like Plaid. Please configure your banking integration first.
               </Text>
               
-              {isImporting && (
-                <View className="w-full max-w-xs mb-8">
-                  <View className="w-full bg-gray-200 rounded-full h-2">
-                    <View className="bg-blue-500 h-2 rounded-full w-3/4" />
-                  </View>
-                  <Text className="text-center text-sm text-gray-600 mt-2">Importing...</Text>
-                </View>
-              )}
-              
-              {!isImporting && (
-                <>
-                  <View className="bg-green-50 rounded-lg p-4 mb-6 w-full">
-                    <Text className="text-green-800 font-semibold mb-2">Success!</Text>
-                    <Text className="text-green-700 text-sm">✓ Bank account connected</Text>
-                    <Text className="text-green-700 text-sm">✓ Starting balance set</Text>
-                    <Text className="text-green-700 text-sm">✓ Ready to track transactions</Text>
-                  </View>
-                  
-                  <Pressable
-                    onPress={() => {
-                      console.log('Start Using Digital Register button pressed');
-                      onComplete();
-                    }}
-                    className="w-full py-4 px-6 bg-blue-500 rounded-lg"
-                    style={({ pressed }) => ({
-                      opacity: pressed ? 0.8 : 1,
-                    })}
-                  >
-                    <Text className="text-white font-semibold text-center text-lg">
-                      Start Using Checkmate
-                    </Text>
-                  </Pressable>
-                </>
-              )}
+              <Pressable
+                onPress={() => {
+                  console.log('OK button pressed');
+                  onCancel();
+                }}
+                className="w-full py-4 px-6 bg-gray-300 rounded-lg"
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.8 : 1,
+                })}
+              >
+                <Text className="text-gray-700 font-semibold text-center text-lg">
+                  OK
+                </Text>
+              </Pressable>
             </>
           )}
         </View>

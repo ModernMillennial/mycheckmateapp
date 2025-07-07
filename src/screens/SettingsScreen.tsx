@@ -60,104 +60,30 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
       return;
     }
     
-    // Simulate bank sync with mock data
+    // Real bank sync implementation
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      if (!activeAccount.plaidAccessToken) {
+        Alert.alert('Bank Not Connected', 'Please connect your bank account first.');
+        setIsLoading(false);
+        return;
+      }
       
-      const mockBankTransactions = [
-        // This will convert the "Grocery Store" manual transaction (exact match)
-        {
-          userId: 'user-1',
-          accountId: activeAccount.id,
-          date: new Date(Date.now() - 86400000 * 6).toISOString().split('T')[0], // 6 days ago (within matching window)
-          payee: 'SAFEWAY GROCERY STORE #1234',
-          amount: -125.67,
-          source: 'bank' as const,
-          notes: 'Debit card purchase',
-          reconciled: false,
-        },
-        // This will convert the "Shell Gas Station" manual transaction  
-        {
-          userId: 'user-1',
-          accountId: activeAccount.id,
-          date: new Date(Date.now() - 86400000 * 1).toISOString().split('T')[0], // Yesterday (1 day after manual entry)
-          payee: 'SHELL OIL STATION #4567',
-          amount: -45.00,
-          source: 'bank' as const,
-          notes: 'Fuel purchase',
-          reconciled: false,
-        },
-        // This will convert the "Local Restaurant" manual transaction
-        {
-          userId: 'user-1',
-          accountId: activeAccount.id,
-          date: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Tomorrow (1 day after manual entry)
-          payee: 'LOCAL RESTAURANT & BAR',
-          amount: -28.75,
-          source: 'bank' as const,
-          notes: 'Card payment',
-          reconciled: false,
-        },
-        // New bank transaction with no manual equivalent
-        {
-          userId: 'user-1',
-          accountId: activeAccount.id,
-          date: new Date().toISOString().split('T')[0], // Today
-          payee: 'Amazon.com Purchase',
-          amount: -89.99,
-          source: 'bank' as const,
-          notes: 'Online purchase',
-          reconciled: false,
-        },
-        // Recent deposit that will trigger notification
-        {
-          userId: 'user-1',
-          accountId: activeAccount.id,
-          date: new Date().toISOString().split('T')[0], // Today
-          payee: 'Direct Deposit Payroll',
-          amount: 500.00,
-          source: 'bank' as const,
-          notes: 'Bi-weekly salary',
-          reconciled: false,
-        },
-      ];
+      // Sync transactions for the last 30 days
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       
-      const { transactions: currentTransactions } = useTransactionStore.getState();
-      const manualCountBefore = currentTransactions.filter(t => t.source === 'manual').length;
-      const bankCountBefore = currentTransactions.filter(t => t.source === 'bank').length;
+      await syncPlaidTransactions(
+        activeAccount.plaidAccessToken,
+        activeAccount.id,
+        startDate,
+        endDate
+      );
       
-      syncBankTransactions(mockBankTransactions);
-      updateSettings({ bankLinked: true });
-      
-      // Check how many manual transactions were converted
-      setTimeout(() => {
-        const { transactions: updatedTransactions } = useTransactionStore.getState();
-        const manualCountAfter = updatedTransactions.filter(t => t.source === 'manual').length;
-        const bankCountAfter = updatedTransactions.filter(t => t.source === 'bank').length;
-        
-        const convertedCount = manualCountBefore - manualCountAfter;
-        const newBankCount = bankCountAfter - bankCountBefore;
-        
-        let message = `Bank sync completed successfully!`;
-        
-        if (convertedCount > 0) {
-          message += `\n\n✅ ${convertedCount} manual entr${convertedCount > 1 ? 'ies were' : 'y was'} converted to bank transactions (no duplicates created).`;
-        }
-        
-        if (newBankCount > convertedCount) {
-          const newCount = newBankCount - convertedCount;
-          message += `\n\n📥 ${newCount} new bank transaction${newCount > 1 ? 's were' : ' was'} imported.`;
-        }
-        
-        if (convertedCount === 0 && newBankCount === 0) {
-          message += '\n\nNo new transactions found.';
-        }
-        
-        Alert.alert('Sync Complete', message);
-      }, 100);
+      Alert.alert('Sync Complete', 'Bank sync completed successfully!');
       
     } catch (error) {
-      Alert.alert('Sync Failed', 'Unable to sync with bank account. Please try again later.');
+      console.error('Bank sync error:', error);
+      Alert.alert('Sync Failed', 'Unable to sync with bank account. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -623,21 +549,7 @@ ADDITIONAL DETAILS:
           </View>
         </View>
 
-        {/* Mock Bank Notice */}
-        <View className="mx-4 mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <View className="flex-row items-start">
-            <Ionicons name="information-circle" size={20} color="#F59E0B" />
-            <View className="ml-3 flex-1">
-              <Text className="text-sm font-medium text-yellow-800">
-                Demo Mode
-              </Text>
-              <Text className="text-sm text-yellow-700 mt-1">
-                Bank sync currently uses mock data for demonstration purposes. 
-                In a production app, this would connect to your actual bank account via Plaid or similar service.
-              </Text>
-            </View>
-          </View>
-        </View>
+
       </ScrollView>
 
       {/* Date Picker Modals */}

@@ -45,8 +45,8 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
       const endDate = new Date().toISOString().split('T')[0];
       const startDate = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       
-      // Use the unified method that handles both real and demo data
-      const bankTransactions = await plaidService.getTransactionsOrDemo(
+      // Get transactions from Plaid API
+      const bankTransactions = await plaidService.getTransactions(
         accessToken,
         [accountData.account_id],
         startDate,
@@ -116,41 +116,15 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
       connectPlaidAccount(accessToken, accountWithBalance, startingDate, startingBalance);
 
       // Then sync transactions from selected date - AFTER connecting the account
-      if (!isDemo && !accessToken.startsWith('demo_')) {
-        try {
-          await syncPlaidTransactions(accessToken, accountData.account_id, syncFromDate, new Date().toISOString().split('T')[0]);
-        } catch (syncError) {
-          console.log('Sync error (continuing):', syncError); 
-        }
-      } else {
-        // For demo mode, manually add sample transactions to the store
-        const demoTransactions = transactions.filter(tx => {
-          const txDate = new Date(tx.date);
-          const syncDate = new Date(syncFromDate);
-          return txDate >= syncDate;
-        });
-        
-        // Get the connected account ID from the store (after connection)
-        const { accounts: connectedAccounts } = useTransactionStore.getState();
-        const connectedAccountId = connectedAccounts[0]?.id;
-        
-        if (connectedAccountId) {
-          // Convert demo transactions and add them
-          const convertedTransactions = demoTransactions.map(tx => 
-            plaidService.convertPlaidTransactionToApp(tx, 'user-1')
-          ).map(tx => ({
-            ...tx,
-            accountId: connectedAccountId // Use the connected account ID
-          }));
-          
-          // Add transactions to the store
-          syncBankTransactions(convertedTransactions);
-        }
+      try {
+        await syncPlaidTransactions(accessToken, accountData.account_id, syncFromDate, new Date().toISOString().split('T')[0]);
+      } catch (syncError) {
+        console.log('Sync error (continuing):', syncError); 
       }
       
       Alert.alert(
-        `Account Connected! ${isDemo ? '(Demo Mode)' : ''} 🎉`,
-        `Successfully connected to ${institutionName}.\n\nStarting Balance: ${startingBalance.toFixed(2)}\nStarting Date: ${new Date(startingDate).toLocaleDateString()}${isDemo ? '\n\n📝 This is a demonstration using mock data.' : ''}`,
+        'Account Connected! 🎉',
+        `Successfully connected to ${institutionName}.\n\nStarting Balance: ${startingBalance.toFixed(2)}\nStarting Date: ${new Date(startingDate).toLocaleDateString()}`,
         [
           {
             text: 'View Register',
@@ -165,45 +139,11 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
     } catch (error) {
       console.error('Error connecting account:', error);
       
-      // Check if it's a Plaid credentials error
-      if ((error as Error).message?.includes('Plaid creden') || (error as Error).message?.includes('not configured')) {
-        Alert.alert(
-          'Demo Mode Available',
-          'Plaid integration is not configured for production use. Would you like to continue with demonstration data?',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Continue with Demo',
-              onPress: () => {
-                // Override with demo tokens and continue
-                const demoAccessToken = 'demo_access_token';
-                connectPlaidAccount(demoAccessToken, accountData, new Date().toISOString().split('T')[0], accountData.balances?.current || 0);
-                
-                Alert.alert(
-                  'Demo Account Connected! 🎉',
-                  `Demo account set up successfully.\n\nStarting Balance: ${(accountData.balances?.current || 0).toFixed(2)}\n\n📝 This is a demonstration using mock data.`,
-                  [
-                    {
-                      text: 'View Register',
-                      onPress: () => {
-                        setTimeout(() => {
-                          navigation.navigate('Register');
-                        }, 100);
-                      },
-                    },
-                  ]
-                );
-              }
-            }
-          ]
-        );
-      } else {
-        Alert.alert(
-          'Connection Error',
-          'There was an issue setting up your account. Please try again.',
-          [{ text: 'OK' }]
-        );
-      }
+      Alert.alert(
+        'Connection Error',
+        'There was an issue setting up your account. Please ensure Plaid is properly configured and try again.',
+        [{ text: 'OK' }]
+      );
     }
   };
 

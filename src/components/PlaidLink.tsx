@@ -53,47 +53,12 @@ const PlaidLink: React.FC<Props> = ({
       
       // Check if Plaid is configured
       if (!plaidService.isPlaidConfigured()) {
-        // Show demo mode alert
         Alert.alert(
-          'Demo Mode',
-          'Plaid integration is not configured. The app will use mock data for demonstration purposes.',
+          'Configuration Required',
+          'Plaid integration is not configured. Please set up your Plaid credentials in the environment variables.',
           [
             {
-              text: 'Continue with Demo',
-              onPress: () => {
-                // Use setTimeout to ensure we're not calling navigation inside Alert callback
-                setTimeout(() => {
-                  // Simulate successful connection with mock data
-                  const mockResult: PlaidLinkResult = {
-                    publicToken: 'demo_public_token',
-                    metadata: {
-                      institution: {
-                        name: 'Demo Bank',
-                        institution_id: 'demo_bank',
-                      },
-                      accounts: [
-                        {
-                          account_id: 'demo_account_1',
-                          name: 'Demo Checking',
-                          official_name: 'Demo Checking Account',
-                          type: 'depository',
-                          subtype: 'checking',
-                          balances: {
-                            available: 1250.75,
-                            current: 1250.75,
-                            limit: null,
-                          },
-                          mask: '1234',
-                        },
-                      ],
-                    },
-                  };
-                  onSuccess?.(mockResult);
-                }, 100);
-              },
-            },
-            {
-              text: 'Cancel',
+              text: 'OK',
               style: 'cancel',
             },
           ]
@@ -229,11 +194,11 @@ const PlaidLink: React.FC<Props> = ({
   });
 
   const handlePress = () => {
-    // For demo purposes, trigger the mock flow
     if (!plaidService.isPlaidConfigured()) {
       initializePlaidLink();
     } else {
-      // In a real implementation, you would trigger the Plaid Link flow here
+      // Trigger the Plaid Link flow here
+      // Note: You'll need to implement the actual Plaid Link SDK integration
       console.log('Plaid Link would open here with token:', linkToken);
     }
   };

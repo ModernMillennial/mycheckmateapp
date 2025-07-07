@@ -29,65 +29,16 @@ export interface AuthState {
   resetAuthState: () => void;
 }
 
-// Mock authentication service
-const mockAuthService = {
+// Authentication service - Replace with your actual backend API calls
+const authService = {
   async login(email: string, password: string): Promise<User> {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock validation
-    if (email === 'demo@checkmate.com' && password === 'demo123') {
-      return {
-        id: `user-${Date.now()}`,
-        email: 'demo@checkmate.com',
-        firstName: 'Demo',
-        lastName: 'User',
-        createdAt: new Date().toISOString(),
-      };
-    }
-    
-    // Check if user exists in "database" (AsyncStorage)
-    const users = await AsyncStorage.getItem('registeredUsers');
-    const userList = users ? JSON.parse(users) : [];
-    
-    const user = userList.find((u: any) => u.email === email && u.password === password);
-    if (user) {
-      const { password: _, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    }
-    
-    throw new Error('Invalid email or password');
+    // TODO: Replace with actual API call to your backend
+    throw new Error('Authentication service not implemented. Please implement login with your backend API.');
   },
   
   async signup(email: string, password: string, firstName: string, lastName: string): Promise<User> {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Check if user already exists
-    const users = await AsyncStorage.getItem('registeredUsers');
-    const userList = users ? JSON.parse(users) : [];
-    
-    if (userList.find((u: any) => u.email === email)) {
-      throw new Error('User already exists with this email');
-    }
-    
-    // Create new user
-    const newUser = {
-      id: `user-${Date.now()}`,
-      email,
-      password, // In real app, this would be hashed
-      firstName,
-      lastName,
-      createdAt: new Date().toISOString(),
-    };
-    
-    // Save to "database"
-    userList.push(newUser);
-    await AsyncStorage.setItem('registeredUsers', JSON.stringify(userList));
-    
-    // Return user without password
-    const { password: _, ...userWithoutPassword } = newUser;
-    return userWithoutPassword;
+    // TODO: Replace with actual API call to your backend
+    throw new Error('Authentication service not implemented. Please implement signup with your backend API.');
   }
 };
 
@@ -106,7 +57,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         
         try {
-          const user = await mockAuthService.login(email, password);
+          const user = await authService.login(email, password);
           console.log('Login successful for user:', user.email);
           
           const updateData: any = { 
@@ -136,7 +87,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         
         try {
-          const user = await mockAuthService.signup(email, password, firstName, lastName);
+          const user = await authService.signup(email, password, firstName, lastName);
           set({ 
             user, 
             isAuthenticated: true, 
