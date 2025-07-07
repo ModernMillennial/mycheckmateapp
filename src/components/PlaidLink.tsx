@@ -205,9 +205,9 @@ const PlaidLink: React.FC<Props> = ({
           backgroundColor: buttonStyle === 'primary' ? '#3B82F6' : 'white',
           borderWidth: buttonStyle === 'secondary' ? 2 : 0,
           borderColor: buttonStyle === 'secondary' ? '#3B82F6' : 'transparent',
-          paddingVertical: 12,
+          paddingVertical: 16,
           paddingHorizontal: 24,
-          borderRadius: 8,
+          borderRadius: 12,
           opacity: loading ? 0.7 : 1,
         }}
       >
@@ -242,9 +242,9 @@ const PlaidLink: React.FC<Props> = ({
         backgroundColor: buttonStyle === 'primary' ? '#3B82F6' : 'white',
         borderWidth: buttonStyle === 'secondary' ? 2 : 0,
         borderColor: buttonStyle === 'secondary' ? '#3B82F6' : 'transparent',
-        paddingVertical: 12,
+        paddingVertical: 16,
         paddingHorizontal: 24,
-        borderRadius: 8,
+        borderRadius: 12,
       }}
     >
       {renderContent()}
