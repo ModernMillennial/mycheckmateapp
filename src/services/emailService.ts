@@ -1,6 +1,6 @@
 import * as MailComposer from 'expo-mail-composer';
 import { Platform, Alert } from 'react-native';
-import { chatWithAnthropic } from '../api/chat-service';
+import { getAnthropicChatResponse } from '../api/chat-service';
 
 export interface EmailServiceError {
   code: string;
@@ -29,7 +29,7 @@ class EmailService {
       // For this demo app, we'll always return true and simulate email sending
       return true;
     } catch (error) {
-      console.error('Error checking mail composer availability:', error);
+      console.error('Error checking mail composer availability:', error instanceof Error ? error.message : 'Unknown error');
       return false;
     }
   }
@@ -61,7 +61,8 @@ class EmailService {
     Return ONLY the email body text, no subject line.`;
 
     try {
-      const emailBody = await chatWithAnthropic(prompt, []);
+      const response = await getAnthropicChatResponse(prompt);
+      const emailBody = response.content;
       
       const subject = `${appName} - Password Reset Request`;
       
@@ -98,7 +99,7 @@ class EmailService {
         htmlBody
       };
     } catch (error) {
-      console.error('Error generating email template:', error);
+      console.error('Error generating email template:', error instanceof Error ? error.message : 'Unknown error');
       
       // Fallback template matching the user's screenshot format
       const fallbackBody = `Hello,
@@ -172,7 +173,7 @@ The ${appName} Team`;
         resetToken,
       };
     } catch (error) {
-      console.error('Error sending password reset email:', error);
+      console.error('Error sending password reset email:', error instanceof Error ? error.message : 'Unknown error');
       return {
         success: false,
         error: {
@@ -236,7 +237,7 @@ The ${appName} Team`;
         };
       }
     } catch (error) {
-      console.error('Error sending verification email:', error);
+      console.error('Error sending verification email:', error instanceof Error ? error.message : 'Unknown error');
       return {
         success: false,
         error: {
