@@ -47,12 +47,14 @@ const BankConnectionScreen: React.FC<Props> = ({ navigation }) => {
         return;
       }
 
-      // Navigate to starting balance selection
-      navigation.navigate('StartingBalanceSelection', {
-        accessToken: result.publicToken,
-        accountData: primaryAccount,
-        institutionName: result.metadata.institution.name,
-      });
+      // Navigate to starting balance selection with timeout to ensure proper navigation context
+      setTimeout(() => {
+        navigation.navigate('StartingBalanceSelection', {
+          accessToken: result.publicToken,
+          accountData: primaryAccount,
+          institutionName: result.metadata.institution.name,
+        });
+      }, 100);
     } catch (error) {
       console.error('Error processing Plaid success:', error);
       Alert.alert(

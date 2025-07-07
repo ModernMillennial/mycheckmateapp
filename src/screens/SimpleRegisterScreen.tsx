@@ -272,7 +272,9 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
         onPress={() => {
           if (!isStartingBalance) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            navigation?.navigate('EditTransaction', { transaction: item });
+            if (navigation) {
+              navigation.navigate('EditTransaction', { transaction: item });
+            }
           }
         }}
         disabled={isStartingBalance}
@@ -469,7 +471,11 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  setTimeout(() => navigation?.navigate('BankConnection'), 100);
+                  setTimeout(() => {
+                    if (navigation) {
+                      navigation.navigate('BankConnection');
+                    }
+                  }, 200);
                 }}
                 style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
               >
@@ -480,7 +486,11 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  setTimeout(() => navigation?.navigate('PlaidDemo'), 100);
+                  setTimeout(() => {
+                    if (navigation) {
+                      navigation.navigate('PlaidDemo');
+                    }
+                  }, 200);
                 }}
                 style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
               >
@@ -494,7 +504,11 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  setTimeout(() => navigation?.navigate('Budget'), 100);
+                  setTimeout(() => {
+                    if (navigation) {
+                      navigation.navigate('Budget');
+                    }
+                  }, 200);
                 }}
                 style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
               >
@@ -526,7 +540,11 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
               <Pressable
                 onPress={() => {
                   setShowMenu(false);
-                  setTimeout(() => navigation?.navigate('Settings'), 100);
+                  setTimeout(() => {
+                    if (navigation) {
+                      navigation.navigate('Settings');
+                    }
+                  }, 200);
                 }}
                 style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16 }}
               >
@@ -637,7 +655,11 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
             <View className="w-full space-y-4">
               {/* Connect Bank - Primary Option */}
               <Pressable
-                onPress={() => navigation?.navigate('BankConnection')}
+                onPress={() => {
+                  if (navigation) {
+                    navigation.navigate('BankConnection');
+                  }
+                }}
                 className="bg-blue-500 p-6 rounded-xl shadow-lg"
               >
                 <View className="flex-row items-center">
@@ -661,7 +683,11 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
                   initializeWithSeedData();
                   updateSettings({ bankLinked: false }); // Keep as manual, not bank-linked
                   setShowTransactions(true);
-                  navigation?.navigate('AddTransaction');
+                  setTimeout(() => {
+                    if (navigation) {
+                      navigation.navigate('AddTransaction');
+                    }
+                  }, 100);
                 }}
                 className="bg-white border-2 border-gray-200 p-6 rounded-xl"
               >
@@ -804,7 +830,11 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
                     Add your first transaction or connect your bank account
                   </Text>
                   <Pressable
-                    onPress={() => navigation?.navigate('AddTransaction')}
+                    onPress={() => {
+                      if (navigation) {
+                        navigation.navigate('AddTransaction');
+                      }
+                    }}
                     className="mt-4 bg-blue-500 px-4 py-2 rounded-lg"
                   >
                     <Text className="text-white font-medium">Add Transaction</Text>
@@ -825,7 +855,11 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
                 <>
                   <Pressable 
                     className="flex-1 bg-white p-3 rounded-lg border border-gray-200"
-                    onPress={() => navigation?.navigate('AddTransaction')}
+                    onPress={() => {
+                      if (navigation) {
+                        navigation.navigate('AddTransaction');
+                      }
+                    }}
                   >
                     <View className="items-center">
                       <Ionicons name="add-circle" size={24} color="#10B981" />
@@ -906,7 +940,11 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       {/* Floating Action Button - Only show for existing users */}
       {activeAccount && showTransactions && (
         <Pressable
-          onPress={() => navigation?.navigate('AddTransaction')}
+          onPress={() => {
+            if (navigation) {
+              navigation.navigate('AddTransaction');
+            }
+          }}
           className="absolute bottom-6 right-6 bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
           style={{ elevation: 8 }}
         >

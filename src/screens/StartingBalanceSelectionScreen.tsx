@@ -154,7 +154,11 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
         [
           {
             text: 'View Register',
-            onPress: () => navigation.navigate('Register'),
+            onPress: () => {
+              setTimeout(() => {
+                navigation.navigate('Register');
+              }, 100);
+            },
           },
         ]
       );
@@ -181,7 +185,11 @@ const StartingBalanceSelectionScreen: React.FC<Props> = ({ navigation, route }) 
                   [
                     {
                       text: 'View Register',
-                      onPress: () => navigation.navigate('Register'),
+                      onPress: () => {
+                        setTimeout(() => {
+                          navigation.navigate('Register');
+                        }, 100);
+                      },
                     },
                   ]
                 );
