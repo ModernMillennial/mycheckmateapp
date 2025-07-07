@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
+import EmailService from './emailService';
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -15,6 +16,13 @@ export interface AuthState {
 export interface AuthError {
   code: string;
   message: string;
+}
+
+interface PasswordResetToken {
+  token: string;
+  email: string;
+  expiresAt: number;
+  createdAt: number;
 }
 
 class AuthService {
@@ -41,6 +49,9 @@ class AuthService {
         const parsedAuth = JSON.parse(storedAuth);
         this.authState = { ...this.authState, ...parsedAuth, isAuthenticated: false };
       }
+      
+      // Clean up expired reset tokens on initialization
+      await this.cleanupExpiredTokens();
       
       // Biometric authentication is not available in this build
       // For production apps, you would install expo-local-authentication package
@@ -315,9 +326,6 @@ class AuthService {
   // Request password reset
   async requestPasswordReset(email: string): Promise<{ success: boolean; error?: AuthError }> {
     try {
-      // In a real app, this would make an API call to your backend
-      // For demo purposes, we'll simulate the request
-      
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
@@ -330,14 +338,45 @@ class AuthService {
         };
       }
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Check if email service is available
+      const emailServiceAvailable = await EmailService.isAvailable();
+      if (!emailServiceAvailable) {
+        return {
+          success: false,
+          error: {
+            code: 'EMAIL_NOT_AVAILABLE',
+            message: 'Email service is not available. Please check your device email configuration.',
+          },
+        };
+      }
 
-      // In a real app, you would:
-      // 1. Check if email exists in your database
-      // 2. Generate a secure reset token
-      // 3. Send reset email with token
-      // 4. Store token with expiration time
+      // Send password reset email
+      const emailResult = await EmailService.sendPasswordResetEmail(email);
+      
+      if (!emailResult.success) {
+        return {
+          success: false,
+          error: emailResult.error || {
+            code: 'EMAIL_SEND_FAILED',
+            message: 'Failed to send password reset email.',
+          },
+        };
+      }
+
+      // Store the reset token with expiration (1 hour)
+      if (emailResult.resetToken) {
+        const resetTokenData: PasswordResetToken = {
+          token: emailResult.resetToken,
+          email: email.toLowerCase(),
+          expiresAt: Date.now() + (60 * 60 * 1000), // 1 hour from now
+          createdAt: Date.now(),
+        };
+
+        await AsyncStorage.setItem(`@reset_token_${emailResult.resetToken}`, JSON.stringify(resetTokenData));
+        
+        // Also store a mapping from email to token for validation
+        await AsyncStorage.setItem(`@reset_email_${email.toLowerCase()}`, emailResult.resetToken);
+      }
       
       return { success: true };
     } catch (error) {
@@ -352,16 +391,103 @@ class AuthService {
     }
   }
 
-  // Reset password with token (for demo purposes)
+  // Validate reset token
+  async validateResetToken(token: string): Promise<{ valid: boolean; email?: string; error?: AuthError }> {
+    try {
+      const resetTokenData = await AsyncStorage.getItem(`@reset_token_${token}`);
+      
+      if (!resetTokenData) {
+        return {
+          valid: false,
+          error: {
+            code: 'INVALID_TOKEN',
+            message: 'Invalid or expired reset token.',
+          },
+        };
+      }
+
+      const tokenData: PasswordResetToken = JSON.parse(resetTokenData);
+      
+      // Check if token is expired
+      if (Date.now() > tokenData.expiresAt) {
+        // Clean up expired token
+        await AsyncStorage.removeItem(`@reset_token_${token}`);
+        await AsyncStorage.removeItem(`@reset_email_${tokenData.email}`);
+        
+        return {
+          valid: false,
+          error: {
+            code: 'TOKEN_EXPIRED',
+            message: 'Reset token has expired. Please request a new password reset.',
+          },
+        };
+      }
+
+      return {
+        valid: true,
+        email: tokenData.email,
+      };
+    } catch (error) {
+      console.error('Token validation error:', error);
+      return {
+        valid: false,
+        error: {
+          code: 'TOKEN_VALIDATION_ERROR',
+          message: 'Error validating reset token.',
+        },
+      };
+    }
+  }
+
+  // Reset password with token
   async resetPasswordWithToken(token: string, newPassword: string): Promise<{ success: boolean; error?: AuthError }> {
     try {
-      // In a real app, this would:
-      // 1. Validate the reset token
-      // 2. Check if token is not expired
-      // 3. Update user's password in database
-      // 4. Invalidate the reset token
+      // Validate the token first
+      const tokenValidation = await this.validateResetToken(token);
       
-      // For demo purposes, we'll just simulate success
+      if (!tokenValidation.valid) {
+        return {
+          success: false,
+          error: tokenValidation.error,
+        };
+      }
+
+      const email = tokenValidation.email!;
+
+      // Hash the new password
+      const hashedNewPassword = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        newPassword + 'checkmate_salt'
+      );
+
+      // Update the stored password
+      await AsyncStorage.setItem('@user_passcode', hashedNewPassword);
+
+      // Update user email in auth state if it matches
+      if (this.authState.user && this.authState.user.email === email) {
+        this.authState.user.lastLogin = new Date().toISOString();
+        await this.updateStoredAuthState();
+      } else {
+        // Create/update user record for this email
+        const userId = await Crypto.digestStringAsync(
+          Crypto.CryptoDigestAlgorithm.SHA256,
+          email + Date.now().toString()
+        );
+
+        this.authState.user = {
+          id: userId,
+          email: email,
+          lastLogin: new Date().toISOString(),
+        };
+        
+        this.authState.passcodeEnabled = true;
+        await this.updateStoredAuthState();
+      }
+
+      // Clean up the used token
+      await AsyncStorage.removeItem(`@reset_token_${token}`);
+      await AsyncStorage.removeItem(`@reset_email_${email}`);
+
       return { success: true };
     } catch (error) {
       console.error('Password reset error:', error);
@@ -372,6 +498,45 @@ class AuthService {
           message: 'Failed to reset password. Please try again.',
         },
       };
+    }
+  }
+
+  // Check if there's a pending reset token for an email
+  async hasPendingResetToken(email: string): Promise<boolean> {
+    try {
+      const tokenId = await AsyncStorage.getItem(`@reset_email_${email.toLowerCase()}`);
+      if (!tokenId) return false;
+
+      const tokenData = await AsyncStorage.getItem(`@reset_token_${tokenId}`);
+      if (!tokenData) return false;
+
+      const resetToken: PasswordResetToken = JSON.parse(tokenData);
+      return Date.now() < resetToken.expiresAt;
+    } catch (error) {
+      console.error('Error checking pending reset token:', error);
+      return false;
+    }
+  }
+
+  // Clean up expired tokens (call this periodically)
+  async cleanupExpiredTokens(): Promise<void> {
+    try {
+      // This is a simplified cleanup - in production you'd want a more efficient approach
+      const allKeys = await AsyncStorage.getAllKeys();
+      const tokenKeys = allKeys.filter(key => key.startsWith('@reset_token_'));
+
+      for (const key of tokenKeys) {
+        const tokenData = await AsyncStorage.getItem(key);
+        if (tokenData) {
+          const resetToken: PasswordResetToken = JSON.parse(tokenData);
+          if (Date.now() > resetToken.expiresAt) {
+            await AsyncStorage.removeItem(key);
+            await AsyncStorage.removeItem(`@reset_email_${resetToken.email}`);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error cleaning up expired tokens:', error);
     }
   }
 

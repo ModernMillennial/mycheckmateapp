@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AuthService from '../services/authService';
 
 interface Props {
   navigation: any;
@@ -43,13 +44,24 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
     setIsLoading(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Check if there's already a pending reset token
+      const hasPendingToken = await AuthService.hasPendingResetToken(email);
+      if (hasPendingToken) {
+        setEmailError('A password reset email was already sent recently. Please check your email or wait before requesting another.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Request password reset through AuthService
+      const result = await AuthService.requestPasswordReset(email);
       
-      // For demo purposes, we'll just show success state
-      // In a real app, this would call your backend API
-      setResetSent(true);
+      if (result.success) {
+        setResetSent(true);
+      } else {
+        setEmailError(result.error?.message || 'Failed to send password reset email. Please try again.');
+      }
     } catch (error) {
+      console.error('Password reset error:', error);
       setEmailError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -90,7 +102,7 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
             
             <Text className="text-sm text-gray-500 text-center mb-8">
               Please check your email and follow the instructions to reset your password. 
-              The link will expire in 24 hours.
+              The link will expire in 1 hour for security.
             </Text>
 
             {/* Actions */}
@@ -109,10 +121,19 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
                   setResetSent(false);
                   setEmail('');
                 }}
-                className="py-3 items-center justify-center"
+                className="py-3 items-center justify-center mb-2"
               >
                 <Text className="text-blue-500 text-base font-medium">
                   Send Another Link
+                </Text>
+              </Pressable>
+              
+              <Pressable
+                onPress={() => navigation.navigate('ResetPassword', { email })}
+                className="py-3 items-center justify-center"
+              >
+                <Text className="text-gray-500 text-base font-medium">
+                  Already have a reset token?
                 </Text>
               </Pressable>
             </View>
@@ -208,19 +229,37 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
 
 
 
-            {/* Back to Login */}
-            <View className="flex-row justify-center items-center">
-              <Text className="text-gray-600 text-sm">
-                Remember your password? 
-              </Text>
-              <Pressable
-                onPress={() => navigation.navigate('Login')}
-                disabled={isLoading}
-              >
-                <Text className="text-blue-500 text-sm font-medium ml-1">
-                  Sign In
+            {/* Links */}
+            <View className="space-y-3">
+              {/* Already have token link */}
+              <View className="flex-row justify-center items-center">
+                <Text className="text-gray-600 text-sm">
+                  Already have a reset token? 
                 </Text>
-              </Pressable>
+                <Pressable
+                  onPress={() => navigation.navigate('ResetPassword')}
+                  disabled={isLoading}
+                >
+                  <Text className="text-blue-500 text-sm font-medium ml-1">
+                    Reset Now
+                  </Text>
+                </Pressable>
+              </View>
+
+              {/* Back to Login */}
+              <View className="flex-row justify-center items-center">
+                <Text className="text-gray-600 text-sm">
+                  Remember your password? 
+                </Text>
+                <Pressable
+                  onPress={() => navigation.navigate('Login')}
+                  disabled={isLoading}
+                >
+                  <Text className="text-blue-500 text-sm font-medium ml-1">
+                    Sign In
+                  </Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </ScrollView>

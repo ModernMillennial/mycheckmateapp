@@ -22,6 +22,7 @@ import SignupScreen from '../screens/SignupScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import SplashScreen from '../screens/SplashScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import TermsAndConditionsScreen from '../screens/TermsAndConditionsScreen';
 import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 import TermsAcceptanceScreen from '../screens/TermsAcceptanceScreen';
@@ -36,6 +37,7 @@ export type RootStackParamList = {
   Signup: undefined;
   Welcome: undefined;
   ForgotPassword: undefined;
+  ResetPassword: { token?: string; email?: string };
   // Terms screens - two separate flows
   TermsAcceptance: undefined;
   TermsAndConditions: { isFirstTime?: boolean; isReadOnly?: boolean };
@@ -148,6 +150,7 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+          <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
           <Stack.Screen name="TermsAcceptance" component={TermsAcceptanceScreen} />
           <Stack.Screen name="TermsAndConditions" component={TermsAndConditionsScreen} />
           <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
