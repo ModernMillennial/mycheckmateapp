@@ -8,10 +8,12 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AuthService from '../services/authService';
+import EmailPreviewModal from '../components/EmailPreviewModal';
 
 interface Props {
   navigation: any;
@@ -22,6 +24,8 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
   const [emailError, setEmailError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [resetToken, setResetToken] = useState('');
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,6 +61,10 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
       
       if (result.success) {
         setResetSent(true);
+        // Store the reset token for demo purposes
+        if (result.resetToken) {
+          setResetToken(result.resetToken);
+        }
       } else {
         setEmailError(result.error?.message || 'Failed to send password reset email. Please try again.');
       }
@@ -100,10 +108,27 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
               <Text className="font-medium text-gray-900">{email}</Text>
             </Text>
             
-            <Text className="text-sm text-gray-500 text-center mb-8">
+            <Text className="text-sm text-gray-500 text-center mb-4">
               Please check your email and follow the instructions to reset your password. 
               The link will expire in 1 hour for security.
             </Text>
+            
+            <View className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="checkmark-circle" size={16} color="#059669" />
+                <Text className="ml-2 text-sm font-medium text-green-800">
+                  Demo Mode Active
+                </Text>
+              </View>
+              <Text className="text-sm text-green-700 mb-3">
+                In production, the email would be automatically sent. For demo purposes, you can:
+              </Text>
+              <Text className="text-sm text-green-700">
+                • View the email preview{'\n'}
+                • Use the reset token directly{'\n'}
+                • Test the complete flow
+              </Text>
+            </View>
 
             {/* Actions */}
             <View className="w-full space-y-3">
@@ -129,7 +154,16 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
               </Pressable>
               
               <Pressable
-                onPress={() => navigation.navigate('ResetPassword', { email })}
+                onPress={() => setShowEmailPreview(true)}
+                className="py-3 items-center justify-center mb-2"
+              >
+                <Text className="text-green-600 text-base font-medium">
+                  📧 View Email Preview
+                </Text>
+              </Pressable>
+              
+              <Pressable
+                onPress={() => navigation.navigate('ResetPassword', { email, token: resetToken })}
                 className="py-3 items-center justify-center"
               >
                 <Text className="text-gray-500 text-base font-medium">
@@ -139,6 +173,13 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           </View>
         </View>
+        
+        <EmailPreviewModal
+          visible={showEmailPreview}
+          onClose={() => setShowEmailPreview(false)}
+          email={email}
+          resetToken={resetToken}
+        />
       </SafeAreaView>
     );
   }
@@ -225,6 +266,20 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
                   </Text>
                 )}
               </Pressable>
+              
+              {/* Demo Info */}
+              <View className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <View className="flex-row items-center mb-2">
+                  <Ionicons name="information-circle" size={16} color="#3B82F6" />
+                  <Text className="ml-2 text-sm font-medium text-blue-800">
+                    Demo Mode
+                  </Text>
+                </View>
+                <Text className="text-sm text-blue-700">
+                  In production, the password reset email would be automatically sent to your email address. 
+                  For demo purposes, we'll show you the email content and reset token.
+                </Text>
+              </View>
             </View>
 
 
@@ -264,6 +319,13 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      <EmailPreviewModal
+        visible={showEmailPreview}
+        onClose={() => setShowEmailPreview(false)}
+        email={email}
+        resetToken={resetToken}
+      />
     </SafeAreaView>
   );
 };

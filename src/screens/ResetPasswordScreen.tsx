@@ -237,12 +237,17 @@ const ResetPasswordScreen: React.FC<Props> = ({ navigation, route }) => {
                 </Text>
               </View>
 
-              {/* Token Input (if not from URL) */}
-              {!route?.params?.token && (
-                <View className="mb-6">
-                  <Text className="text-sm font-medium text-gray-700 mb-2">
-                    Reset Token
-                  </Text>
+              {/* Token Input or Display */}
+              <View className="mb-6">
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Reset Token
+                </Text>
+                {route?.params?.token ? (
+                  <View className="bg-gray-50 border border-gray-300 rounded-lg px-4 py-3">
+                    <Text className="text-sm text-gray-600 mb-1">Token (from email link):</Text>
+                    <Text className="text-xs font-mono text-gray-800 break-all">{token}</Text>
+                  </View>
+                ) : (
                   <TextInput
                     className={`border ${tokenError ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-3 text-base`}
                     placeholder="Enter the token from your email"
@@ -254,11 +259,11 @@ const ResetPasswordScreen: React.FC<Props> = ({ navigation, route }) => {
                     autoCapitalize="none"
                     editable={!isLoading}
                   />
-                  {tokenError ? (
-                    <Text className="text-red-500 text-sm mt-1">{tokenError}</Text>
-                  ) : null}
-                </View>
-              )}
+                )}
+                {tokenError ? (
+                  <Text className="text-red-500 text-sm mt-1">{tokenError}</Text>
+                ) : null}
+              </View>
 
               {/* New Password Input */}
               <View className="mb-6">
