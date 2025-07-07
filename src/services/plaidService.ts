@@ -1,5 +1,4 @@
 import { Transaction } from '../types';
-import { SecurityManager, SECURE_STORAGE_KEYS } from '../utils/security';
 import logger from '../utils/logger';
 
 export interface PlaidAccount {
@@ -22,7 +21,7 @@ export interface PlaidTransaction {
   amount: number;
   date: string;
   name: string;
-  merchant_name?: string;
+  merchant_name: string | null;
   category: string[];
   account_owner: string | null;
 }
@@ -64,9 +63,9 @@ class PlaidService {
 
     this.isConfigured = !!(this.clientId && this.secret);
     if (!this.isConfigured) {
-      logger.warn('Plaid credentials not configured. Please configure PLAID_CLIENT_ID and PLAID_SECRET.');
+      console.warn('Plaid credentials not configured. Running in demo mode.');
     } else {
-      logger.info(`Plaid service initialized in ${this.environment} mode`);
+      console.info(`Plaid service initialized in ${this.environment} mode`);
     }
   }
 
@@ -74,11 +73,58 @@ class PlaidService {
     return this.isConfigured;
   }
 
-  // All demo methods have been removed. Use the real Plaid API methods below.
+  // Demo methods for when Plaid is not configured
+  private async createDemoLinkToken(userId: string): Promise<string> {
+    // Return a mock token that will trigger demo flow
+    return `demo-link-token-${userId}-${Date.now()}`;
+  }
+
+  private async simulateDemoConnection(): Promise<PlaidLinkResult> {
+    // Simulate delay like a real connection
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    return {
+      publicToken: `demo-public-token-${Date.now()}`,
+      metadata: {
+        institution: {
+          name: 'Demo Bank',
+          institution_id: 'demo_bank_001',
+        },
+        accounts: [
+          {
+            account_id: 'demo_checking_001',
+            name: 'Demo Checking',
+            official_name: 'Demo Checking Account',
+            type: 'depository',
+            subtype: 'checking',
+            balances: {
+              available: 1250.45,
+              current: 1250.45,
+              limit: null,
+            },
+            mask: '0001',
+          },
+          {
+            account_id: 'demo_savings_001',
+            name: 'Demo Savings',
+            official_name: 'Demo Savings Account',
+            type: 'depository',
+            subtype: 'savings',
+            balances: {
+              available: 5000.00,
+              current: 5000.00,
+              limit: null,
+            },
+            mask: '0002',
+          },
+        ],
+      },
+    };
+  }
 
   async createLinkToken(userId: string): Promise<string> {
     if (!this.isConfigured) {
-      throw new Error('Plaid credentials not configured. Please set PLAID_CLIENT_ID and PLAID_SECRET.');
+      return this.createDemoLinkToken(userId);
     }
 
     try {
@@ -187,6 +233,67 @@ class PlaidService {
     }
   }
 
+  private async generateDemoTransactions(
+    accountIds: string[],
+    startDate: string,
+    endDate: string
+  ): Promise<PlaidTransaction[]> {
+    const mockTransactions: PlaidTransaction[] = [
+      {
+        transaction_id: 'demo_tx_001',
+        account_id: accountIds[0],
+        amount: 4.50,
+        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 day ago
+        name: 'Starbucks',
+        merchant_name: 'Starbucks',
+        category: ['Food and Drink', 'Coffee'],
+        account_owner: null,
+      },
+      {
+        transaction_id: 'demo_tx_002',
+        account_id: accountIds[0],
+        amount: 125.00,
+        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 3 days ago
+        name: 'Whole Foods Market',
+        merchant_name: 'Whole Foods Market',
+        category: ['Shops', 'Groceries'],
+        account_owner: null,
+      },
+      {
+        transaction_id: 'demo_tx_003',
+        account_id: accountIds[0],
+        amount: -2500.00, // Deposit (negative amount)
+        date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 week ago
+        name: 'Payroll Deposit',
+        merchant_name: null,
+        category: ['Deposit'],
+        account_owner: null,
+      },
+      {
+        transaction_id: 'demo_tx_004',
+        account_id: accountIds[0],
+        amount: 850.00,
+        date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days ago
+        name: 'Rent Payment',
+        merchant_name: null,
+        category: ['Payment', 'Rent'],
+        account_owner: null,
+      },
+      {
+        transaction_id: 'demo_tx_005',
+        account_id: accountIds[0],
+        amount: 45.67,
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 days ago
+        name: 'Shell Gas Station',
+        merchant_name: 'Shell',
+        category: ['Transportation', 'Gas Stations'],
+        account_owner: null,
+      },
+    ];
+
+    return mockTransactions;
+  }
+
   async getTransactions(
     accessToken: string, 
     accountIds: string[], 
@@ -194,7 +301,8 @@ class PlaidService {
     endDate: string
   ): Promise<PlaidTransaction[]> {
     if (!this.isConfigured) {
-      throw new Error('Plaid credentials not configured. Please set PLAID_CLIENT_ID and PLAID_SECRET.');
+      // Return demo transactions
+      return this.generateDemoTransactions(accountIds, startDate, endDate);
     }
 
     try {
@@ -285,6 +393,18 @@ export const plaidService = {
   },
 
   async getTransactions(
+    accessToken: string, 
+    accountIds: string[], 
+    startDate: string, 
+    endDate: string
+  ): Promise<PlaidTransaction[]> {
+    if (!_plaidService) {
+      _plaidService = new PlaidService();
+    }
+    return _plaidService.getTransactions(accessToken, accountIds, startDate, endDate);
+  },
+
+  async getTransactionsOrDemo(
     accessToken: string, 
     accountIds: string[], 
     startDate: string, 

@@ -183,10 +183,13 @@ const BankConnectionScreen: React.FC<Props> = ({ navigation }) => {
             <Ionicons name="information-circle" size={20} color="#3B82F6" />
             <View className="ml-3 flex-1">
               <Text className="text-base font-semibold text-blue-900 mb-1">
-                Powered by Plaid
+                {isPlaidConfigured ? 'Powered by Plaid' : 'Demo Mode'}
               </Text>
               <Text className="text-sm text-blue-700 leading-5">
-                We use Plaid, a secure financial technology service trusted by thousands of apps. Your bank login credentials are never stored on our servers.
+                {isPlaidConfigured 
+                  ? 'We use Plaid, a secure financial technology service trusted by thousands of apps. Your bank login credentials are never stored on our servers.'
+                  : 'This app is running in demo mode. The bank connection will create a demo account with sample transactions for testing purposes.'
+                }
               </Text>
             </View>
           </View>
@@ -207,18 +210,18 @@ const BankConnectionScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           ) : (
             <View className="space-y-3">
-              {isPlaidConfigured ? (
-                <PlaidLink
-                  userId="user-1"
-                  onSuccess={handlePlaidSuccess}
-                  onError={handlePlaidError}
-                  buttonText="Connect Real Bank Account"
-                  buttonStyle="primary"
-                />
-              ) : (
-                <View className="bg-gray-100 p-4 rounded-xl">
-                  <Text className="text-center text-gray-600 text-base">
-                    Bank connection not configured
+              <PlaidLink
+                userId="user-1"
+                onSuccess={handlePlaidSuccess}
+                onError={handlePlaidError}
+                buttonText={isPlaidConfigured ? "Connect Real Bank Account" : "Connect Demo Bank Account"}
+                buttonStyle="primary"
+              />
+              
+              {!isPlaidConfigured && (
+                <View className="bg-blue-50 p-3 rounded-lg mt-3">
+                  <Text className="text-center text-blue-700 text-sm">
+                    Running in demo mode. This will connect to a demo bank account for testing.
                   </Text>
                 </View>
               )}

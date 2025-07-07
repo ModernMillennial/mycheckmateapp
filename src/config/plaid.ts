@@ -10,23 +10,14 @@ export interface PlaidConfig {
 }
 
 // Environment configuration
-const ENV = process.env.EXPO_PUBLIC_PLAID_ENV || 'sandbox';
+const ENV = process.env.EXPO_PUBLIC_PLAID_ENVIRONMENT || 'sandbox';
 
 export const PLAID_CONFIG: PlaidConfig = {
-  clientId: ENV === 'production' 
-    ? process.env.EXPO_PUBLIC_PLAID_PRODUCTION_CLIENT_ID || 'your_production_client_id'
-    : process.env.EXPO_PUBLIC_PLAID_SANDBOX_CLIENT_ID || 'your_sandbox_client_id',
-  
-  secret: ENV === 'production'
-    ? process.env.EXPO_PUBLIC_PLAID_PRODUCTION_SECRET || 'your_production_secret_key'
-    : process.env.EXPO_PUBLIC_PLAID_SANDBOX_SECRET || 'your_sandbox_secret_key',
-  
-  environment: ENV === 'production' ? PlaidEnvironment.production : PlaidEnvironment.sandbox,
-  
+  clientId: process.env.EXPO_PUBLIC_PLAID_CLIENT_ID || 'your_client_id',
+  secret: process.env.EXPO_PUBLIC_PLAID_SECRET || 'your_secret_key',
+  environment: ENV === 'production' ? PlaidEnvironment.PRODUCTION : PlaidEnvironment.SANDBOX,
   publicKey: process.env.EXPO_PUBLIC_PLAID_PUBLIC_KEY,
-  
   countryCodes: ['US', 'CA'],
-  
   products: ['transactions', 'auth', 'identity', 'assets', 'investments']
 };
 
