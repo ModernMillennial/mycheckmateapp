@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,15 +6,20 @@ import {
   Pressable,
   Linking,
   Image,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuthStore } from '../state/authStore';
 
 interface Props {
   navigation: any;
 }
 
 const AboutScreen: React.FC<Props> = ({ navigation }) => {
+  const [devTapCount, setDevTapCount] = useState(0);
+  const { clearAllAuthData, resetAuthState } = useAuthStore();
+
   const handleWebsitePress = () => {
     Linking.openURL('https://checkmate-app.com').catch(() => {
       // Handle error silently or show alert
@@ -25,6 +30,41 @@ const AboutScreen: React.FC<Props> = ({ navigation }) => {
     Linking.openURL('mailto:support@checkmate-app.com').catch(() => {
       // Handle error silently or show alert
     });
+  };
+
+  const handleVersionTap = () => {
+    const newCount = devTapCount + 1;
+    setDevTapCount(newCount);
+    
+    if (newCount === 7) {
+      Alert.alert(
+        'Development Mode',
+        'You are now in development mode! Test credentials:\n\n• test@example.com / password123\n• demo@test.com / demo123\n• user@app.com / user123\n\nDevelopment actions available below.',
+        [{ text: 'OK' }]
+      );
+    } else if (newCount >= 10) {
+      Alert.alert(
+        'Reset Authentication',
+        'This will clear all authentication data and log you out. Use this if you cannot logout normally.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Reset Auth',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                await clearAllAuthData();
+                resetAuthState();
+                Alert.alert('Reset Complete', 'Authentication data cleared. App will restart.');
+              } catch (error) {
+                Alert.alert('Error', 'Failed to reset authentication data');
+              }
+            }
+          }
+        ]
+      );
+      setDevTapCount(0);
+    }
   };
 
   const InfoSection = ({ 
@@ -91,7 +131,9 @@ const AboutScreen: React.FC<Props> = ({ navigation }) => {
             />
           </View>
           <Text className="text-2xl font-bold text-gray-900 mb-2">Checkmate</Text>
-          <Text className="text-lg text-gray-600 mb-1">Version 1.0.0</Text>
+          <Pressable onPress={handleVersionTap}>
+            <Text className="text-lg text-gray-600 mb-1">Version 1.0.0</Text>
+          </Pressable>
           <Text className="text-sm text-gray-500">Digital Register & Banking</Text>
         </View>
 
@@ -205,6 +247,51 @@ const AboutScreen: React.FC<Props> = ({ navigation }) => {
             </Pressable>
           </View>
         </InfoSection>
+
+        {/* Development Section - Shows after tapping version 7 times */}
+        {devTapCount >= 7 && (
+          <InfoSection title="Development Tools">
+            <View>
+              <Text className="text-sm text-gray-600 mb-4">
+                Test credentials for development:
+              </Text>
+              <View className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                <Text className="text-sm font-mono text-gray-700">
+                  • test@example.com / password123{'\n'}
+                  • demo@test.com / demo123{'\n'}
+                  • user@app.com / user123
+                </Text>
+              </View>
+              <Pressable
+                onPress={async () => {
+                  Alert.alert(
+                    'Clear Auth Data',
+                    'This will clear all authentication data and log you out immediately.',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Clear Data',
+                        style: 'destructive',
+                        onPress: async () => {
+                          try {
+                            await clearAllAuthData();
+                            resetAuthState();
+                            Alert.alert('Complete', 'Authentication data cleared');
+                          } catch (error) {
+                            Alert.alert('Error', 'Failed to clear data');
+                          }
+                        }
+                      }
+                    ]
+                  );
+                }}
+                className="bg-red-50 border border-red-200 rounded-lg p-3 mb-2"
+              >
+                <Text className="text-red-700 font-medium text-center">Clear Auth Data</Text>
+              </Pressable>
+            </View>
+          </InfoSection>
+        )}
 
         {/* Copyright */}
         <View className="items-center pt-6 pb-4">

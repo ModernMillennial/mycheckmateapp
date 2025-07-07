@@ -29,16 +29,49 @@ export interface AuthState {
   resetAuthState: () => void;
 }
 
-// Authentication service - Replace with your actual backend API calls
+// Authentication service - Mock implementation for testing
 const authService = {
   async login(email: string, password: string): Promise<User> {
-    // TODO: Replace with actual API call to your backend
-    throw new Error('Authentication service not implemented. Please implement login with your backend API.');
+    // Mock test credentials for development
+    const testCredentials = [
+      { email: 'test@example.com', password: 'password123' },
+      { email: 'demo@test.com', password: 'demo123' },
+      { email: 'user@app.com', password: 'user123' },
+    ];
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Check if credentials match
+    const validCredential = testCredentials.find(
+      cred => cred.email === email.toLowerCase() && cred.password === password
+    );
+    
+    if (validCredential) {
+      return {
+        id: `user_${Date.now()}`,
+        email: validCredential.email,
+        firstName: 'Test',
+        lastName: 'User',
+        createdAt: new Date().toISOString(),
+      };
+    } else {
+      throw new Error('Invalid email or password');
+    }
   },
   
   async signup(email: string, password: string, firstName: string, lastName: string): Promise<User> {
-    // TODO: Replace with actual API call to your backend
-    throw new Error('Authentication service not implemented. Please implement signup with your backend API.');
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Mock signup - always succeeds for testing
+    return {
+      id: `user_${Date.now()}`,
+      email: email.toLowerCase(),
+      firstName,
+      lastName,
+      createdAt: new Date().toISOString(),
+    };
   }
 };
 
@@ -149,6 +182,22 @@ export const useAuthStore = create<AuthState>()(
           rememberMe: false,
           rememberedCredentials: null,
         });
+      },
+
+      // Development helper to clear all stored auth data
+      clearAllAuthData: async () => {
+        try {
+          await AsyncStorage.multiRemove(['checkmate-auth', '@auth_state', '@user_passcode']);
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            rememberMe: false,
+            rememberedCredentials: null,
+          });
+        } catch (error) {
+          console.error('Error clearing auth data:', error);
+        }
       },
     }),
     {
