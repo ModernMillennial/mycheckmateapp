@@ -28,9 +28,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error);
-    console.error('Error info:', errorInfo);
-    console.error('Error stack:', error.stack);
+    // Error logging could be sent to crash reporting service here
   }
 
   render() {
@@ -87,7 +85,6 @@ export default function App() {
     try {
       unsubscribe = setupNotificationListeners();
     } catch (error) {
-      console.error('Notification setup error:', error);
       unsubscribe = () => {}; // Empty cleanup function on error
     }
     
@@ -99,14 +96,12 @@ export default function App() {
         
         setIsReady(true);
       } catch (error) {
-        console.error('App initialization error:', error);
         setIsReady(true); // Continue anyway
       }
     };
     
     // Fallback timeout to ensure app doesn't get stuck loading
     const fallbackTimeout = setTimeout(() => {
-      console.log('App: Fallback timeout reached, forcing ready state');
       setIsReady(true);
     }, 5000);
     
@@ -131,9 +126,6 @@ export default function App() {
           />
         </View>
         <Text style={{ fontSize: 16, color: '#6B7280' }}>Loading...</Text>
-        <Text style={{ fontSize: 12, color: '#9CA3AF', marginTop: 8 }}>
-          Getting ready...
-        </Text>
       </View>
     );
   }

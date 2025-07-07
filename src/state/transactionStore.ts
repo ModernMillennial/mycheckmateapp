@@ -121,7 +121,7 @@ export const useTransactionStore = create<TransactionState>()(
         
         // Prevent deletion of bank transactions
         if (transactionToDelete && transactionToDelete.source === 'bank') {
-          console.warn('Attempted to delete bank transaction - operation blocked');
+          // Bank transactions cannot be deleted
           return;
         }
 
@@ -503,7 +503,7 @@ export const useTransactionStore = create<TransactionState>()(
           // Use existing sync logic to avoid duplicates and handle conversions
           get().syncBankTransactions(convertedTransactions);
         } catch (error) {
-          console.error('Error syncing Plaid transactions:', error);
+          // Error syncing Plaid transactions
           throw error;
         }
       },
@@ -550,11 +550,11 @@ export const useTransactionStore = create<TransactionState>()(
         isInitialized: state.isInitialized,
       }),
       onRehydrateStorage: () => (state) => {
-        console.log('Transaction store hydration complete');
+        // Transaction store hydration complete
         if (state) {
           state.setHasHydrated(true);
         } else {
-          console.warn('Transaction store state is null during hydration');
+          // Transaction store state is null during hydration
         }
       },
     }

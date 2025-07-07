@@ -38,7 +38,7 @@ const mockAuthService = {
     // Mock validation
     if (email === 'demo@checkmate.com' && password === 'demo123') {
       return {
-        id: 'user-demo',
+        id: `user-${Date.now()}`,
         email: 'demo@checkmate.com',
         firstName: 'Demo',
         lastName: 'User',

@@ -488,7 +488,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
                   setShowMenu(false);
                   setTimeout(() => {
                     if (navigation) {
-                      navigation.navigate('PlaidDemo');
+                      navigation.navigate('PlaidConnection');
                     }
                   }, 200);
                 }}

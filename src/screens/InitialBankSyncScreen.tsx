@@ -213,7 +213,7 @@ const InitialBankSyncScreen: React.FC<Props> = ({ visible, onComplete, onCancel 
             payee: transaction.payee,
             date: transaction.date.toISOString().split('T')[0],
             reconciled: true,
-            userId: 'demo-user',
+            userId: `user-${Date.now()}`,
             source: 'bank' as const,
             notes: transaction.category,
           });

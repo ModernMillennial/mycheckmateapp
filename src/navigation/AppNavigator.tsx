@@ -14,7 +14,7 @@ import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
 
 import BankConnectionScreen from '../screens/BankConnectionScreen';
 import StartingBalanceSelectionScreen from '../screens/StartingBalanceSelectionScreen';
-import PlaidDemoScreen from '../screens/PlaidDemoScreen';
+import PlaidConnectionScreen from '../screens/PlaidConnectionScreen';
 import AccountsScreen from '../screens/AccountsScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
 import LoginScreen from '../screens/LoginScreen';
@@ -61,7 +61,7 @@ export type RootStackParamList = {
   };
   
   // Plaid screens
-  PlaidDemo: undefined;
+  PlaidConnection: undefined;
   Accounts: undefined;
   Transactions: undefined;
 };
@@ -78,29 +78,21 @@ const AppNavigator: React.FC = () => {
   useEffect(() => {
     const initializeStores = async () => {
       try {
-        console.log('AppNavigator: Starting store initialization...');
-        console.log('isInitialized:', isInitialized);
-        console.log('isAuthenticated:', isAuthenticated);
-        console.log('authHydrated:', authHydrated);
-        console.log('transactionHydrated:', transactionHydrated);
+        // Initialize stores
         
         // Wait for both stores to hydrate
         if (!authHydrated || !transactionHydrated) {
-          console.log('Waiting for store hydration...');
           return; // Exit early, will retry when hydration completes
         }
         
         if (!isInitialized) {
-          console.log('Initializing transaction store with seed data...');
           initializeWithSeedData();
         }
         
         // Give stores time to complete initialization
         await new Promise(resolve => setTimeout(resolve, 100));
-        console.log('AppNavigator: Store initialization complete');
         setIsStoreReady(true);
       } catch (error) {
-        console.error('Store initialization error:', error);
         setIsStoreReady(true); // Continue anyway
       }
     };
@@ -111,7 +103,6 @@ const AppNavigator: React.FC = () => {
   // Fallback timeout to prevent infinite loading
   useEffect(() => {
     const timeout = setTimeout(() => {
-      console.log('AppNavigator: Force ready timeout reached');
       setForceReady(true);
       setIsStoreReady(true);
     }, 3000);
@@ -119,21 +110,14 @@ const AppNavigator: React.FC = () => {
     return () => clearTimeout(timeout);
   }, []);
 
-  console.log('AppNavigator render - isAuthenticated:', isAuthenticated, 'isStoreReady:', isStoreReady);
+  // Component render logic
   
   // Show loading until stores are ready and hydrated, but with a timeout
   if (!forceReady && (!isStoreReady || !authHydrated || !transactionHydrated)) {
-    console.log('AppNavigator: Stores not ready or not hydrated, showing loading...', { 
-      isStoreReady, 
-      authHydrated, 
-      transactionHydrated,
-      forceReady
-    });
-    
     return null; // This will show the App.tsx loading screen
   }
   
-  console.log('AppNavigator: Rendering navigator with initial route:', isAuthenticated ? "Register" : "Login");
+  // Render navigator
   
   return (
     <Stack.Navigator
@@ -171,7 +155,7 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="Dashboard" component={DashboardScreen} />
           
           {/* Plaid Screens */}
-          <Stack.Screen name="PlaidDemo" component={PlaidDemoScreen} />
+          <Stack.Screen name="PlaidConnection" component={PlaidConnectionScreen} />
           <Stack.Screen name="Accounts" component={AccountsScreen} />
           <Stack.Screen name="Transactions" component={TransactionsScreen} />
         </>
