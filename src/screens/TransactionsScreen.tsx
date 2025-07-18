@@ -19,6 +19,7 @@ import {
   usePlaidError,
 } from '../state/plaidStore';
 import { PlaidTransaction } from '../api/plaid';
+import Calculator from '../components/Calculator';
 
 const TransactionCard: React.FC<{
   transaction: PlaidTransaction;
@@ -170,6 +171,7 @@ const TransactionsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   
   const [refreshing, setRefreshing] = useState(false);
   const [dateRange, setDateRange] = useState(30); // days
+  const [calculatorVisible, setCalculatorVisible] = useState(false);
   
   const transactions = useTransactionsByAccount(selectedAccount?.account_id || '');
 
@@ -279,9 +281,14 @@ const TransactionsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             </Text>
           </View>
           
-          <Pressable onPress={handleRefreshTransactions} className="p-2 -mr-2">
-            <Ionicons name="refresh-outline" size={24} color="#374151" />
-          </Pressable>
+          <View className="flex-row">
+            <Pressable onPress={() => setCalculatorVisible(true)} className="p-2">
+              <Ionicons name="calculator-outline" size={24} color="#374151" />
+            </Pressable>
+            <Pressable onPress={handleRefreshTransactions} className="p-2 -mr-2">
+              <Ionicons name="refresh-outline" size={24} color="#374151" />
+            </Pressable>
+          </View>
         </View>
       </View>
 
@@ -400,6 +407,12 @@ const TransactionsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           </View>
         )}
       </ScrollView>
+
+      {/* Calculator Modal */}
+      <Calculator
+        visible={calculatorVisible}
+        onClose={() => setCalculatorVisible(false)}
+      />
     </SafeAreaView>
   );
 };
