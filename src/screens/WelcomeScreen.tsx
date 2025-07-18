@@ -33,8 +33,8 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
     },
     {
       icon: 'analytics-outline',
-      title: 'Smart Matching',
-      description: 'Manual entries automatically convert to bank transactions',
+      title: 'AI Smart Matching',
+      description: 'AI-powered matching converts manual entries to bank transactions',
       color: '#8B5CF6'
     },
     {
