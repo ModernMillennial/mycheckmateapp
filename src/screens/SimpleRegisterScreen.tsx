@@ -15,6 +15,7 @@ import { useTransactionStore } from '../state/transactionStore';
 import { useAuthStore } from '../state/authStore';
 import { Transaction } from '../types';
 import HelpGuideModal from '../components/HelpGuideModal';
+import Calculator from '../components/Calculator';
 
 const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
 
@@ -30,6 +31,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showHelpGuide, setShowHelpGuide] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [calculatorVisible, setCalculatorVisible] = useState(false);
   const [syncMessage, setSyncMessage] = useState<{visible: boolean, title: string, message: string, isError: boolean}>({
     visible: false,
     title: '',
@@ -346,6 +348,12 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
             </Text>
           </View>
           <View className="flex-row items-center">
+            <Pressable
+              onPress={() => setCalculatorVisible(true)}
+              className="p-2 mr-2"
+            >
+              <Ionicons name="calculator-outline" size={24} color="#374151" />
+            </Pressable>
             <Pressable
               onPress={handleSync}
               disabled={isSyncing}
@@ -926,6 +934,12 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       <HelpGuideModal 
         visible={showHelpGuide} 
         onClose={() => setShowHelpGuide(false)} 
+      />
+
+      {/* Calculator Modal */}
+      <Calculator
+        visible={calculatorVisible}
+        onClose={() => setCalculatorVisible(false)}
       />
 
     </SafeAreaView>
