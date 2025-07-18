@@ -349,28 +349,158 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       initializeWithSeedData: () => {
-        const { accounts } = get();
+        const { accounts, transactions } = get();
         
         // Ensure there's always exactly one account
         if (accounts.length === 0) {
           const defaultAccount: Account = {
             id: 'default-account-' + Date.now(),
-            name: 'My Account',
+            name: 'My Checking Account',
             type: 'checking',
-            bankName: 'Bank Account',
-            accountNumber: '****',
+            bankName: 'First National Bank',
+            accountNumber: '1234',
             isActive: true,
-            startingBalance: 0,
-            startingBalanceDate: new Date().toISOString().split('T')[0],
-            currentBalance: 0,
+            startingBalance: 2500.00,
+            startingBalanceDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days ago
+            currentBalance: 2500.00,
             color: '#3B82F6',
           };
           
+          // Add sample transactions only if none exist
+          const sampleTransactions: Omit<Transaction, 'id'>[] = [];
+          
+          if (transactions?.length === 0) {
+            const today = new Date();
+            const accountId = defaultAccount.id;
+            
+            sampleTransactions.push(
+              // Recent transactions (last 7 days)
+              {
+                userId: 'user-1',
+                accountId,
+                date: new Date(today.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                payee: 'Starbucks Coffee',
+                amount: -5.75,
+                source: 'manual',
+                category: 'Food & Dining',
+                reconciled: false,
+                runningBalance: 0,
+              },
+              {
+                userId: 'user-1',
+                accountId,
+                date: new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                payee: 'Grocery Store',
+                amount: -87.32,
+                source: 'manual',
+                category: 'Groceries',
+                reconciled: false,
+                runningBalance: 0,
+              },
+              {
+                userId: 'user-1',
+                accountId,
+                date: new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                payee: 'Direct Deposit - Employer',
+                amount: 2100.00,
+                source: 'bank',
+                category: 'Income',
+                reconciled: true,
+                runningBalance: 0,
+              },
+              {
+                userId: 'user-1',
+                accountId,
+                date: new Date(today.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                payee: 'Gas Station',
+                amount: -45.20,
+                source: 'manual',
+                category: 'Transportation',
+                reconciled: false,
+                runningBalance: 0,
+              },
+              {
+                userId: 'user-1',
+                accountId,
+                date: new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                payee: 'Netflix Subscription',
+                amount: -15.99,
+                source: 'bank',
+                category: 'Entertainment',
+                reconciled: true,
+                runningBalance: 0,
+              },
+              // Older transactions (2-4 weeks ago)
+              {
+                userId: 'user-1',
+                accountId,
+                date: new Date(today.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                payee: 'Electric Company',
+                amount: -120.45,
+                source: 'bank',
+                category: 'Utilities',
+                reconciled: true,
+                runningBalance: 0,
+              },
+              {
+                userId: 'user-1',
+                accountId,
+                date: new Date(today.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                payee: 'Rent Payment',
+                amount: -1200.00,
+                source: 'bank',
+                category: 'Housing',
+                reconciled: true,
+                runningBalance: 0,
+              },
+              {
+                userId: 'user-1',
+                accountId,
+                date: new Date(today.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                payee: 'Amazon Purchase',
+                amount: -34.99,
+                source: 'manual',
+                category: 'Shopping',
+                reconciled: false,
+                runningBalance: 0,
+              },
+              {
+                userId: 'user-1',
+                accountId,
+                date: new Date(today.getTime() - 18 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                payee: 'Direct Deposit - Employer',
+                amount: 2100.00,
+                source: 'bank',
+                category: 'Income',
+                reconciled: true,
+                runningBalance: 0,
+              },
+              {
+                userId: 'user-1',
+                accountId,
+                date: new Date(today.getTime() - 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                payee: 'Restaurant Dinner',
+                amount: -68.50,
+                source: 'manual',
+                category: 'Food & Dining',
+                reconciled: false,
+                runningBalance: 0,
+              }
+            );
+          }
+          
           set((state) => ({
             accounts: [defaultAccount],
+            transactions: sampleTransactions.map(t => ({
+              ...t,
+              id: Date.now().toString() + Math.random().toString(36).substr(2, 9) + Math.random().toString(36).substr(2, 9),
+            })),
             settings: { ...state.settings, activeAccountId: defaultAccount.id },
             isInitialized: true,
           }));
+          
+          // Calculate running balances after setting up the data
+          setTimeout(() => get().calculateRunningBalance(), 100);
         } else {
           // If there are multiple accounts, keep only the first one
           const firstAccount = accounts[0];
