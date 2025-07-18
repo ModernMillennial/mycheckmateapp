@@ -867,11 +867,33 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
       {/* Footer Status - Only show for existing users */}
       {showTransactions && (
         <View className="px-6 py-4 border-t border-gray-200">
-          <View className="flex-row items-center justify-center">
-            <Ionicons name="checkmark-circle" size={20} color="#10B981" />
-            <Text className="text-green-600 font-medium ml-2">
-              Checkmate Active ✓
-            </Text>
+          <View className="flex-row items-center justify-between">
+            {/* AI Chat Bubble - Bottom Left */}
+            <Pressable
+              onPress={() => {
+                if (navigation) {
+                  navigation.navigate('Chat');
+                }
+              }}
+              className="flex-row items-center"
+            >
+              <Image 
+                source={require('../../assets/ai-chat-bubble.jpg')}
+                style={{ width: 32, height: 32 }}
+                resizeMode="contain"
+              />
+            </Pressable>
+            
+            {/* Center Status */}
+            <View className="flex-row items-center">
+              <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+              <Text className="text-green-600 font-medium ml-2">
+                Checkmate Active ✓
+              </Text>
+            </View>
+            
+            {/* Empty right space for balance */}
+            <View style={{ width: 32 }} />
           </View>
           <Text className="text-center text-gray-500 text-sm mt-1">
             Navigation and all features working properly
