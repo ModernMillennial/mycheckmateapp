@@ -19,7 +19,7 @@
 
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vibecode.checkmate",
+      "bundleIdentifier": "com.mycheckmateapp.checkmate",
       "buildNumber": "1",
       "requireFullScreen": false,
       "bitcode": false,
@@ -40,7 +40,7 @@
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "package": "com.vibecode.checkmate",
+      "package": "com.mycheckmateapp.checkmate",
       "versionCode": 1,
       "permissions": [
         "CAMERA",
