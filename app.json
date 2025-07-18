@@ -9,11 +9,6 @@
     "newArchEnabled": true,
     "platforms": ["ios", "android"],
     "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "privacy": "public",
     "primaryColor": "#007AFF",
 
