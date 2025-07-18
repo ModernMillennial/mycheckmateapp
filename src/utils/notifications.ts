@@ -1,16 +1,20 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-// Configure notification behavior
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// Configure notification behavior with error handling
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+} catch (error) {
+  console.warn('Failed to configure notification handler:', error);
+}
 
 export interface NotificationSettings {
   depositsEnabled: boolean;
@@ -59,7 +63,7 @@ export async function requestNotificationPermissions(): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error('Error requesting notification permissions:', error);
+    console.warn('Error requesting notification permissions:', error);
     return false;
   }
 }
@@ -73,7 +77,7 @@ export async function scheduleDepositNotification(
     await Notifications.scheduleNotificationAsync({
       content: {
         title: '💰 Deposit Received',
-        body: `+$${amount.toFixed(2)} from ${payee}\nNew balance: $${balance.toFixed(2)}`,
+        body: `+${amount.toFixed(2)} from ${payee}\nNew balance: ${balance.toFixed(2)}`,
         sound: 'default',
         data: {
           type: 'deposit',
@@ -86,7 +90,7 @@ export async function scheduleDepositNotification(
       identifier: `deposit-${Date.now()}`,
     });
   } catch (error) {
-    console.error('Error scheduling deposit notification:', error);
+    console.warn('Error scheduling deposit notification:', error);
   }
 }
 
@@ -99,7 +103,7 @@ export async function scheduleDebitNotification(
     await Notifications.scheduleNotificationAsync({
       content: {
         title: '💳 Transaction Posted',
-        body: `-$${Math.abs(amount).toFixed(2)} to ${payee}\nNew balance: $${balance.toFixed(2)}`,
+        body: `-${Math.abs(amount).toFixed(2)} to ${payee}\nNew balance: ${balance.toFixed(2)}`,
         sound: 'default',
         data: {
           type: 'debit',
@@ -112,7 +116,7 @@ export async function scheduleDebitNotification(
       identifier: `debit-${Date.now()}`,
     });
   } catch (error) {
-    console.error('Error scheduling debit notification:', error);
+    console.warn('Error scheduling debit notification:', error);
   }
 }
 
@@ -124,7 +128,7 @@ export async function scheduleOverdraftWarning(
     await Notifications.scheduleNotificationAsync({
       content: {
         title: '⚠️ Low Balance Warning',
-        body: `Your balance is $${balance.toFixed(2)}, which is below your alert threshold of $${threshold.toFixed(2)}`,
+        body: `Your balance is ${balance.toFixed(2)}, which is below your alert threshold of ${threshold.toFixed(2)}`,
         sound: 'default',
         data: {
           type: 'overdraft-warning',
@@ -136,7 +140,7 @@ export async function scheduleOverdraftWarning(
       identifier: `overdraft-${Date.now()}`,
     });
   } catch (error) {
-    console.error('Error scheduling overdraft warning:', error);
+    console.warn('Error scheduling overdraft warning:', error);
   }
 }
 
@@ -145,7 +149,7 @@ export async function scheduleOverdraftAlert(balance: number): Promise<void> {
     await Notifications.scheduleNotificationAsync({
       content: {
         title: '🚨 OVERDRAFT ALERT',
-        body: `Your account balance is $${balance.toFixed(2)}. You may incur overdraft fees.`,
+        body: `Your account balance is ${balance.toFixed(2)}. You may incur overdraft fees.`,
         sound: 'default',
         data: {
           type: 'overdraft-alert',
@@ -156,24 +160,29 @@ export async function scheduleOverdraftAlert(balance: number): Promise<void> {
       identifier: `overdraft-alert-${Date.now()}`,
     });
   } catch (error) {
-    console.error('Error scheduling overdraft alert:', error);
+    console.warn('Error scheduling overdraft alert:', error);
   }
 }
 
 export function setupNotificationListeners() {
-  // Handle notification tap when app is running
-  const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-    console.log('Notification received:', notification);
-  });
+  try {
+    // Handle notification tap when app is running
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification received:', notification);
+    });
 
-  // Handle notification tap when app is closed/backgrounded
-  const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-    console.log('Notification response:', response);
-    // Here you could navigate to specific screens based on notification type
-  });
+    // Handle notification tap when app is closed/backgrounded
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('Notification response:', response);
+      // Here you could navigate to specific screens based on notification type
+    });
 
-  return () => {
-    notificationListener.remove();
-    responseListener.remove();
-  };
+    return () => {
+      notificationListener.remove();
+      responseListener.remove();
+    };
+  } catch (error) {
+    console.warn('Failed to setup notification listeners:', error);
+    return () => {}; // Return empty cleanup function
+  }
 }
