@@ -9,17 +9,33 @@
     "newArchEnabled": true,
     "platforms": ["ios", "android"],
     "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "privacy": "public",
+    "primaryColor": "#007AFF",
 
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.vibecode.checkmate",
       "buildNumber": "1",
+      "requireFullScreen": false,
+      "bitcode": false,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to scan receipts and documents for transaction entry.",
         "NSContactsUsageDescription": "This app accesses your contacts to help you split bills and share expenses with friends.",
         "NSMicrophoneUsageDescription": "This app uses the microphone for voice memos and transaction notes.",
         "NSUserTrackingUsageDescription": "This app uses tracking to provide personalized financial insights and improve your experience.",
-        "NSLocationWhenInUseUsageDescription": "This app uses location to help categorize transactions based on nearby merchants."
+        "NSLocationWhenInUseUsageDescription": "This app uses location to help categorize transactions based on nearby merchants.",
+        "NSCalendarsUsageDescription": "This app accesses your calendar to schedule bill payment reminders and financial planning events.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleAllowMixedLocalizations": true,
+        "CFBundleDevelopmentRegion": "en"
       }
     },
     "android": {
