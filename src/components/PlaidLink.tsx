@@ -43,6 +43,18 @@ const PlaidLink: React.FC<Props> = ({
     clearError 
   } = usePlaidStore();
 
+  // Always call usePlaidEmitter hook at the top level
+  usePlaidEmitter((event: any) => {
+    // Only handle events if we have a link token
+    if (!linkToken) return;
+    
+    if (event.eventName === 'onSuccess') {
+      handleSuccess(event.data);
+    } else if (event.eventName === 'onExit') {
+      handleExit(event.data);
+    }
+  });
+
   useEffect(() => {
     initializePlaidLink();
   }, []);
@@ -169,15 +181,6 @@ const PlaidLink: React.FC<Props> = ({
       </Pressable>
     );
   }
-
-  // For now, use manual opening approach
-  usePlaidEmitter((event: any) => {
-    if (event.eventName === 'onSuccess') {
-      handleSuccess(event.data);
-    } else if (event.eventName === 'onExit') {
-      handleExit(event.data);
-    }
-  });
 
   const handleDemoConnection = async () => {
     try {
