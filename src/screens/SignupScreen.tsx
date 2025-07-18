@@ -121,9 +121,9 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
         ]
       );
     } else {
-      // Success - navigation will automatically handle showing terms
-      // The splash screen will detect that user is authenticated but hasn't accepted terms
-      navigation.replace('Splash');
+      // Success - navigation will automatically handle showing the authenticated screens
+      // The conditional navigator will switch to authenticated stack automatically
+      // No manual navigation needed as isAuthenticated state change triggers re-render
     }
   };
 
