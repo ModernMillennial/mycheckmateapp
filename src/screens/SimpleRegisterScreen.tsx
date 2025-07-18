@@ -877,10 +877,10 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
               }}
               className="flex-row items-center"
             >
-              <Image 
-                source={require('../../assets/ai-chat-bubble.jpg')}
-                style={{ width: 32, height: 32 }}
-                resizeMode="contain"
+              <Ionicons 
+                name="chatbubbles" 
+                size={32} 
+                color="#3B82F6" 
               />
             </Pressable>
             
