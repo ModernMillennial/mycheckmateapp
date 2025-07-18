@@ -2,18 +2,26 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 // Configure notification behavior with error handling
-try {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-      shouldShowBanner: true,
-      shouldShowList: true,
-    }),
-  });
-} catch (error) {
-  console.warn('Failed to configure notification handler:', error);
+// Delay initialization to avoid NativeEventEmitter null argument issue
+let isNotificationHandlerSet = false;
+
+function initializeNotificationHandler() {
+  if (isNotificationHandlerSet) return;
+  
+  try {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+    isNotificationHandlerSet = true;
+  } catch (error) {
+    console.warn('Failed to configure notification handler:', error);
+  }
 }
 
 export interface NotificationSettings {
@@ -32,6 +40,9 @@ export const defaultNotificationSettings: NotificationSettings = {
 
 export async function requestNotificationPermissions(): Promise<boolean> {
   try {
+    // Initialize notification handler first
+    initializeNotificationHandler();
+    
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     
@@ -166,21 +177,34 @@ export async function scheduleOverdraftAlert(balance: number): Promise<void> {
 
 export function setupNotificationListeners() {
   try {
-    // Handle notification tap when app is running
-    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-      console.log('Notification received:', notification);
-    });
+    // Initialize notification handler first
+    initializeNotificationHandler();
+    
+    // Add a small delay to ensure native modules are ready
+    setTimeout(() => {
+      try {
+        // Handle notification tap when app is running
+        const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+          console.log('Notification received:', notification);
+        });
 
-    // Handle notification tap when app is closed/backgrounded
-    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log('Notification response:', response);
-      // Here you could navigate to specific screens based on notification type
-    });
+        // Handle notification tap when app is closed/backgrounded
+        const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+          console.log('Notification response:', response);
+          // Here you could navigate to specific screens based on notification type
+        });
 
-    return () => {
-      notificationListener.remove();
-      responseListener.remove();
-    };
+        return () => {
+          notificationListener.remove();
+          responseListener.remove();
+        };
+      } catch (error) {
+        console.warn('Failed to setup delayed notification listeners:', error);
+        return () => {}; // Return empty cleanup function
+      }
+    }, 1000);
+
+    return () => {}; // Return empty cleanup function for immediate return
   } catch (error) {
     console.warn('Failed to setup notification listeners:', error);
     return () => {}; // Return empty cleanup function
