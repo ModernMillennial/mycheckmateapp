@@ -11,6 +11,7 @@ import EditTransactionScreen from '../screens/EditTransactionScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
+import ChatScreen from '../screens/ChatScreen';
 
 import BankConnectionScreen from '../screens/BankConnectionScreen';
 import StartingBalanceSelectionScreen from '../screens/StartingBalanceSelectionScreen';
@@ -52,6 +53,7 @@ export type RootStackParamList = {
   Reports: undefined;
   NotificationSettings: undefined;
   About: undefined;
+  Chat: undefined;
 
   BankConnection: undefined;
   StartingBalanceSelection: {
@@ -152,6 +154,7 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="StartingBalanceSelection" component={StartingBalanceSelectionScreen} />
           <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
           <Stack.Screen name="About" component={AboutScreen} />
+          <Stack.Screen name="Chat" component={ChatScreen} />
           <Stack.Screen name="Dashboard" component={DashboardScreen} />
           
           {/* Plaid Screens */}

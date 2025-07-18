@@ -412,6 +412,19 @@ ADDITIONAL DETAILS:
               onPress={() => setShowCalculator(true)}
               rightComponent={<Ionicons name="calculator-outline" size={20} color="#9CA3AF" />}
             />
+            
+            <SettingRow
+              title="AI Assistant"
+              subtitle="Ask questions about your account and get financial help"
+              onPress={() => {
+                try {
+                  navigation.navigate('Chat');
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                }
+              }}
+              rightComponent={<Ionicons name="chatbubbles-outline" size={20} color="#9CA3AF" />}
+            />
           </View>
         </View>
 
