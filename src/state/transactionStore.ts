@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Transaction, UserSettings, FilterType, Account } from '../types';
 import { plaidService } from '../services/plaidService';
+import { AITransactionMatcher, TransactionMatch } from '../services/aiTransactionMatcher';
 import {
   NotificationSettings,
   defaultNotificationSettings,
@@ -56,6 +57,10 @@ interface TransactionState {
   calculatePayeeSimilarity: (payee1: string, payee2: string) => number;
   clearAndReinitialize: () => void;
   resetToFirstTimeUser: () => void;
+  
+  // AI Transaction Matching
+  findAIMatches: (manualTransactions?: Transaction[]) => Promise<TransactionMatch[]>;
+  applyAIMatch: (match: TransactionMatch) => void;
   
   // Computed values
   getTotalIncome: () => number;

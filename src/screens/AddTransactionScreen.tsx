@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,13 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTransactionStore } from '../state/transactionStore';
+import { AITransactionMatcher } from '../services/aiTransactionMatcher';
 import { cn } from '../utils/cn';
 
 interface Props {
@@ -20,7 +22,7 @@ interface Props {
 }
 
 const AddTransactionScreen: React.FC<Props> = ({ navigation }) => {
-  const { addTransaction, getActiveAccount } = useTransactionStore();
+  const { addTransaction, getActiveAccount, transactions } = useTransactionStore();
   
   const [formData, setFormData] = useState({
     date: new Date(),
@@ -33,6 +35,32 @@ const AddTransactionScreen: React.FC<Props> = ({ navigation }) => {
   
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [payeeSuggestions, setPayeeSuggestions] = useState<string[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Get AI payee suggestions when user types
+  useEffect(() => {
+    const getSuggestions = async () => {
+      if (formData.payee.length >= 3) {
+        setIsLoadingSuggestions(true);
+        const bankTransactions = transactions.filter(t => t.source === 'bank');
+        const suggestions = await AITransactionMatcher.suggestPayeeCorrection(
+          formData.payee,
+          bankTransactions
+        );
+        setPayeeSuggestions(suggestions);
+        setShowSuggestions(suggestions.length > 0);
+        setIsLoadingSuggestions(false);
+      } else {
+        setShowSuggestions(false);
+        setPayeeSuggestions([]);
+      }
+    };
+
+    const timeoutId = setTimeout(getSuggestions, 500);
+    return () => clearTimeout(timeoutId);
+  }, [formData.payee, transactions]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -179,9 +207,14 @@ const AddTransactionScreen: React.FC<Props> = ({ navigation }) => {
 
           {/* Payee */}
           <View className="mb-6">
-            <Text className="text-sm font-medium text-gray-700 mb-2">
-              Payee / Description *
-            </Text>
+            <View className="flex-row items-center justify-between mb-2">
+              <Text className="text-sm font-medium text-gray-700">
+                Payee / Description *
+              </Text>
+              {isLoadingSuggestions && (
+                <ActivityIndicator size="small" color="#3B82F6" />
+              )}
+            </View>
             <TextInput
               className={cn(
                 "p-4 border rounded-lg text-base",
@@ -189,9 +222,34 @@ const AddTransactionScreen: React.FC<Props> = ({ navigation }) => {
               )}
               placeholder="Enter payee name or description"
               value={formData.payee}
-              onChangeText={(text) => setFormData({ ...formData, payee: text })}
+              onChangeText={(text) => {
+                setFormData({ ...formData, payee: text });
+                if (text.length < 3) setShowSuggestions(false);
+              }}
               placeholderTextColor="#9CA3AF"
             />
+            
+            {/* AI Suggestions */}
+            {showSuggestions && payeeSuggestions.length > 0 && (
+              <View className="mt-2 border border-gray-200 rounded-lg bg-white shadow-sm">
+                <Text className="text-xs font-medium text-blue-600 px-3 py-2 bg-blue-50 rounded-t-lg">
+                  AI Suggestions
+                </Text>
+                {payeeSuggestions.map((suggestion, index) => (
+                  <Pressable
+                    key={index}
+                    onPress={() => {
+                      setFormData({ ...formData, payee: suggestion });
+                      setShowSuggestions(false);
+                    }}
+                    className="px-3 py-3 border-b border-gray-100 last:border-b-0 active:bg-gray-50"
+                  >
+                    <Text className="text-base text-gray-900">{suggestion}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+            
             {errors.payee && (
               <Text className="text-red-500 text-sm mt-1">{errors.payee}</Text>
             )}
