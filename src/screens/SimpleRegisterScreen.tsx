@@ -689,16 +689,24 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
               // Create transactions list with starting balance entry if we have an active account
               let transactionsToDisplay = [...transactions];
               
-              if (activeAccount && activeAccount.startingBalance !== 0) {
+              // Check if there's already a starting balance transaction
+              const hasStartingBalanceTransaction = transactions.some(t => 
+                t.payee === 'Starting Point' || 
+                t.payee === 'Starting Balance' || 
+                t.id.startsWith('starting-balance-')
+              );
+              
+              // Only add a starting balance entry if none exists and we have an active account with a starting balance
+              if (activeAccount && activeAccount.startingBalance !== 0 && !hasStartingBalanceTransaction) {
                 const startingBalanceEntry = {
                   id: `starting-balance-${activeAccount.id}`,
                   userId: 'system',
                   accountId: activeAccount.id,
                   date: activeAccount.startingBalanceDate || new Date().toISOString().split('T')[0],
-                  payee: 'Starting Balance',
+                  payee: 'Starting Point',
                   amount: activeAccount.startingBalance,
                   source: 'manual' as const,
-                  notes: `Opening balance for ${activeAccount.name}`,
+                  notes: `Initial account balance`,
                   reconciled: true,
                   runningBalance: activeAccount.startingBalance,
                 };

@@ -64,10 +64,13 @@ const ManualStartingBalanceScreen: React.FC<Props> = ({ navigation }) => {
         id: `account-${Date.now()}`,
         name: formData.accountName.trim(),
         type: 'checking' as const,
-        balance: amount,
+        bankName: 'Manual Entry',
+        accountNumber: '****',
         isActive: true,
-        userId: 'user-1', // In a real app, this would come from auth
-        source: 'manual' as const,
+        startingBalance: amount,
+        startingBalanceDate: formData.date.toISOString().split('T')[0],
+        currentBalance: amount,
+        color: '#3B82F6',
       };
       
       createAccount(newAccount);
@@ -81,7 +84,7 @@ const ManualStartingBalanceScreen: React.FC<Props> = ({ navigation }) => {
       userId: 'user-1', // In a real app, this would come from auth
       accountId: targetAccount.id,
       date: formData.date.toISOString().split('T')[0],
-      payee: 'Starting Balance',
+      payee: 'Starting Point',
       amount: amount,
       source: 'manual',
       category: 'Transfer',
