@@ -158,7 +158,9 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
               <Text className="text-base text-gray-700 leading-6">• Connect bank accounts through secure third-party services</Text>
               <Text className="text-base text-gray-700 leading-6">• Synchronize bank transactions with manual entries</Text>
               <Text className="text-base text-gray-700 leading-6">• Calculate running account balances</Text>
-              <Text className="text-base text-gray-700 leading-6">• Generate financial reports and insights</Text>
+              <Text className="text-base text-gray-700 leading-6">• Generate financial reports and insights using AI technology</Text>
+              <Text className="text-base text-gray-700 leading-6">• Receive AI-powered financial recommendations and analysis</Text>
+              <Text className="text-base text-gray-700 leading-6">• Use voice-to-text features for transaction entry</Text>
             </View>
           </View>
 
@@ -223,10 +225,30 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
             </View>
           </View>
 
+          {/* AI Services and Limitations */}
+          <View>
+            <Text className="text-lg font-semibold text-gray-900 mb-3">
+              8. AI Services and Limitations
+            </Text>
+            <Text className="text-base text-gray-700 leading-6 mb-3">
+              Checkmate uses artificial intelligence to enhance user experience. By using AI features, you acknowledge and agree that:
+            </Text>
+            <View className="ml-4 mt-2 mb-3">
+              <Text className="text-base text-gray-700 leading-6">• AI responses are generated automatically and may contain errors</Text>
+              <Text className="text-base text-gray-700 leading-6">• AI recommendations are not professional financial advice</Text>
+              <Text className="text-base text-gray-700 leading-6">• You should verify all AI-generated information independently</Text>
+              <Text className="text-base text-gray-700 leading-6">• AI features may be modified or discontinued without notice</Text>
+              <Text className="text-base text-gray-700 leading-6">• Voice transcription may not be 100% accurate</Text>
+            </View>
+            <Text className="text-base text-gray-700 leading-6">
+              You are solely responsible for any decisions made based on AI-generated content and should consult qualified professionals for important financial decisions.
+            </Text>
+          </View>
+
           {/* Data Accuracy and Disclaimers */}
           <View>
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              8. Data Accuracy and Disclaimers
+              9. Data Accuracy and Disclaimers
             </Text>
             <Text className="text-base text-gray-700 leading-6">
               While we strive to provide accurate financial data, Checkmate is not a substitute for professional financial advice. You are responsible for:
@@ -241,7 +263,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
           {/* Limitation of Liability */}
           <View>
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              9. Limitation of Liability
+              10. Limitation of Liability
             </Text>
             <Text className="text-base text-gray-700 leading-6">
               Checkmate Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or use, incurred by you or any third party, whether in an action in contract or tort, even if we have been advised of the possibility of such damages.
@@ -251,7 +273,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
           {/* Service Availability */}
           <View>
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              10. Service Availability
+              11. Service Availability
             </Text>
             <Text className="text-base text-gray-700 leading-6">
               We strive to maintain high service availability but cannot guarantee uninterrupted access. We reserve the right to modify, suspend, or discontinue the Service at any time with or without notice.
@@ -261,7 +283,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
           {/* Termination */}
           <View>
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              11. Termination
+              12. Termination
             </Text>
             <Text className="text-base text-gray-700 leading-6">
               We may terminate or suspend your account and access to the Service immediately, without prior notice, for any reason, including breach of these Terms. Upon termination, your right to use the Service will cease immediately.
@@ -271,7 +293,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
           {/* Changes to Terms */}
           <View>
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              12. Changes to Terms
+              13. Changes to Terms
             </Text>
             <Text className="text-base text-gray-700 leading-6">
               We reserve the right to modify these Terms at any time. We will notify users of any material changes via the application or email. Your continued use of the Service after changes constitutes acceptance of the new Terms.
@@ -281,7 +303,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
           {/* Governing Law */}
           <View>
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              13. Governing Law
+              14. Governing Law
             </Text>
             <Text className="text-base text-gray-700 leading-6">
               These Terms shall be governed by and construed in accordance with the laws of the State of California, United States, without regard to its conflict of law provisions.
@@ -291,7 +313,7 @@ const TermsAndConditionsScreen: React.FC<Props> = ({ navigation, route }) => {
           {/* Contact Information */}
           <View className="mb-8">
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              14. Contact Information
+              15. Contact Information
             </Text>
             <Text className="text-base text-gray-700 leading-6">
               If you have any questions about these Terms and Conditions, please contact us at:

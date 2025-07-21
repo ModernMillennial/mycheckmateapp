@@ -183,9 +183,23 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
             <Text className="text-base font-semibold text-gray-800 mb-2">
               2.4 Location Information
             </Text>
-            <Text className="text-base text-gray-700 leading-6">
+            <Text className="text-base text-gray-700 leading-6 mb-4">
               We may collect location information if you enable location services, which helps us provide location-based features such as nearby ATM locations or merchant categorization.
             </Text>
+
+            <Text className="text-base font-semibold text-gray-800 mb-2">
+              2.5 AI-Related Information
+            </Text>
+            <Text className="text-base text-gray-700 leading-6 mb-3">
+              When you use AI-powered features in Checkmate, we may collect and process:
+            </Text>
+            <View className="ml-4 mb-4">
+              <Text className="text-base text-gray-700 leading-6">• Text queries and prompts you submit to AI services</Text>
+              <Text className="text-base text-gray-700 leading-6">• Financial data used for AI analysis and insights</Text>
+              <Text className="text-base text-gray-700 leading-6">• Voice recordings for transcription services (when applicable)</Text>
+              <Text className="text-base text-gray-700 leading-6">• AI-generated responses and recommendations</Text>
+              <Text className="text-base text-gray-700 leading-6">• Usage patterns of AI features for improvement purposes</Text>
+            </View>
           </View>
 
           {/* How We Use Your Information */}
@@ -200,8 +214,12 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
               <Text className="text-base text-gray-700 leading-6">• Provide and maintain the Checkmate service</Text>
               <Text className="text-base text-gray-700 leading-6">• Process and categorize your financial transactions</Text>
               <Text className="text-base text-gray-700 leading-6">• Generate account balances and financial insights</Text>
+              <Text className="text-base text-gray-700 leading-6">• Provide AI-powered financial analysis and recommendations</Text>
+              <Text className="text-base text-gray-700 leading-6">• Process voice inputs for transcription and AI interpretation</Text>
+              <Text className="text-base text-gray-700 leading-6">• Generate personalized financial reports using AI algorithms</Text>
               <Text className="text-base text-gray-700 leading-6">• Sync data between devices and accounts</Text>
               <Text className="text-base text-gray-700 leading-6">• Improve our services and develop new features</Text>
+              <Text className="text-base text-gray-700 leading-6">• Train and improve AI models for better service quality</Text>
               <Text className="text-base text-gray-700 leading-6">• Provide customer support and respond to inquiries</Text>
               <Text className="text-base text-gray-700 leading-6">• Send important notifications about your account</Text>
               <Text className="text-base text-gray-700 leading-6">• Detect and prevent fraud or security issues</Text>
@@ -226,6 +244,8 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
             </Text>
             <View className="ml-4 mb-4">
               <Text className="text-base text-gray-700 leading-6">• Plaid Inc. for secure bank account connections</Text>
+              <Text className="text-base text-gray-700 leading-6">• AI service providers (OpenAI, Anthropic, Grok) for intelligent features</Text>
+              <Text className="text-base text-gray-700 leading-6">• Speech-to-text services for voice transcription</Text>
               <Text className="text-base text-gray-700 leading-6">• Cloud storage providers for data backup</Text>
               <Text className="text-base text-gray-700 leading-6">• Analytics services for app improvement</Text>
               <Text className="text-base text-gray-700 leading-6">• Customer support platforms</Text>
@@ -302,20 +322,63 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
             </Text>
           </View>
 
+          {/* AI Services and Data Processing */}
+          <View>
+            <Text className="text-lg font-semibold text-gray-900 mb-3">
+              8. AI Services and Data Processing
+            </Text>
+            <Text className="text-base text-gray-700 leading-6 mb-3">
+              Checkmate uses artificial intelligence services to enhance your financial management experience. Here's how we handle AI-related data:
+            </Text>
+            
+            <Text className="text-base font-semibold text-gray-800 mb-2">
+              8.1 AI Data Processing
+            </Text>
+            <Text className="text-base text-gray-700 leading-6 mb-3">
+              When you use AI features, your financial data may be processed by third-party AI providers under strict contractual agreements that require:
+            </Text>
+            <View className="ml-4 mb-4">
+              <Text className="text-base text-gray-700 leading-6">• Data encryption during transmission and processing</Text>
+              <Text className="text-base text-gray-700 leading-6">• No retention of your personal data after processing</Text>
+              <Text className="text-base text-gray-700 leading-6">• Prohibition on using your data to train their models</Text>
+              <Text className="text-base text-gray-700 leading-6">• Compliance with applicable privacy regulations</Text>
+            </View>
+
+            <Text className="text-base font-semibold text-gray-800 mb-2">
+              8.2 AI-Generated Content
+            </Text>
+            <Text className="text-base text-gray-700 leading-6 mb-3">
+              AI-generated recommendations and insights are based on your financial data and general financial principles. You should:
+            </Text>
+            <View className="ml-4 mb-4">
+              <Text className="text-base text-gray-700 leading-6">• Review all AI recommendations before acting on them</Text>
+              <Text className="text-base text-gray-700 leading-6">• Understand that AI responses may contain errors</Text>
+              <Text className="text-base text-gray-700 leading-6">• Consult with financial professionals for major decisions</Text>
+              <Text className="text-base text-gray-700 leading-6">• Not rely solely on AI for financial planning</Text>
+            </View>
+
+            <Text className="text-base font-semibold text-gray-800 mb-2">
+              8.3 Voice Data Processing
+            </Text>
+            <Text className="text-base text-gray-700 leading-6">
+              When you use voice features, audio recordings are processed securely and deleted immediately after transcription. We do not store voice recordings permanently.
+            </Text>
+          </View>
+
           {/* Third-Party Services */}
           <View>
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              8. Third-Party Services
+              9. Third-Party Services
             </Text>
             <Text className="text-base text-gray-700 leading-6">
-              Checkmate integrates with third-party services, particularly Plaid, to provide bank connectivity. These services have their own privacy policies, and we encourage you to review them. We are not responsible for the privacy practices of these third-party services.
+              Checkmate integrates with third-party services, including Plaid for bank connectivity and various AI service providers. These services have their own privacy policies, and we encourage you to review them. We are not responsible for the privacy practices of these third-party services.
             </Text>
           </View>
 
           {/* Children's Privacy */}
           <View>
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              9. Children's Privacy
+              10. Children's Privacy
             </Text>
             <Text className="text-base text-gray-700 leading-6">
               Checkmate is not intended for children under 18 years of age. We do not knowingly collect personal information from children under 18. If we become aware that we have collected personal information from a child under 18, we will take steps to delete such information.
@@ -325,7 +388,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
           {/* International Data Transfers */}
           <View>
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              10. International Data Transfers
+              11. International Data Transfers
             </Text>
             <Text className="text-base text-gray-700 leading-6">
               Your information may be transferred to and processed in countries other than your country of residence. These countries may have different data protection laws. We will take appropriate measures to ensure your information receives adequate protection.
@@ -335,7 +398,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
           {/* Changes to Privacy Policy */}
           <View>
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              11. Changes to This Privacy Policy
+              12. Changes to This Privacy Policy
             </Text>
             <Text className="text-base text-gray-700 leading-6">
               We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new Privacy Policy in the app and updating the "Last updated" date. Your continued use of Checkmate after any changes constitutes acceptance of the updated Privacy Policy.
@@ -345,7 +408,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation, route }) => {
           {/* Contact Information */}
           <View className="mb-8">
             <Text className="text-lg font-semibold text-gray-900 mb-3">
-              12. Contact Us
+              13. Contact Us
             </Text>
             <Text className="text-base text-gray-700 leading-6 mb-3">
               If you have any questions about this Privacy Policy or our privacy practices, please contact us:
