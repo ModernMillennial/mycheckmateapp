@@ -15,6 +15,7 @@ import ChatScreen from '../screens/ChatScreen';
 
 import BankConnectionScreen from '../screens/BankConnectionScreen';
 import StartingBalanceSelectionScreen from '../screens/StartingBalanceSelectionScreen';
+import ManualStartingBalanceScreen from '../screens/ManualStartingBalanceScreen';
 import PlaidConnectionScreen from '../screens/PlaidConnectionScreen';
 import AccountsScreen from '../screens/AccountsScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
@@ -61,6 +62,7 @@ export type RootStackParamList = {
     accountData: any;
     institutionName: string;
   };
+  ManualStartingBalance: undefined;
   
   // Plaid screens
   PlaidConnection: undefined;
@@ -152,6 +154,7 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="Budget" component={BudgetScreen} />
           <Stack.Screen name="BankConnection" component={BankConnectionScreen} />
           <Stack.Screen name="StartingBalanceSelection" component={StartingBalanceSelectionScreen} />
+          <Stack.Screen name="ManualStartingBalance" component={ManualStartingBalanceScreen} />
           <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
           <Stack.Screen name="About" component={AboutScreen} />
           <Stack.Screen name="Chat" component={ChatScreen} />

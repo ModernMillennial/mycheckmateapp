@@ -46,6 +46,7 @@ interface TransactionState {
   getActiveTransactions: () => Transaction[];
   getFilteredTransactionsFromStartingPoint: () => Transaction[];
   updateAccountInfo: (updates: Partial<Account>) => void;
+  createAccount: (account: Account) => void;
   clearUserData: () => void;
   processManualToBankConversion: (
     currentTransactions: Transaction[], 
