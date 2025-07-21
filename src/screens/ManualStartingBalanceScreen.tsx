@@ -7,7 +7,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -31,6 +31,7 @@ const ManualStartingBalanceScreen: React.FC<Props> = ({ navigation }) => {
   
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -88,16 +89,7 @@ const ManualStartingBalanceScreen: React.FC<Props> = ({ navigation }) => {
       reconciled: false,
     });
 
-    Alert.alert(
-      'Starting Balance Set! 🎉', 
-      `Your account "${formData.accountName}" has been created with a starting balance of $${amount.toFixed(2)}.`,
-      [
-        {
-          text: 'Go to Register',
-          onPress: () => navigation.navigate('Register'),
-        },
-      ]
-    );
+    setShowSuccessModal(true);
   };
 
   const onDateChange = (event: any, selectedDate?: Date) => {
@@ -273,6 +265,40 @@ const ManualStartingBalanceScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Success Modal */}
+      <Modal
+        visible={showSuccessModal}
+        transparent={true}
+        animationType="fade"
+      >
+        <View className="flex-1 bg-black/50 justify-center items-center px-6">
+          <View className="bg-white rounded-2xl p-6 w-full max-w-sm">
+            <View className="items-center mb-4">
+              <View className="w-16 h-16 bg-green-100 rounded-full items-center justify-center mb-4">
+                <Ionicons name="checkmark-circle" size={32} color="#10B981" />
+              </View>
+              <Text className="text-xl font-bold text-gray-900 text-center mb-2">
+                Starting Balance Set! 🎉
+              </Text>
+              <Text className="text-gray-600 text-center leading-6">
+                Your account "{formData.accountName}" has been created with a starting balance of ${parseFloat(formData.amount || '0').toFixed(2)}.
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => {
+                setShowSuccessModal(false);
+                navigation.navigate('Register');
+              }}
+              className="bg-blue-500 py-3 px-6 rounded-lg"
+            >
+              <Text className="text-white font-semibold text-center">
+                Go to Register
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

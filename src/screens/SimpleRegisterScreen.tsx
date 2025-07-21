@@ -632,15 +632,9 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
               {/* Manual Entry Option */}
               <Pressable
                 onPress={() => {
-                  // Initialize with default account for manual entry
-                  initializeWithSeedData();
-                  updateSettings({ bankLinked: false }); // Keep as manual, not bank-linked
-                  setShowTransactions(true);
-                  setTimeout(() => {
-                    if (navigation) {
-                      navigation.navigate('AddTransaction');
-                    }
-                  }, 100);
+                  if (navigation) {
+                    navigation.navigate('ManualStartingBalance');
+                  }
                 }}
                 className="bg-white border-2 border-gray-200 p-6 rounded-xl"
               >
