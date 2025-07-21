@@ -12,6 +12,8 @@ import SettingsScreen from '../screens/SettingsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
 import ChatScreen from '../screens/ChatScreen';
+import CalendarScreen from '../screens/CalendarScreen';
+import AddEventScreen from '../screens/AddEventScreen';
 
 import BankConnectionScreen from '../screens/BankConnectionScreen';
 import StartingBalanceSelectionScreen from '../screens/StartingBalanceSelectionScreen';
@@ -55,6 +57,8 @@ export type RootStackParamList = {
   NotificationSettings: undefined;
   About: undefined;
   Chat: undefined;
+  Calendar: undefined;
+  AddEvent: undefined;
 
   BankConnection: undefined;
   StartingBalanceSelection: {
@@ -158,6 +162,8 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
           <Stack.Screen name="About" component={AboutScreen} />
           <Stack.Screen name="Chat" component={ChatScreen} />
+          <Stack.Screen name="Calendar" component={CalendarScreen} />
+          <Stack.Screen name="AddEvent" component={AddEventScreen} />
           <Stack.Screen name="Dashboard" component={DashboardScreen} />
           
           {/* Terms and Privacy screens - also available when authenticated */}
