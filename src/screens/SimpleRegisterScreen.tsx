@@ -655,30 +655,7 @@ const SimpleRegisterScreen: React.FC<Props> = ({ navigation }) => {
 
             </View>
 
-            {/* Features Preview */}
-            <View className="mt-8 w-full">
-              <Text className="text-lg font-semibold text-gray-900 mb-4 text-center">
-                What you'll get:
-              </Text>
-              <View className="space-y-3">
-                <View className="flex-row items-center">
-                  <Ionicons name="checkmark-circle" size={20} color="#10B981" />
-                  <Text className="ml-3 text-gray-700">Automatic transaction import</Text>
-                </View>
-                <View className="flex-row items-center">
-                  <Ionicons name="checkmark-circle" size={20} color="#10B981" />
-                  <Text className="ml-3 text-gray-700">Real-time balance updates</Text>
-                </View>
-                <View className="flex-row items-center">
-                  <Ionicons name="checkmark-circle" size={20} color="#10B981" />
-                  <Text className="ml-3 text-gray-700">Smart transaction matching</Text>
-                </View>
-                <View className="flex-row items-center">
-                  <Ionicons name="checkmark-circle" size={20} color="#10B981" />
-                  <Text className="ml-3 text-gray-700">Bank-level security</Text>
-                </View>
-              </View>
-            </View>
+
           </View>
         )}
 
