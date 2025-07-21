@@ -587,6 +587,16 @@ export const useTransactionStore = create<TransactionState>()(
         });
       },
 
+      createAccount: (account) => {
+        set((state) => {
+          const newAccounts = [...state.accounts, account];
+          return {
+            accounts: newAccounts,
+            settings: { ...state.settings, activeAccountId: account.id },
+          };
+        });
+      },
+
       clearUserData: () => {
         set({
           transactions: [],
@@ -670,6 +680,15 @@ export const useTransactionStore = create<TransactionState>()(
         return activeAccount?.currentBalance || 0;
       },
       
+      findAIMatches: async (manualTransactions) => {
+        // Mock implementation - in a real app this would call the AI service
+        return [];
+      },
+
+      applyAIMatch: (match) => {
+        // Mock implementation - in a real app this would apply the AI match
+      },
+
       setHasHydrated: (hasHydrated: boolean) => {
         set({ _hasHydrated: hasHydrated });
       },
