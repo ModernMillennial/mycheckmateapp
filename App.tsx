@@ -40,7 +40,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
               Oops! Something went wrong
             </Text>
             <Text style={{ fontSize: 16, textAlign: 'center', color: '#6B7280', marginBottom: 24, lineHeight: 24 }}>
-              We apologize for the inconvenience. The app encountered an unexpected error and needs to restart.
+              {"We apologize for the inconvenience. The app encountered an unexpected error and needs to restart."}
             </Text>
             <Text style={{ fontSize: 14, textAlign: 'center', color: '#9CA3AF', marginBottom: 8 }}>
               If this problem persists, please contact support.
