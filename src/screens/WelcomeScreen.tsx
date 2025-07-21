@@ -18,32 +18,7 @@ interface Props {
 const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
   const { user, isAuthenticated } = useAuthStore();
 
-  const features = [
-    {
-      icon: 'card-outline',
-      title: 'Digital Checkbook',
-      description: 'Track your transactions like a traditional checkbook register',
-      color: '#3B82F6'
-    },
-    {
-      icon: 'sync-outline',
-      title: 'Bank Integration',
-      description: 'Connect your bank account for automatic transaction sync',
-      color: '#10B981'
-    },
-    {
-      icon: 'analytics-outline',
-      title: 'AI Smart Matching',
-      description: 'AI-powered matching converts manual entries to bank transactions',
-      color: '#8B5CF6'
-    },
-    {
-      icon: 'calculator-outline',
-      title: 'Built-in Tools',
-      description: 'Calculator, reports, and balance tracking all in one place',
-      color: '#F59E0B'
-    }
-  ];
+
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -69,31 +44,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
             </Text>
           </View>
 
-          {/* Features */}
-          <View className="mb-12">
-            <Text className="text-xl font-semibold text-gray-900 mb-6 text-center">
-              What you can do with Checkmate
-            </Text>
-            
-            {features.map((feature, index) => (
-              <View key={index} className="flex-row items-start mb-6">
-                <View 
-                  className="w-12 h-12 rounded-xl items-center justify-center mr-4"
-                  style={{ backgroundColor: feature.color + '20' }}
-                >
-                  <Ionicons name={feature.icon as any} size={24} color={feature.color} />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-base font-semibold text-gray-900 mb-1">
-                    {feature.title}
-                  </Text>
-                  <Text className="text-sm text-gray-600">
-                    {feature.description}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </View>
+
 
           {/* Get Started Button */}
           <View className="mb-8">
