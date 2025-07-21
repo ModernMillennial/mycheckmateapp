@@ -204,49 +204,7 @@ const AboutScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </InfoSection>
 
-        {/* Technology */}
-        <InfoSection title="Built With">
-          <View className="flex-row flex-wrap">
-            <View className="bg-white rounded-lg px-3 py-2 mr-2 mb-2 border border-gray-200">
-              <Text className="text-sm font-medium text-gray-700">React Native</Text>
-            </View>
-            <View className="bg-white rounded-lg px-3 py-2 mr-2 mb-2 border border-gray-200">
-              <Text className="text-sm font-medium text-gray-700">Expo SDK 53</Text>
-            </View>
-            <View className="bg-white rounded-lg px-3 py-2 mr-2 mb-2 border border-gray-200">
-              <Text className="text-sm font-medium text-gray-700">TypeScript</Text>
-            </View>
-            <View className="bg-white rounded-lg px-3 py-2 mr-2 mb-2 border border-gray-200">
-              <Text className="text-sm font-medium text-gray-700">Plaid API</Text>
-            </View>
-            <View className="bg-white rounded-lg px-3 py-2 mr-2 mb-2 border border-gray-200">
-              <Text className="text-sm font-medium text-gray-700">Zustand</Text>
-            </View>
-          </View>
-        </InfoSection>
 
-        {/* Contact Links */}
-        <InfoSection title="Get In Touch">
-          <View>
-            <Pressable
-              onPress={handleWebsitePress}
-              className="flex-row items-center p-3 bg-white rounded-lg border border-gray-200 mb-3"
-            >
-              <Ionicons name="globe-outline" size={20} color="#3B82F6" />
-              <Text className="ml-3 font-medium text-gray-900">Visit Our Website</Text>
-              <Ionicons name="chevron-forward" size={16} color="#9CA3AF" className="ml-auto" />
-            </Pressable>
-
-            <Pressable
-              onPress={handleSupportPress}
-              className="flex-row items-center p-3 bg-white rounded-lg border border-gray-200 mb-3"
-            >
-              <Ionicons name="mail-outline" size={20} color="#3B82F6" />
-              <Text className="ml-3 font-medium text-gray-900">Contact Support</Text>
-              <Ionicons name="chevron-forward" size={16} color="#9CA3AF" className="ml-auto" />
-            </Pressable>
-          </View>
-        </InfoSection>
 
         {/* Development Section - Shows after tapping version 7 times */}
         {devTapCount >= 7 && (
