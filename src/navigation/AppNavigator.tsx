@@ -160,6 +160,10 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="Chat" component={ChatScreen} />
           <Stack.Screen name="Dashboard" component={DashboardScreen} />
           
+          {/* Terms and Privacy screens - also available when authenticated */}
+          <Stack.Screen name="TermsAndConditions" component={TermsAndConditionsScreen} />
+          <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+          
           {/* Plaid Screens */}
           <Stack.Screen name="PlaidConnection" component={PlaidConnectionScreen} />
           <Stack.Screen name="Accounts" component={AccountsScreen} />
