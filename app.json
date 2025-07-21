@@ -30,8 +30,18 @@
         "NSCalendarsUsageDescription": "This app accesses your calendar to schedule bill payment reminders and financial planning events.",
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleAllowMixedLocalizations": true,
-        "CFBundleDevelopmentRegion": "en"
-      }
+        "CFBundleDevelopmentRegion": "en",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "checkmate"
+            ]
+          }
+        ]
+      },
+      "associatedDomains": [
+        "applinks:modernmillennial.github.io"
+      ]
     },
     "android": {
       "edgeToEdgeEnabled": true,
@@ -44,12 +54,32 @@
         "ACCESS_FINE_LOCATION",
         "INTERNET",
         "ACCESS_NETWORK_STATE"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "modernmillennial.github.io",
+              "pathPrefix": "/checkmate-plaid-redirect"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
       ]
     },
     "extra": {
       "eas": {
-        "projectId": "12345678-1234-1234-1234-123456789abc"
+        "projectId": "68e1fcfd-934d-488d-b106-b797c5729482"
       }
-    }
+    },
+    "plugins": [
+      "expo-linking"
+    ]
   }
 }

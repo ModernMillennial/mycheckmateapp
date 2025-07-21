@@ -104,7 +104,7 @@ EXPO_PUBLIC_PLAID_SECRET=your_production_plaid_secret
 
 ## Support
 
-For technical support or bug reports, contact: [your-support-email@company.com]
+For technical support or bug reports, contact: [support@mycheckmateapp.com]
 
 ## License
 

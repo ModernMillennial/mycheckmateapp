@@ -42,13 +42,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const [showCalculator, setShowCalculator] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
-
-
-
-  
   const activeAccount = getActiveAccount();
-
-
 
   const handleSyncBank = async () => {
     setIsLoading(true);
@@ -89,10 +83,6 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
-
-
-
-
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
@@ -100,13 +90,9 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
-
-
   const handleHelpAndSupport = () => {
     contactSupport();
   };
-
-
 
   const contactSupport = async () => {
     try {
@@ -158,8 +144,6 @@ ADDITIONAL DETAILS:
       );
     }
   };
-
-
 
   const SettingRow = ({ 
     title, 
@@ -264,10 +248,6 @@ ADDITIONAL DETAILS:
           </View>
         </View>
 
-
-
-
-
         {/* Register Settings Section */}
         <View className="mt-8">
           <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
@@ -291,6 +271,50 @@ ADDITIONAL DETAILS:
                 thumbColor="#FFFFFF"
               />
             </View>
+          </View>
+        </View>
+
+        {/* Security Section */}
+        <View className="mt-8">
+          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
+            Security
+          </Text>
+          
+          <View className="bg-white">
+            <SettingRow
+              title="Security Settings"
+              subtitle="Biometric authentication, session timeout, and more"
+              onPress={() => {
+                try {
+                  navigation.navigate('SecuritySettings');
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                }
+              }}
+              rightComponent={<Ionicons name="shield-checkmark-outline" size={20} color="#3B82F6" />}
+            />
+          </View>
+        </View>
+
+        {/* Accessibility Section */}
+        <View className="mt-8">
+          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 mb-3">
+            Accessibility
+          </Text>
+          
+          <View className="bg-white">
+            <SettingRow
+              title="Accessibility Settings"
+              subtitle="Text size, contrast, and screen reader support"
+              onPress={() => {
+                try {
+                  navigation.navigate('AccessibilitySettings');
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                }
+              }}
+              rightComponent={<Ionicons name="eye-outline" size={20} color="#3B82F6" />}
+            />
           </View>
         </View>
 
@@ -342,10 +366,21 @@ ADDITIONAL DETAILS:
               }}
               rightComponent={<Ionicons name="chatbubbles-outline" size={20} color="#9CA3AF" />}
             />
+            
+            <SettingRow
+              title="Performance Monitor"
+              subtitle="View app performance metrics and diagnostics"
+              onPress={() => {
+                try {
+                  navigation.navigate('PerformanceMonitor');
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                }
+              }}
+              rightComponent={<Ionicons name="speedometer-outline" size={20} color="#3B82F6" />}
+            />
           </View>
         </View>
-
-
 
         {/* App Information Section */}
         <View className="mt-8">
@@ -365,6 +400,19 @@ ADDITIONAL DETAILS:
                 }
               }}
               rightComponent={<Ionicons name="information-circle-outline" size={20} color="#9CA3AF" />}
+            />
+            
+            <SettingRow
+              title="Analytics & Privacy"
+              subtitle="Manage analytics and crash reporting settings"
+              onPress={() => {
+                try {
+                  navigation.navigate('AnalyticsSettings');
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                }
+              }}
+              rightComponent={<Ionicons name="analytics-outline" size={20} color="#3B82F6" />}
             />
             
             <SettingRow
@@ -479,7 +527,6 @@ ADDITIONAL DETAILS:
           </View>
         </View>
 
-
       </ScrollView>
 
       {/* Date Picker Modals */}
@@ -492,8 +539,6 @@ ADDITIONAL DETAILS:
         />
       )}
       
-
-
       {/* Initial Bank Sync Modal */}
       <InitialBankSyncScreen
         visible={showInitialSync}

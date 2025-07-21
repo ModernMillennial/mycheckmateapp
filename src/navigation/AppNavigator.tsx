@@ -9,6 +9,10 @@ import BudgetScreen from '../screens/BudgetScreen';
 import AddTransactionScreen from '../screens/AddTransactionScreen';
 import EditTransactionScreen from '../screens/EditTransactionScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import SecuritySettingsScreen from '../screens/SecuritySettingsScreen';
+import AccessibilitySettingsScreen from '../screens/AccessibilitySettingsScreen';
+import PerformanceMonitorScreen from '../screens/PerformanceMonitorScreen';
+import AnalyticsSettingsScreen from '../screens/AnalyticsSettingsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
 import ChatScreen from '../screens/ChatScreen';
@@ -16,6 +20,7 @@ import CalendarScreen from '../screens/CalendarScreen';
 import AddEventScreen from '../screens/AddEventScreen';
 
 import BankConnectionScreen from '../screens/BankConnectionScreen';
+import BankConnectedScreen from '../screens/BankConnectedScreen';
 import StartingBalanceSelectionScreen from '../screens/StartingBalanceSelectionScreen';
 import ManualStartingBalanceScreen from '../screens/ManualStartingBalanceScreen';
 import PlaidConnectionScreen from '../screens/PlaidConnectionScreen';
@@ -53,6 +58,10 @@ export type RootStackParamList = {
   AddTransaction: undefined;
   EditTransaction: { transaction: Transaction };
   Settings: undefined;
+  SecuritySettings: undefined;
+  AccessibilitySettings: undefined;
+  PerformanceMonitor: undefined;
+  AnalyticsSettings: undefined;
   Reports: undefined;
   NotificationSettings: undefined;
   About: undefined;
@@ -61,6 +70,12 @@ export type RootStackParamList = {
   AddEvent: undefined;
 
   BankConnection: undefined;
+  BankConnected: { 
+    success?: boolean; 
+    demo?: boolean; 
+    accessToken?: string; 
+    publicToken?: string;
+  };
   StartingBalanceSelection: {
     accessToken: string;
     accountData: any;
@@ -154,9 +169,14 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
           <Stack.Screen name="EditTransaction" component={EditTransactionScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="SecuritySettings" component={SecuritySettingsScreen} />
+          <Stack.Screen name="AccessibilitySettings" component={AccessibilitySettingsScreen} />
+          <Stack.Screen name="PerformanceMonitor" component={PerformanceMonitorScreen} />
+          <Stack.Screen name="AnalyticsSettings" component={AnalyticsSettingsScreen} />
           <Stack.Screen name="Reports" component={ReportsScreen} />
           <Stack.Screen name="Budget" component={BudgetScreen} />
           <Stack.Screen name="BankConnection" component={BankConnectionScreen} />
+          <Stack.Screen name="BankConnected" component={BankConnectedScreen} />
           <Stack.Screen name="StartingBalanceSelection" component={StartingBalanceSelectionScreen} />
           <Stack.Screen name="ManualStartingBalance" component={ManualStartingBalanceScreen} />
           <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />

@@ -1,16 +1,24 @@
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
-import { View, Text, Image } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { View, Text, Image, Alert } from "react-native";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { setupNotificationListeners } from "./src/utils/notifications";
+import * as Linking from 'expo-linking';
+import { plaidService } from "./src/services/plaidService";
+import NetworkStatusBar from "./src/components/NetworkStatusBar";
+import errorHandler from "./src/utils/errorHandler";
+import analytics from "./src/utils/analytics";
+import crashReporting from "./src/utils/crashReporting";
 // Authentication temporarily disabled for development
 // import { AuthProvider } from "./src/context/AuthContext";
 // import AuthWrapper from "./src/components/AuthWrapper";
 
 interface ErrorBoundaryState {
   hasError: boolean;
+  error?: Error;
+  errorInfo?: React.ErrorInfo;
 }
 
 interface ErrorBoundaryProps {
@@ -24,11 +32,24 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   static getDerivedStateFromError(error: Error) {
-    return { hasError: true };
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Error logging could be sent to crash reporting service here
+    console.error("Uncaught error:", error, errorInfo);
+    this.setState({ errorInfo });
+    
+    // Use our error handler to process the error
+    errorHandler.handleError(error, true);
+    
+    // Report to crash reporting service
+    if (crashReporting) {
+      crashReporting.reportError(error, { 
+        source: 'ErrorBoundary',
+        componentStack: errorInfo.componentStack
+      });
+    }
   }
 
   render() {
@@ -54,90 +75,6 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 }
 
-/*
-IMPORTANT NOTICE: DO NOT REMOVE
-There are already environment keys in the project. 
-Before telling the user to add them, check if you already have access to the required keys through bash.
-Directly access them with process.env.${key}
-
-Correct usage:
-process.env.EXPO_PUBLIC_VIBECODE_{key}
-//directly access the key
-
-Incorrect usage:
-import { OPENAI_API_KEY } from '@env';
-//don't use @env, its depreicated
-
-Incorrect usage:
-import Constants from 'expo-constants';
-const openai_api_key = Constants.expoConfig.extra.apikey;
-//don't use expo-constants, its depreicated
-
-*/
-
 export default function App() {
   const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    // Setup notification listeners
-    let unsubscribe: (() => void) | undefined;
-    
-    try {
-      unsubscribe = setupNotificationListeners();
-    } catch (error) {
-      unsubscribe = () => {}; // Empty cleanup function on error
-    }
-    
-    // Initialize the app
-    const initializeApp = async () => {
-      try {
-        // Add a delay to ensure stores are hydrated from AsyncStorage
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        setIsReady(true);
-      } catch (error) {
-        setIsReady(true); // Continue anyway
-      }
-    };
-    
-    // Fallback timeout to ensure app doesn't get stuck loading
-    const fallbackTimeout = setTimeout(() => {
-      setIsReady(true);
-    }, 5000);
-    
-    initializeApp();
-    
-    return () => {
-      if (typeof unsubscribe === 'function') {
-        unsubscribe();
-      }
-      clearTimeout(fallbackTimeout);
-    };
-  }, []);
-
-  if (!isReady) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-        <View style={{ width: 80, height: 80, borderRadius: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-          <Image
-            source={require('./assets/new-logo.png')}
-            style={{ width: 72, height: 72 }}
-            resizeMode="contain"
-          />
-        </View>
-        <Text style={{ fontSize: 16, color: '#6B7280' }}>Loading...</Text>
-      </View>
-    );
-  }
-
-  return (
-    <ErrorBoundary>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <AppNavigator />
-          <StatusBar style="auto" />
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </ErrorBoundary>
-  );
-}
+  const
