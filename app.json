@@ -1,77 +1,44 @@
 {
   "expo": {
     "name": "Checkmate",
-    "slug": "checkmate",
-    "scheme": "checkmate",
+    "slug": "mycheckmateapp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "platforms": ["ios", "android"],
     "icon": "./assets/icon.png",
-    "privacy": "public",
-    "primaryColor": "#007AFF",
-
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mycheckmateapp.checkmate",
-      "buildNumber": "1",
-      "requireFullScreen": false,
-      "bitcode": false,
-      "config": {
-        "usesNonExemptEncryption": false
-      },
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to scan receipts and documents for transaction entry.",
         "NSContactsUsageDescription": "This app accesses your contacts to help you split bills and share expenses with friends.",
-        "NSMicrophoneUsageDescription": "This app uses the microphone for voice memos and transaction notes.",
-        "NSUserTrackingUsageDescription": "This app uses tracking to provide personalized financial insights and improve your experience.",
         "NSLocationWhenInUseUsageDescription": "This app uses location to help categorize transactions based on nearby merchants.",
-        "NSCalendarsUsageDescription": "This app accesses your calendar to schedule bill payment reminders and financial planning events.",
+        "NSCalendarsUsageDescription": "This app needs access to your calendar to schedule bill payment reminders.",
+        "NSRemindersUsageDescription": "This app needs access to your reminders to create bill payment reminders.",
         "ITSAppUsesNonExemptEncryption": false,
-        "CFBundleAllowMixedLocalizations": true,
-        "CFBundleDevelopmentRegion": "en",
-        "CFBundleURLTypes": [
-          {
-            "CFBundleURLSchemes": [
-              "checkmate"
-            ]
-          }
-        ]
-      },
-      "associatedDomains": [
-        "applinks:modernmillennial.github.io"
-      ]
+        "UIBackgroundModes": ["fetch", "remote-notification"],
+        "MinimumOSVersion": "13.0",
+        "NSUserNotificationUsageDescription": "This app uses notifications to keep you informed.",
+        "NSPushNotificationsUsageDescription": "This app uses push notifications to keep you informed."
+      }
     },
     "android": {
-      "edgeToEdgeEnabled": true,
       "package": "com.mycheckmateapp.checkmate",
-      "versionCode": 1,
       "permissions": [
-        "CAMERA",
-        "RECORD_AUDIO", 
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION",
-        "INTERNET",
-        "ACCESS_NETWORK_STATE"
-      ],
-      "intentFilters": [
-        {
-          "action": "VIEW",
-          "autoVerify": true,
-          "data": [
-            {
-              "scheme": "https",
-              "host": "modernmillennial.github.io",
-              "pathPrefix": "/checkmate-plaid-redirect"
-            }
-          ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
-        }
+        "READ_CALENDAR",
+        "WRITE_CALENDAR"
       ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
@@ -79,7 +46,8 @@
       }
     },
     "plugins": [
-      "expo-linking"
+      "expo-video",
+      "expo-web-browser"
     ]
   }
 }

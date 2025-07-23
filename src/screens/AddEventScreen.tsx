@@ -6,6 +6,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 import { useCalendarStore } from '../state/calendarStore';
 import { cn } from '../utils/cn';
+import * as Calendar from 'expo-calendar';
 
 interface AddEventScreenProps {
   navigation: any;
@@ -30,7 +31,7 @@ const AddEventScreen: React.FC<AddEventScreenProps> = ({ navigation }) => {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim()) {
       Alert.alert('Error', 'Please enter an event title');
       return;
@@ -41,15 +42,35 @@ const AddEventScreen: React.FC<AddEventScreenProps> = ({ navigation }) => {
       return;
     }
 
-    addEvent({
+    // Request permissions and get default calendar
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'Calendar permission is required to add events.');
+      return;
+    }
+    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+    let defaultCalendar = calendars.find(cal => cal.allowsModifications);
+    let calendarId = defaultCalendar?.id;
+    if (!calendarId) {
+      calendarId = await Calendar.createCalendarAsync({
+        title: 'Checkmate Events',
+        color: selectedColor,
+        entityType: Calendar.EntityTypes.EVENT,
+        sourceId: calendars[0]?.source?.id,
+        source: calendars[0]?.source,
+        ownerAccount: calendars[0]?.source?.name,
+        accessLevel: Calendar.CalendarAccessLevel.OWNER,
+      });
+    }
+
+    await Calendar.createEventAsync(calendarId, {
       title: title.trim(),
-      description: description.trim(),
+      notes: description.trim(),
       location: location.trim(),
       startDate,
       endDate,
       allDay,
-      reminder,
-      reminderMinutes: reminder ? 15 : undefined,
+      alarms: reminder ? [{ relativeOffset: -15 }] : undefined,
       color: selectedColor,
     });
 

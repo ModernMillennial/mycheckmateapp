@@ -10,14 +10,46 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../state/authStore';
 import { TransparentLogo } from '../components/TransparentLogo';
 import { Image } from 'react-native';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 interface Props {
   navigation: any;
 }
 
 const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, biometricEnabled, loginWithBiometrics } = useAuthStore();
+  const [biometricAvailable, setBiometricAvailable] = React.useState(false);
+  const [biometricError, setBiometricError] = React.useState('');
 
+  React.useEffect(() => {
+    (async () => {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const supportedTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      setBiometricAvailable(hasHardware && enrolled && supportedTypes.length > 0);
+    })();
+  }, []);
+
+  const handleBiometricLogin = async () => {
+    setBiometricError('');
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Sign in with Face ID / Touch ID',
+        fallbackLabel: 'Enter Passcode',
+      });
+      if (result.success) {
+        // Call your store's biometric login method
+        const success = await loginWithBiometrics();
+        if (!success) {
+          setBiometricError('Biometric login failed. Please try again or use your password.');
+        }
+      } else {
+        setBiometricError('Biometric authentication was cancelled or failed.');
+      }
+    } catch (e) {
+      setBiometricError('Biometric authentication error.');
+    }
+  };
 
 
   return (
@@ -88,7 +120,19 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
                   </Text>
                 </Pressable>
 
-
+                {biometricAvailable && (
+                  <Pressable
+                    onPress={handleBiometricLogin}
+                    className="border border-green-500 rounded-lg py-4 items-center justify-center mb-3"
+                  >
+                    <Text className="text-green-500 text-base font-semibold">
+                      Sign in with Face ID / Touch ID
+                    </Text>
+                  </Pressable>
+                )}
+                {biometricError ? (
+                  <Text className="text-red-500 text-sm text-center mb-2">{biometricError}</Text>
+                ) : null}
               </>
             )}
           </View>

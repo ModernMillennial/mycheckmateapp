@@ -17,6 +17,8 @@ export interface AuthState {
   rememberMe: boolean;
   rememberedCredentials: { email: string; password: string } | null;
   _hasHydrated: boolean;
+  biometricEnabled: boolean;
+  loginWithBiometrics: () => Promise<boolean>;
   
   // Actions
   login: (email: string, password: string, rememberMe?: boolean) => Promise<boolean>;
@@ -84,6 +86,14 @@ export const useAuthStore = create<AuthState>()(
       rememberMe: false,
       rememberedCredentials: null,
       _hasHydrated: false,
+      biometricEnabled: false,
+      loginWithBiometrics: async () => {
+        const { rememberedCredentials, login } = get();
+        if (rememberedCredentials && rememberedCredentials.email && rememberedCredentials.password) {
+          return await login(rememberedCredentials.email, rememberedCredentials.password, true);
+        }
+        return false;
+      },
       
       login: async (email: string, password: string, rememberMe = false) => {
         console.log('Login attempt started for:', email);
@@ -213,6 +223,8 @@ export const useAuthStore = create<AuthState>()(
         console.log('Auth store hydration complete');
         if (state) {
           state.setHasHydrated(true);
+          // Set biometricEnabled if remembered credentials exist
+          state.biometricEnabled = !!(state.rememberedCredentials && state.rememberedCredentials.email && state.rememberedCredentials.password);
         } else {
           console.warn('Auth store state is null during hydration');
         }

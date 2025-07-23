@@ -6,6 +6,8 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday
 import { useCalendarStore } from '../state/calendarStore';
 import { CalendarEvent } from '../types/calendar';
 import { cn } from '../utils/cn';
+import * as Calendar from 'expo-calendar';
+import { useEffect } from 'react';
 
 interface CalendarScreenProps {
   navigation: any;
@@ -22,6 +24,38 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
   } = useCalendarStore();
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [deviceEvents, setDeviceEvents] = useState<Calendar.CalendarEvent[]>([]);
+  const [calendarId, setCalendarId] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      if (status === 'granted') {
+        const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+        let defaultCalendar = calendars.find(cal => cal.allowsModifications);
+        if (!defaultCalendar) {
+          // Create a new calendar if none are modifiable
+          const newCalendarId = await Calendar.createCalendarAsync({
+            title: 'Checkmate Events',
+            color: '#3B82F6',
+            entityType: Calendar.EntityTypes.EVENT,
+            sourceId: calendars[0]?.source?.id,
+            source: calendars[0]?.source,
+            ownerAccount: calendars[0]?.source?.name,
+            accessLevel: Calendar.CalendarAccessLevel.OWNER,
+          });
+          setCalendarId(newCalendarId);
+        } else {
+          setCalendarId(defaultCalendar.id);
+        }
+        // Fetch events for the current month
+        const start = startOfMonth(currentMonth);
+        const end = endOfMonth(currentMonth);
+        const events = await Calendar.getEventsAsync([defaultCalendar?.id || calendarId], start, end);
+        setDeviceEvents(events);
+      }
+    })();
+  }, [currentMonth]);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -35,7 +69,13 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
     setSelectedDate(date);
   };
 
-  const selectedEvents = getEventsForDate(selectedDate);
+  const selectedEvents = deviceEvents.filter(event => {
+    const eventStart = new Date(event.startDate);
+    const eventEnd = new Date(event.endDate);
+    const targetDate = new Date(selectedDate);
+    targetDate.setHours(0, 0, 0, 0);
+    return targetDate >= eventStart && targetDate <= eventEnd;
+  });
 
   const renderCalendarDay = (day: Date) => {
     const dayEvents = getEventsForDate(day);

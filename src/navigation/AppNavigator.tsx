@@ -29,7 +29,6 @@ import TransactionsScreen from '../screens/TransactionsScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
-import SplashScreen from '../screens/SplashScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import TermsAndConditionsScreen from '../screens/TermsAndConditionsScreen';
@@ -39,8 +38,6 @@ import AboutScreen from '../screens/AboutScreen';
 import { Transaction } from '../types';
 
 export type RootStackParamList = {
-  // Splash screen
-  Splash: undefined;
   // Auth screens
   Login: undefined;
   Signup: undefined;
