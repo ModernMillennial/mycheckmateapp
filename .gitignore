@@ -36,3 +36,5 @@ yarn-error.*
 # iOS & Android
 ios/
 android/
+.env
+.env.save
